@@ -1,9 +1,16 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
+
+const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+
+mongoose.connect(uri)
+  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
+  .catch(err => console.error("❌ Error al conectar:", err));
 
 const SECRET_KEY = 'mi-clave-secreta-super-segura-2024';
 
@@ -267,9 +274,9 @@ app.get('/api/centros', (req, res) => {
 app.get('/api/centros/:id', (req, res) => {
   const centros = leerJSON('centros.json');
   const centro = centros.find(c => c.id_centro === Number(req.params.id));
-  
+
   if (!centro) return res.status(404).json({ error: "Centro no encontrado" });
-  
+
   res.json(centro);
 });
 
@@ -321,20 +328,20 @@ app.put('/api/centros/:id', (req, res) => {
 app.delete('/api/centros/:id', (req, res) => {
   try {
     const id = Number(req.params.id);
-    
+
     // Verificar si hay profesionales asignados a este centro
     const profesionales = leerJSON('profesionales.json');
     const tieneProfesionales = profesionales.some(p => p.id_centro === id);
 
     if (tieneProfesionales) {
-      return res.status(400).json({ 
-        error: "No se puede eliminar el centro porque tiene profesionales asignados" 
+      return res.status(400).json({
+        error: "No se puede eliminar el centro porque tiene profesionales asignados"
       });
     }
 
     const centros = leerJSON('centros.json');
     const nuevos = centros.filter(c => c.id_centro !== id);
-    
+
     if (centros.length === nuevos.length) {
       return res.status(404).json({ error: "Centro no encontrado" });
     }
@@ -353,9 +360,9 @@ app.get('/api/horarios', (req, res) => {
 app.get('/api/horarios/:id', (req, res) => {
   const horarios = leerJSON('horarios.json');
   const horario = horarios.find(h => h.id_horario === Number(req.params.id));
-  
+
   if (!horario) return res.status(404).json({ error: "Horario no encontrado" });
-  
+
   res.json(horario);
 });
 
@@ -375,17 +382,17 @@ app.post('/api/horarios', (req, res) => {
     // Validar que el horario esté dentro de la jornada del centro
     const profesionales = leerJSON('profesionales.json');
     const profesional = profesionales.find(p => p.id_profesional === Number(id_profesional));
-    
+
     console.log('Buscando profesional con ID:', id_profesional, 'Tipo:', typeof id_profesional);
     console.log('Profesional encontrado:', profesional);
-    
+
     if (!profesional) {
       return res.status(404).json({ error: "Profesional no encontrado" });
     }
 
     const centros = leerJSON('centros.json');
     const centro = centros.find(c => c.id_centro === profesional.id_centro);
-    
+
     if (!centro) {
       return res.status(404).json({ error: "Centro no encontrado" });
     }
@@ -394,8 +401,8 @@ app.post('/api/horarios', (req, res) => {
 
     if (hora_inicio < centro.horario_apertura || hora_fin > centro.horario_cierre) {
       console.log('ERROR: Horario fuera de la jornada del centro');
-      return res.status(400).json({ 
-        error: `El horario debe estar dentro de la jornada del centro (${centro.horario_apertura} - ${centro.horario_cierre})` 
+      return res.status(400).json({
+        error: `El horario debe estar dentro de la jornada del centro (${centro.horario_apertura} - ${centro.horario_cierre})`
       });
     }
 
@@ -403,11 +410,11 @@ app.post('/api/horarios', (req, res) => {
 
     // Validar solapamiento con otros horarios del mismo profesional
     const horariosDelProfesional = horarios.filter(h => h.id_profesional === Number(id_profesional));
-    
+
     for (const horarioExistente of horariosDelProfesional) {
       // Verificar si hay días en común
       const diasEnComun = dias.filter(dia => horarioExistente.dias.includes(dia));
-      
+
       if (diasEnComun.length > 0) {
         // Verificar solapamiento de horas
         const inicioNuevo = hora_inicio;
@@ -416,8 +423,8 @@ app.post('/api/horarios', (req, res) => {
         const finExistente = horarioExistente.hora_fin;
 
         if (!(finNuevo <= inicioExistente || inicioNuevo >= finExistente)) {
-          return res.status(400).json({ 
-            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}` 
+          return res.status(400).json({
+            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}`
           });
         }
       }
@@ -462,17 +469,17 @@ app.put('/api/horarios/:id', (req, res) => {
 
     // Validar que el horario esté dentro de la jornada del centro
     const idProfesional = id_profesional !== undefined ? id_profesional : horarioActual.id_profesional;
-    
+
     const profesionales = leerJSON('profesionales.json');
     const profesional = profesionales.find(p => p.id_profesional === idProfesional);
-    
+
     if (!profesional) {
       return res.status(404).json({ error: "Profesional no encontrado" });
     }
 
     const centros = leerJSON('centros.json');
     const centro = centros.find(c => c.id_centro === profesional.id_centro);
-    
+
     if (!centro) {
       return res.status(404).json({ error: "Centro no encontrado" });
     }
@@ -481,38 +488,38 @@ app.put('/api/horarios/:id', (req, res) => {
 
     if (horaInicio < centro.horario_apertura || horaFin > centro.horario_cierre) {
       console.log('ERROR: Horario fuera de la jornada del centro');
-      return res.status(400).json({ 
-        error: `El horario debe estar dentro de la jornada del centro (${centro.horario_apertura} - ${centro.horario_cierre})` 
+      return res.status(400).json({
+        error: `El horario debe estar dentro de la jornada del centro (${centro.horario_apertura} - ${centro.horario_cierre})`
       });
     }
 
     // Validar solapamiento con otros horarios del mismo profesional (excluyendo el actual)
     const diasNuevos = dias || horarioActual.dias;
-    
-    const horariosDelProfesional = horarios.filter(h => 
+
+    const horariosDelProfesional = horarios.filter(h =>
       h.id_profesional === idProfesional && h.id_horario !== id
     );
-    
+
     for (const horarioExistente of horariosDelProfesional) {
       const diasEnComun = diasNuevos.filter(dia => horarioExistente.dias.includes(dia));
-      
+
       if (diasEnComun.length > 0) {
         const inicioExistente = horarioExistente.hora_inicio;
         const finExistente = horarioExistente.hora_fin;
 
         if (!(horaFin <= inicioExistente || horaInicio >= finExistente)) {
-          return res.status(400).json({ 
-            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}` 
+          return res.status(400).json({
+            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}`
           });
         }
       }
     }
 
     // Actualizar el horario con el nuevo campo fechas_festivas
-    const horarioActualizado = { 
-      ...horarioActual, 
-      ...req.body, 
-      id_horario: id 
+    const horarioActualizado = {
+      ...horarioActual,
+      ...req.body,
+      id_horario: id
     };
 
     // Si fechas_festivas viene en el request, usarlas directamente
@@ -534,7 +541,7 @@ app.delete('/api/horarios/:id', (req, res) => {
   const id = Number(req.params.id);
 
   const nuevos = horarios.filter(h => h.id_horario !== id);
-  
+
   if (nuevos.length === horarios.length) {
     return res.status(404).json({ error: "Horario no encontrado" });
   }
@@ -576,7 +583,7 @@ app.post('/api/profesionales', (req, res) => {
     // Verificar que el usuario existe y tiene rol profesional
     const usuarios = leerJSON('usuarios.json');
     const usuario = usuarios.find(u => u.id_usuario === id_usuario);
-    
+
     if (!usuario) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
@@ -592,8 +599,8 @@ app.post('/api/profesionales', (req, res) => {
     }
 
     // Generar nuevo ID
-    const nuevoId = profesionales.length > 0 
-      ? Math.max(...profesionales.map(p => p.id_profesional)) + 1 
+    const nuevoId = profesionales.length > 0
+      ? Math.max(...profesionales.map(p => p.id_profesional)) + 1
       : 1;
 
     const nuevoProfesional = {
@@ -666,9 +673,9 @@ app.put('/api/usuarios/:id', (req, res) => {
     if (estado !== undefined) usuarios[index].estado = estado;
 
     escribirJSON('usuarios.json', usuarios);
-    res.json({ 
-      mensaje: "Usuario actualizado exitosamente", 
-      usuario: usuarioSinPassword(usuarios[index]) 
+    res.json({
+      mensaje: "Usuario actualizado exitosamente",
+      usuario: usuarioSinPassword(usuarios[index])
     });
   } catch (error) {
     res.status(500).json({ error: "Error al actualizar usuario" });
@@ -686,7 +693,7 @@ app.delete('/api/usuarios/:id', (req, res) => {
     // 1. Leer y buscar el usuario
     let usuarios = leerJSON('usuarios.json');
     const usuario = usuarios.find(u => Number(u.id_usuario) === Number(id));
-    
+
     if (!usuario) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
@@ -704,14 +711,14 @@ app.delete('/api/usuarios/:id', (req, res) => {
     // 2. BORRADO EN CASCADA si es profesional
     if (usuario.rol === 'profesional') {
       console.log('🔍 Es profesional, buscando registro en profesionales...');
-      
+
       let profesionales = leerJSON('profesionales.json');
       const profesional = profesionales.find(p => Number(p.id_usuario) === Number(id));
-      
+
       if (profesional) {
         const idProfesional = Number(profesional.id_profesional);
         console.log(`✓ Profesional encontrado con ID: ${idProfesional}`);
-        
+
         // 2.1 Eliminar HORARIOS
         try {
           let horarios = leerJSON('horarios.json');
@@ -726,7 +733,7 @@ app.delete('/api/usuarios/:id', (req, res) => {
         } catch (e) {
           console.error('Error eliminando horarios:', e.message);
         }
-        
+
         // 2.2 Eliminar RELACIONES profesional-servicio
         try {
           let profesionalServicio = leerJSON('profesional_servicio.json');
@@ -741,7 +748,7 @@ app.delete('/api/usuarios/:id', (req, res) => {
         } catch (e) {
           console.error('Error eliminando relaciones:', e.message);
         }
-        
+
         // 2.3 Eliminar PROFESIONAL
         try {
           profesionales = profesionales.filter(p => Number(p.id_profesional) !== idProfesional);
@@ -792,7 +799,7 @@ app.post('/api/citas/marcar-realizada', (req, res) => {
 
     const usuarios = leerJSON('usuarios.json');
     const index = usuarios.findIndex(u => u.id_usuario === id_usuario);
-    
+
     if (index === -1) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
@@ -808,7 +815,7 @@ app.post('/api/citas/marcar-realizada', (req, res) => {
     usuarios[index].puntos = puntosNuevos;
     escribirJSON('usuarios.json', usuarios);
 
-    res.json({ 
+    res.json({
       mensaje: "Cita marcada como realizada y puntos sumados",
       puntosSumados: 10,
       puntosActuales: puntosNuevos,
@@ -837,7 +844,7 @@ app.get('/api/usuarios/:id/puntos', (req, res) => {
     const puntos = usuario.puntos || 0;
     const nivel = obtenerNivel(puntos);
 
-    res.json({ 
+    res.json({
       puntos,
       nivel
     });
