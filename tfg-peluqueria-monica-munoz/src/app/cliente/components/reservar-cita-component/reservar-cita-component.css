@@ -1,0 +1,462 @@
+/* SECCIÓN */
+.reservar-section {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+  padding: 2rem 0;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.section-header {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.section-header h2 {
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+.section-header h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #ff69b4, transparent);
+}
+
+.section-header p {
+  color: #999;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+/* FORMULARIO */
+.reservar-form {
+  max-width: 700px;
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 15px 50px rgba(255, 105, 180, 0.18), 0 0 0 1px rgba(255, 105, 180, 0.08);
+  transition: all 0.3s ease;
+}
+
+.reservar-form:hover {
+  box-shadow: 0 25px 70px rgba(255, 105, 180, 0.25), 0 0 0 1px rgba(255, 105, 180, 0.12);
+}
+
+/* LABELS */
+.form-label {
+  color: #333;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.7rem;
+  display: block;
+}
+
+/* INPUTS Y SELECTS */
+.form-control-custom,
+.form-select.form-control-custom {
+  border: 2px solid #ff89c4;
+  border-radius: 0.8rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: #333;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.form-control-custom:focus,
+.form-select.form-control-custom:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.1);
+  background-color: #fff;
+}
+
+.form-control-custom::placeholder {
+  color: #999;
+}
+
+.form-select.form-control-custom option {
+  color: #333;
+}
+
+/* CALENDARIO */
+/* Navegación entre meses */
+.month-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff89c4 100%);
+  border-radius: 0.8rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+}
+
+.current-month {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+
+.btn-month {
+  background: white;
+  color: #ff69b4;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-month:hover:not(:disabled) {
+  background: #fff5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 105, 180, 0.4);
+}
+
+.btn-month:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-month:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f0f0f0;
+  color: #999;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255, 105, 180, 0.15);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.4rem;
+  border: 2px solid;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dia-disponible-box {
+  background: linear-gradient(135deg, #90ee90, #76d776);
+  border-color: #5cc965;
+}
+
+.dia-festivo-box {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border-color: #f4c430;
+  color: #ff8c00;
+  font-size: 0.7rem;
+}
+
+.dia-no-disponible-box {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+
+.legend-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 50px);
+  gap: 8px;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 105, 180, 0.15);
+}
+
+.dia-header {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+  color: #ff69b4;
+  text-transform: uppercase;
+}
+
+.dia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #e0e0e0;
+  cursor: pointer;
+  border-radius: 0.6rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.dia-disponible {
+  background: linear-gradient(135deg, #90ee90, #76d776);
+  border-color: #5cc965;
+  color: #2d5a2d;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(90, 201, 101, 0.2);
+}
+
+.dia-disponible:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 201, 101, 0.3);
+  background: linear-gradient(135deg, #a0f0a0, #86e086);
+}
+
+.dia-festivo {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  border-color: #f4c430;
+  color: #8b6914;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  animation: pulse-festivo 2s ease-in-out infinite;
+}
+
+.dia-festivo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #ffe44d, #fff176);
+}
+
+@keyframes pulse-festivo {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 15px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.festivo-icon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.6rem;
+  color: #ff8c00;
+  animation: rotate-star 3s linear infinite;
+}
+
+@keyframes rotate-star {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.dia-no-disponible {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.hueco-dia {
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
+/* BOTÓN RESERVAR */
+.btn-reservar {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  color: white;
+  border: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+}
+
+.btn-reservar::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%);
+  transition: left 0.5s ease;
+}
+
+.btn-reservar:hover {
+  background: linear-gradient(135deg, #d1558f, #e63fa5);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 105, 180, 0.4);
+}
+
+.btn-reservar:hover::before {
+  left: 100%;
+}
+
+.btn-reservar:active {
+  transform: translateY(0);
+}
+
+/* MENSAJE DE CONFIRMACIÓN */
+.alert-success {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  border: 2px solid #28a745;
+  border-radius: 1rem;
+  color: #155724;
+  font-weight: 500;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+  .section-header h2 {
+    font-size: 2rem;
+  }
+
+  .section-header p {
+    font-size: 1rem;
+  }
+
+  .reservar-form {
+    padding: 2rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, 45px);
+    gap: 6px;
+    padding: 1.2rem;
+  }
+
+  .dia {
+    width: 45px;
+    height: 45px;
+    font-size: 0.85rem;
+  }
+
+  .dia-header {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .reservar-form {
+    padding: 1.5rem;
+    border-radius: 1.2rem;
+  }
+
+  .form-label {
+    font-size: 0.95rem;
+  }
+
+  .form-control-custom,
+  .form-select.form-control-custom {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, 38px);
+    gap: 4px;
+    padding: 1rem;
+  }
+
+  .dia {
+    width: 38px;
+    height: 38px;
+    font-size: 0.75rem;
+  }
+
+  .btn-reservar {
+    padding: 0.6rem 2rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .section-header p {
+    font-size: 0.95rem;
+  }
+
+  .reservar-form {
+    padding: 1.2rem;
+    border-radius: 1rem;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .form-control-custom,
+  .form-select.form-control-custom {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(7, 32px);
+    gap: 3px;
+    padding: 0.8rem;
+  }
+
+  .dia {
+    width: 32px;
+    height: 32px;
+    font-size: 0.7rem;
+  }
+
+  .dia-header {
+    font-size: 0.7rem;
+  }
+
+  .btn-reservar {
+    width: 100%;
+    padding: 0.55rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .reservar-form {
+    margin-bottom: 2rem;
+  }
+}

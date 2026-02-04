@@ -1,0 +1,155 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-black py-4 navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold text-white brand-animated"
+      [routerLink]="usuariosService.getUsuarioLogueado()?.rol === 'administrador' ? '/admin/dashboard' : '/'">
+      HairGest
+    </a>
+
+
+    <button class="navbar-toggler toggler-animated" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+
+        @if(usuariosService.getUsuarioLogueado()?.rol === 'administrador'){
+          <!-- Rutas principales -->
+          @for(rutaAdmin of rutasAdminPrincipales; track $index){
+            <li class="nav-item mx-2 nav-item-animated">
+              <a class="nav-link py-2 px-4" [routerLink]="rutaAdmin.ruta">
+                {{ rutaAdmin.nombre }}
+              </a>
+            </li>
+          }
+          
+          <!-- Dropdown de Gestión -->
+          <li class="nav-item dropdown mx-2 nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              Gestión
+            </a>
+            <ul class="dropdown-menu dropdown-custom">
+              @for(rutaGestion of rutasAdminGestion; track $index){
+                <li>
+                  <a class="dropdown-item dropdown-item-custom" [routerLink]="rutaGestion.ruta">
+                    {{ rutaGestion.nombre }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </li>
+
+          <!-- Dropdown de Usuario -->
+          <li class="nav-item dropdown nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              <i class="bi bi-person-circle user-icon"></i> {{ usuariosService.getUsuarioLogueado()?.nombre }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-custom">
+              <li>
+                <a class="dropdown-item dropdown-item-custom" (click)="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
+            <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/admin/notificaciones'" style="color: #fff; font-size: 1.3rem;">
+              <i class="bi bi-bell bell-icon"></i>
+              @if(notificacionesService.hayNotificacionesSinLeer()){
+                <span class="badge-roja"></span>
+              }
+            </a>
+          </li>
+        }
+
+        @if(usuariosService.getUsuarioLogueado()?.rol === 'profesional'){
+          @for(rutaProfesional of rutasProfesionalNavbar; track $index){
+            <li class="nav-item mx-2 nav-item-animated">
+              <a class="nav-link py-2 px-4" [routerLink]="rutaProfesional.ruta">
+                {{ rutaProfesional.nombre }}
+              </a>
+            </li>
+          }
+          <li class="nav-item dropdown nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              <i class="bi bi-person-circle user-icon"></i> {{ usuariosService.getUsuarioLogueado()?.nombre }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-custom">
+              <li>
+                <a class="dropdown-item dropdown-item-custom" (click)="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
+            <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/profesional/notificaciones'" style="color: #fff; font-size: 1.3rem;">
+              <i class="bi bi-bell bell-icon"></i>
+              @if(notificacionesService.hayNotificacionesSinLeer()){
+                <span class="badge-roja"></span>
+              }
+            </a>
+          </li>
+        }
+
+  
+        @if(usuariosService.comprobarLogueado() && usuariosService.getUsuarioLogueado()?.rol === 'cliente'){
+          @for(nombreMenu of rutasNavbar; track $index){
+            <li class="nav-item mx-2 nav-item-animated">
+              <a class="nav-link py-2 px-4" [routerLink]="nombreMenu.ruta">
+                {{ nombreMenu.nombre }}
+              </a>
+            </li>
+          }
+
+
+          <li class="nav-item dropdown nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              <i class="bi bi-person-circle user-icon"></i> {{ usuariosService.getUsuarioLogueado()?.nombre }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-custom">
+              <li>
+                <a class="dropdown-item dropdown-item-custom" [routerLink]="'/cuenta-cliente'"><i class="bi bi-person-gear"></i> Mi Cuenta</a>
+              </li>
+              <li>
+                <a class="dropdown-item dropdown-item-custom" (click)="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+              </li>
+            </ul>
+          </li>
+
+
+          <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
+            <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/notificaciones'" style="color: #fff; font-size: 1.3rem;">
+              <i class="bi bi-bell bell-icon"></i>
+              @if(notificacionesService.hayNotificacionesSinLeer()){
+                <span class="badge-roja"></span>
+              }
+            </a>
+          </li>
+        }
+
+
+        @if(!usuariosService.comprobarLogueado()){
+          @for(nombreMenu of rutasNavbar; track $index){
+            <li class="nav-item mx-2 nav-item-animated">
+              <a class="nav-link py-2 px-4" [routerLink]="nombreMenu.ruta">
+                {{ nombreMenu.nombre }}
+              </a>
+            </li>
+          }
+
+          @for(rutaAnonimo of rutasSinUsuario; track $index){
+            <li class="nav-item mx-2 nav-item-animated">
+              <a class="nav-link py-2 px-4" [routerLink]="rutaAnonimo.ruta" style="color: #fff;">
+                {{ rutaAnonimo.nombre }}
+              </a>
+            </li>
+          }
+        }
+
+      </ul>
+    </div>
+  </div>
+</nav>

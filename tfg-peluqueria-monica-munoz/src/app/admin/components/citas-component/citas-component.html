@@ -1,0 +1,90 @@
+<section class="admin-section">
+  <div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center title-main">Gestión de Citas</h2>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filtros-container mb-4">
+      <div class="filtro-grupo busqueda">
+        <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
+        <input 
+          type="text" 
+          id="busqueda" 
+          [(ngModel)]="busquedaTexto" 
+          (input)="aplicarFiltros()"
+          placeholder="Usuario, servicio, profesional, centro, fecha u hora..."
+          class="form-control">
+      </div>
+
+      <div class="resultados-count">
+        <span class="badge bg-info">{{ citasFiltradas.length }} de {{ citas.length }} citas</span>
+      </div>
+    </div>
+
+    @if(citas.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No hay citas registradas</h3>
+        <p>Las citas de los clientes aparecerán aquí</p>
+      </div>
+    }
+
+    @if(citas.length > 0 && citasFiltradas.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron citas</h3>
+        <p>No hay citas que coincidan con la búsqueda</p>
+      </div>
+    }
+
+    @if(citasFiltradas.length > 0) {
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-person-fill"></i> Usuario</th>
+            <th><i class="bi bi-scissors"></i> Servicio</th>
+            <th><i class="bi bi-person-badge"></i> Profesional</th>
+            <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
+            <th><i class="bi bi-calendar-date"></i> Fecha</th>
+            <th><i class="bi bi-clock-fill"></i> Hora</th>
+            <th><i class="bi bi-flag-fill"></i> Estado</th>
+            <th><i class="bi bi-gear-fill"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cita of citasFiltradas; track cita.id_cita) {
+            <tr>
+              <td>{{ cita.id_cita }}</td>
+              <td>{{ nombreUsuario(cita.id_usuario) }}</td>
+              <td>{{ nombreServicio(cita.id_servicio) }}</td>
+              <td>{{ nombreProfesional(cita.id_profesional) }}</td>
+              <td>{{ nombreCentro(cita.id_centro) }}</td>
+              <td>{{ cita.fecha }}</td>
+              <td><span class="badge-hora">{{ cita.hora }}</span></td>
+              <td>
+                <select 
+                  [ngModel]="cita.estado" 
+                  (ngModelChange)="cambiarEstado(cita, $event)" 
+                  class="status-select" 
+                  [class.status-pendiente]="cita.estado === 'pendiente'" 
+                  [class.status-confirmada]="cita.estado === 'confirmada'" 
+                  [class.status-cancelada]="cita.estado === 'cancelada'" 
+                  [class.status-realizada]="cita.estado === 'realizada'"
+                  [disabled]="cita.estado === 'realizada'">
+                  @for (estado of getEstadosDisponibles(cita); track estado) {
+                    <option [value]="estado">{{ estado }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-danger" (click)="borrarCita(cita)">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

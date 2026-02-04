@@ -1,0 +1,243 @@
+.alert-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  min-width: 420px;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: slideInDown 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translate(-50%, -100px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.alert-content-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 50px 20px 20px;
+}
+
+.alert-icon-wrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  position: relative;
+}
+
+.alert-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+/* Success - Verde elegante */
+.alert-success .alert-icon-wrapper {
+  color: #10b981;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+}
+
+.alert-success .alert-icon-wrapper::before {
+  background: #10b981;
+}
+
+.alert-success {
+  border-left: 4px solid #10b981;
+}
+
+/* Error - Rojo sofisticado */
+.alert-error .alert-icon-wrapper {
+  color: #ef4444;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+}
+
+.alert-error .alert-icon-wrapper::before {
+  background: #ef4444;
+}
+
+.alert-error {
+  border-left: 4px solid #ef4444;
+}
+
+/* Warning - Amarillo/naranja premium */
+.alert-warning .alert-icon-wrapper {
+  color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+}
+
+.alert-warning .alert-icon-wrapper::before {
+  background: #f59e0b;
+}
+
+.alert-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+/* Info - Rosa elegante (color de tu marca) */
+.alert-info .alert-icon-wrapper {
+  color: #ff6fbf;
+  background: linear-gradient(135deg, rgba(255, 111, 191, 0.1), rgba(255, 61, 148, 0.05));
+}
+
+.alert-info .alert-icon-wrapper::before {
+  background: #ff6fbf;
+}
+
+.alert-info {
+  border-left: 4px solid #ff6fbf;
+}
+
+.alert-text {
+  flex: 1;
+  padding-top: 2px;
+}
+
+.alert-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #1f2937;
+  letter-spacing: -0.01em;
+}
+
+.alert-message {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.alert-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.alert-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #4b5563;
+  transform: scale(1.1);
+}
+
+.alert-close:active {
+  transform: scale(0.95);
+}
+
+/* Barra de progreso para auto-cierre */
+.alert-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  transition: width 4s linear;
+  border-radius: 0 0 0 12px;
+}
+
+.alert-progress.active {
+  width: 100%;
+}
+
+.alert-success .alert-progress {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.alert-error .alert-progress {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.alert-warning .alert-progress {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.alert-info .alert-progress {
+  background: linear-gradient(90deg, #ff6fbf, #ff3d94);
+}
+
+/* Animación de salida */
+@keyframes slideOutUp {
+  from {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -100px);
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alert-container {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    transform: none;
+    min-width: unset;
+    max-width: unset;
+  }
+
+  @keyframes slideInDown {
+    from {
+      transform: translateY(-100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .alert-content-wrapper {
+    padding: 16px 40px 16px 16px;
+  }
+
+  .alert-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .alert-title {
+    font-size: 15px;
+  }
+
+  .alert-message {
+    font-size: 13px;
+  }
+}

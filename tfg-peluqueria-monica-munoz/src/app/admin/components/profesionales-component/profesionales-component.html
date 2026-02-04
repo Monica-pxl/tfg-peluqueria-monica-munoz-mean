@@ -1,0 +1,92 @@
+<section class="admin-section">
+  <div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center title-main">Gestión de Profesionales</h2>
+
+    <div class="mb-4">
+      <button class="btn btn-success" (click)="crearProfesional()">
+        <i class="bi bi-plus-circle"></i> Crear Profesional
+      </button>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filtros-container mb-4">
+      <div class="filtro-grupo busqueda">
+        <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
+        <input 
+          type="text" 
+          id="busqueda" 
+          [(ngModel)]="busquedaTexto" 
+          (input)="aplicarFiltros()"
+          placeholder="Nombre, apellidos o centro..."
+          class="form-control">
+      </div>
+
+      <div class="resultados-count">
+        <span class="badge bg-info">{{ profesionalesFiltrados.length }} de {{ profesionales.length }} profesionales</span>
+      </div>
+    </div>
+
+    @if(cargando) {
+      <div class="empty-state">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3">Cargando profesionales...</p>
+      </div>
+    }
+
+    @if(error) {
+      <div class="alert alert-danger text-center">
+        <i class="bi bi-exclamation-triangle"></i> Error al cargar los profesionales
+      </div>
+    }
+
+    @if(!cargando && profesionales.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">👨‍💼</div>
+        <h3>No hay profesionales registrados</h3>
+        <p>Los profesionales de tu equipo aparecerán aquí</p>
+      </div>
+    }
+
+    @if(!cargando && profesionales.length > 0 && profesionalesFiltrados.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron profesionales</h3>
+        <p>No hay profesionales que coincidan con la búsqueda</p>
+      </div>
+    }
+
+    @if(profesionalesFiltrados.length > 0) {
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-person-fill"></i> Profesional</th>
+            <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
+            <th><i class="bi bi-scissors"></i> Servicios</th>
+            <th><i class="bi bi-gear-fill"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of profesionalesFiltrados; track p.id_profesional) {
+            <tr>
+              <td>{{ p.id_profesional }}</td>
+              <td class="fw-bold">{{ p.nombre }} {{ p.apellidos }}</td>
+              <td>{{ nombreCentro(p.id_centro) }}</td>
+              <td>{{ serviciosDelProfesional(p.id_profesional) }}</td>
+              <td>
+                <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/profesionales/editar', p.id_profesional]">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="borrarProfesional(p)">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

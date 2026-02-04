@@ -1,0 +1,76 @@
+<section class="mis-citas-section">
+  <div class="container mt-5 mb-5">
+
+    <h2 class="mb-4 text-center title-main">Mis Citas</h2>
+
+    @if(!usuarioLogueado) {
+      <div class="alert-custom alert-custom-info">
+        <div class="alert-icon">🔐</div>
+        <p class="alert-message">{{ mensaje }}</p>
+        <div class="alert-buttons">
+          <a [routerLink]="'/iniciar-sesion'" class="btn btn-primary">Iniciar Sesión</a>
+          <a [routerLink]="'/registrarse'" class="btn btn-outline-primary">Registrarse</a>
+        </div>
+      </div>
+    }
+
+    @if(usuarioLogueado && citasUsuario.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No tienes citas reservadas</h3>
+        <p>Cuando reserves una cita, aparecerá aquí</p>
+        <a [routerLink]="'/reservar-cita'" class="btn btn-primary btn-lg mt-3">
+          <i class="bi bi-plus-circle"></i> Reservar una cita
+        </a>
+      </div>
+    }
+
+    @if(usuarioLogueado && citasUsuario.length > 0) {
+      <div class="table-container">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th><i class="bi bi-hash"></i>ID</th>
+              <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
+              <th><i class="bi bi-scissors"></i> Servicio</th>
+              <th><i class="bi bi-person-fill"></i> Profesional</th>
+              <th><i class="bi bi-calendar-date"></i> Fecha</th>
+              <th><i class="bi bi-clock-fill"></i> Hora</th>
+              <th><i class="bi bi-info-circle"></i> Estado</th>
+              <th><i class="bi bi-gear-fill"></i> Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(cita of citasUsuario; track $index) {
+              <tr>
+                <td class="cell-number">{{ $index + 1 }}</td>
+                <td>{{ cita.centro }}</td>
+                <td>{{ cita.servicio }}</td>
+                <td>{{ cita.profesional }}</td>
+                <td>{{ cita.fecha }}</td>
+                <td><span class="badge-hora">{{ cita.hora }}</span></td>
+                <td>
+                  <span [class]="getEstadoClase(cita.estado || 'pendiente')">
+                    {{ cita.estado || 'pendiente' }}
+                  </span>
+                </td>
+                <td>
+                  @if(puedeSerCancelada(cita)) {
+                    <button 
+                      class="btn btn-danger btn-sm" 
+                      (click)="cancelarCita(cita)"
+                      title="Cancelar cita">
+                      <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>

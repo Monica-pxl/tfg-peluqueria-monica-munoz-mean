@@ -1,0 +1,112 @@
+<section class="admin-section">
+  <div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center title-main">Gestión de Usuarios</h2>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filtros-container mb-4">
+      <div class="filtro-grupo">
+        <label for="filtroRol"><i class="bi bi-person-badge"></i> Rol:</label>
+        <select id="filtroRol" [(ngModel)]="filtroRol" (change)="aplicarFiltros()" class="form-select">
+          <option value="todos">Todos</option>
+          <option value="administrador">Administradores</option>
+          <option value="profesional">Profesionales</option>
+          <option value="cliente">Clientes</option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo">
+        <label for="filtroEstado"><i class="bi bi-toggle-on"></i> Estado:</label>
+        <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="form-select">
+          <option value="todos">Todos</option>
+          <option value="activo">Activos</option>
+          <option value="inactivo">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="filtro-grupo busqueda">
+        <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
+        <input 
+          type="text" 
+          id="busqueda" 
+          [(ngModel)]="busquedaTexto" 
+          (input)="aplicarFiltros()"
+          placeholder="Nombre o email..."
+          class="form-control">
+      </div>
+
+      <div class="resultados-count">
+        <span class="badge bg-info">{{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios</span>
+      </div>
+    </div>
+
+    @if(usuariosFiltrados.length === 0 && usuarios.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>No hay usuarios registrados</h3>
+        <p>Los usuarios aparecerán aquí cuando se registren</p>
+      </div>
+    }
+
+    @if(usuariosFiltrados.length === 0 && usuarios.length > 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron usuarios</h3>
+        <p>No hay usuarios que coincidan con los filtros aplicados</p>
+      </div>
+    }
+
+    @if(usuariosFiltrados.length > 0) {
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-person"></i> Nombre</th>
+            <th><i class="bi bi-envelope"></i> Email</th>
+            <th><i class="bi bi-person-badge"></i> Rol</th>
+            <th><i class="bi bi-toggle-on"></i> Estado</th>
+            <th><i class="bi bi-calendar"></i> Fecha de Alta</th>
+            <th><i class="bi bi-gear"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuariosFiltrados">
+            <td>{{ usuario.id_usuario }}</td>
+            <td class="fw-bold">{{ usuario.nombre }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <select 
+                class="form-select form-select-sm select-rol"
+                [value]="usuario.rol"
+                (change)="cambiarRol(usuario, $event)"
+                [ngClass]="getRolClass(usuario.rol)">
+                <option value="cliente">Cliente</option>
+                <option value="profesional">Profesional</option>
+                <option value="administrador">Administrador</option>
+              </select>
+            </td>
+            <td>
+              <select 
+                class="form-select form-select-sm select-estado"
+                [value]="usuario.estado"
+                (change)="cambiarEstado(usuario, $event)"
+                [ngClass]="getEstadoClass(usuario.estado)">
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </td>
+            <td>{{ usuario.fecha_alta || 'N/A' }}</td>
+            <td>
+              <button 
+                class="btn btn-sm btn-danger" 
+                (click)="eliminarUsuario(usuario)"
+                [disabled]="usuarioLogueado?.id_usuario === usuario.id_usuario"
+                [title]="usuarioLogueado?.id_usuario === usuario.id_usuario ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

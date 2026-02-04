@@ -1,0 +1,149 @@
+<section class="centro-detalles-section">
+  @if(cargando) {
+    <div class="container py-5 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else if(centro) {
+    <div class="container py-5">
+      <!-- Botón volver -->
+      <div class="mb-4">
+        <a [routerLink]="'/centros'" class="btn btn-outline-primary">
+          <i class="bi bi-arrow-left"></i> Volver a Centros
+        </a>
+      </div>
+
+      <!-- Información principal del centro -->
+      <div class="centro-header mb-5">
+        <div class="centro-icon-large mb-3">🏢</div>
+        <h1 class="centro-titulo">{{ centro.nombre }}</h1>
+        
+        <div class="centro-info-grid mt-4">
+          <div class="info-item">
+            <i class="bi bi-geo-alt-fill"></i>
+            <div>
+              <strong>Dirección</strong>
+              <p>{{ centro.direccion }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-telephone-fill"></i>
+            <div>
+              <strong>Teléfono</strong>
+              <p>{{ centro.telefono }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-envelope-fill"></i>
+            <div>
+              <strong>Email</strong>
+              <p>{{ centro.email }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-clock-fill"></i>
+            <div>
+              <strong>Horario</strong>
+              <p>{{ centro.horario_apertura }} - {{ centro.horario_cierre }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <a [routerLink]="'/reservar-cita'" class="btn btn-reservar-cita">
+            <i class="bi bi-calendar-check"></i> Reservar Cita en este Centro
+          </a>
+        </div>
+      </div>
+
+      <!-- Profesionales y sus servicios -->
+      <div class="profesionales-section">
+        <h2 class="section-title mb-4">
+          <i class="bi bi-people-fill"></i> Nuestros Profesionales
+        </h2>
+
+        @if(profesionalesConServicios.length === 0) {
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Este centro aún no tiene profesionales asignados.
+          </div>
+        } @else {
+          <div class="row g-4">
+            @for(item of profesionalesConServicios; track item.profesional.id_profesional) {
+              <div class="col-lg-6">
+                <div class="profesional-card">
+                  <div class="profesional-header">
+                    <div class="profesional-avatar">
+                      {{ item.profesional.nombre.charAt(0) }}{{ item.profesional.apellidos.charAt(0) }}
+                    </div>
+                    <div>
+                      <h4>{{ item.profesional.nombre }} {{ item.profesional.apellidos }}</h4>
+                      <p class="text-muted mb-0">Profesional de Belleza</p>
+                    </div>
+                  </div>
+
+                  <div class="servicios-profesional mt-3">
+                    <h5 class="servicios-titulo">
+                      <i class="bi bi-scissors"></i> Servicios que ofrece
+                    </h5>
+                    
+                    @if(item.servicios.length === 0) {
+                      <p class="text-muted small">Sin servicios asignados</p>
+                    } @else {
+                      <div class="servicios-list">
+                        @for(servicio of item.servicios; track servicio.id_servicio) {
+                          <div class="servicio-item">
+                            <div class="servicio-info">
+                              <span class="servicio-nombre">{{ servicio.nombre }}</span>
+                              <span class="servicio-duracion">
+                                <i class="bi bi-clock"></i> {{ servicio.duracion }} min
+                              </span>
+                            </div>
+                            <span class="servicio-precio">{{ servicio.precio }}€</span>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  <div class="horarios-profesional mt-3">
+                    <h5 class="servicios-titulo">
+                      <i class="bi bi-calendar-week"></i> Horario de trabajo
+                    </h5>
+                    
+                    @if(item.horarios.length === 0) {
+                      <p class="text-muted small">Sin horarios asignados</p>
+                    } @else {
+                      <div class="horarios-list">
+                        @for(horario of item.horarios; track horario.id_horario) {
+                          <div class="horario-item">
+                            <div class="horario-dias">
+                              @for(dia of horario.dias; track $index) {
+                                <span class="dia-badge">{{ dia }}</span>
+                              }
+                            </div>
+                            <div class="horario-horas">
+                              <i class="bi bi-clock-fill"></i>
+                              {{ horario.hora_inicio }} - {{ horario.hora_fin }}
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="container py-5">
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i> Centro no encontrado
+      </div>
+      <a [routerLink]="'/centros'" class="btn btn-primary">Volver a Centros</a>
+    </div>
+  }
+</section>

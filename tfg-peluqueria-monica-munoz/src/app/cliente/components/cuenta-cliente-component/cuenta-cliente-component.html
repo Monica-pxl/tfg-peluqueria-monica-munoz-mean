@@ -1,0 +1,209 @@
+<div class="cuenta-cliente-container">
+  <div class="container py-5">
+    <!-- Encabezado de Bienvenida -->
+    <div class="welcome-header text-center mb-5">
+      <h1 class="titulo-principal">
+        <i class="bi bi-person-circle me-2"></i>
+        Mi Cuenta
+      </h1>
+      <p class="subtitulo">Gestiona tu perfil y consulta tu nivel de fidelidad</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Información Personal -->
+      <div class="col-lg-6">
+        <div class="card-elegante h-100">
+          <div class="card-header-custom">
+            <h3>
+              <i class="bi bi-person-lines-fill me-2"></i>
+              Información Personal
+            </h3>
+          </div>
+          <div class="card-body-custom">
+            <div class="info-item">
+              <div class="info-label">
+                <i class="bi bi-person me-2"></i>
+                Nombre Completo
+              </div>
+              <div class="info-value">{{ usuario?.nombre }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">
+                <i class="bi bi-envelope me-2"></i>
+                Correo Electrónico
+              </div>
+              <div class="info-value">{{ usuario?.email }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">
+                <i class="bi bi-calendar-check me-2"></i>
+                Fecha de Registro
+              </div>
+              <div class="info-value">{{ usuario?.fecha_alta }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">
+                <i class="bi bi-shield-check me-2"></i>
+                Estado de Cuenta
+              </div>
+              <div class="info-value">
+                <span class="badge badge-activo">{{ usuario?.estado }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sistema de Puntos y Fidelización -->
+      <div class="col-lg-6">
+        <div class="card-elegante h-100 card-fidelizacion">
+          <div class="card-header-custom">
+            <h3>
+              <i class="bi bi-trophy me-2"></i>
+              Programa de Fidelización
+            </h3>
+          </div>
+          <div class="card-body-custom">
+            <!-- Nivel Actual -->
+            <div class="nivel-actual text-center mb-4">
+              <div class="nivel-icono" [style.color]="colorNivel">
+                <i class="bi {{ iconoNivel }}"></i>
+              </div>
+              <h4 class="nivel-nombre" [style.color]="colorNivel">{{ nivel }}</h4>
+              <p class="nivel-descripcion">{{ obtenerDescripcionNivel() }}</p>
+            </div>
+
+            <!-- Puntos Acumulados -->
+            <div class="puntos-section">
+              <div class="puntos-display">
+                <div class="puntos-numero">{{ puntos }}</div>
+                <div class="puntos-label">Puntos Acumulados</div>
+              </div>
+            </div>
+
+            <!-- Barra de Progreso -->
+            @if (puntos < 100) {
+              <div class="progreso-section mt-4">
+                <div class="d-flex justify-content-between mb-2">
+                  <small class="text-muted">Progreso al siguiente nivel</small>
+                  <small class="text-muted fw-bold">{{ puntosParaSiguienteNivel }} puntos restantes</small>
+                </div>
+                <div class="progress-bar-custom">
+                  <div class="progress-fill" [style.width.%]="progresoBarra" [style.background-color]="colorNivel"></div>
+                </div>
+                <div class="text-center mt-2">
+                  <small class="siguiente-nivel">Siguiente: <strong>{{ siguienteNivel }}</strong></small>
+                </div>
+              </div>
+            } @else {
+              <div class="max-nivel-badge mt-4">
+                <i class="bi bi-trophy-fill me-2"></i>
+                ¡Has alcanzado el nivel máximo!
+              </div>
+            }
+
+            <!-- Cómo ganar puntos -->
+            <div class="como-ganar-puntos mt-4">
+              <h5 class="mb-3">
+                <i class="bi bi-info-circle me-2"></i>
+                ¿Cómo ganar puntos?
+              </h5>
+              <div class="punto-item">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span>Gana <strong>10 puntos</strong> por cada cita completada</span>
+              </div>
+              <div class="punto-item">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span>Los puntos se acumulan automáticamente</span>
+              </div>
+              <div class="punto-item">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span>Válido en todos nuestros centros</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Niveles -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card-elegante">
+          <div class="card-header-custom">
+            <h3>
+              <i class="bi bi-list-stars me-2"></i>
+              Niveles de Fidelización
+            </h3>
+          </div>
+          <div class="card-body-custom">
+            <div class="tabla-niveles">
+              <div class="nivel-row" [class.nivel-activo]="puntos < 20">
+                <div class="nivel-info">
+                  <i class="bi bi-person nivel-icono-tabla" style="color: #999;"></i>
+                  <div>
+                    <div class="nivel-nombre-tabla">Cliente Nuevo</div>
+                    <div class="nivel-puntos-tabla">0 - 19 puntos</div>
+                  </div>
+                </div>
+                @if (puntos < 20) {
+                  <span class="badge-actual">Nivel Actual</span>
+                }
+              </div>
+              
+              <div class="nivel-row" [class.nivel-activo]="puntos >= 20 && puntos < 50">
+                <div class="nivel-info">
+                  <i class="bi bi-heart-fill nivel-icono-tabla" style="color: #ff89c4;"></i>
+                  <div>
+                    <div class="nivel-nombre-tabla">Cliente Frecuente</div>
+                    <div class="nivel-puntos-tabla">20 - 49 puntos</div>
+                  </div>
+                </div>
+                @if (puntos >= 20 && puntos < 50) {
+                  <span class="badge-actual">Nivel Actual</span>
+                }
+              </div>
+              
+              <div class="nivel-row" [class.nivel-activo]="puntos >= 50 && puntos < 100">
+                <div class="nivel-info">
+                  <i class="bi bi-star-fill nivel-icono-tabla" style="color: #ff69b4;"></i>
+                  <div>
+                    <div class="nivel-nombre-tabla">Cliente Habitual</div>
+                    <div class="nivel-puntos-tabla">50 - 99 puntos</div>
+                  </div>
+                </div>
+                @if (puntos >= 50 && puntos < 100) {
+                  <span class="badge-actual">Nivel Actual</span>
+                }
+              </div>
+              
+              <div class="nivel-row" [class.nivel-activo]="puntos >= 100">
+                <div class="nivel-info">
+                  <i class="bi bi-gem nivel-icono-tabla" style="color: #ffd700;"></i>
+                  <div>
+                    <div class="nivel-nombre-tabla">Cliente Premium</div>
+                    <div class="nivel-puntos-tabla">100+ puntos</div>
+                  </div>
+                </div>
+                @if (puntos >= 100) {
+                  <span class="badge-actual">Nivel Actual</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nota informativa -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert-info-custom">
+          <i class="bi bi-lightbulb me-2"></i>
+          <strong>Nota:</strong> Los puntos se otorgan únicamente por servicios completados. 
+          Solo los profesionales y administradores pueden marcar una cita como realizada.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

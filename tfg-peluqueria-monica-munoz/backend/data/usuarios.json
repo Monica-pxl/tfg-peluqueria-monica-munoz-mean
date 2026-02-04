@@ -1,0 +1,312 @@
+[
+  {
+    "id_usuario": 1,
+    "nombre": "María López",
+    "email": "maria.lopez@gmail.com",
+    "password": "$2b$10$KP9KU4cdCv5l5Pkb4hsq4.s/.lfaT81jQMEAvyBWzGbPWcEuBTjLm",
+    "rol": "cliente",
+    "estado": "activo",
+    "fecha_alta": "2025-01-15",
+    "puntos": 60
+  },
+  {
+    "id_usuario": 2,
+    "nombre": "Carlos García",
+    "email": "carlos.garcia@gmail.com",
+    "password": "$2b$10$Zmlp2mQmmPUNBqNfid26ueNM2nJXGuthJUaLA7T425iSXJMuYfpSK",
+    "rol": "cliente",
+    "estado": "activo",
+    "fecha_alta": "2025-02-20",
+    "puntos": 30
+  },
+  {
+    "id_usuario": 3,
+    "nombre": "Laura Fernández",
+    "email": "laura.fernandez@gmail.com",
+    "password": "$2b$10$BBuiWXzu1pI0dcUXFCZqtOlCrvmjtn/4kosxygttuHwkga83O07oq",
+    "rol": "cliente",
+    "estado": "activo",
+    "fecha_alta": "2025-03-10",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 4,
+    "nombre": "Admin",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$5fuxgpQdr7wZQ1d3Wk4YCOOK3K1fwQtZBCGrTRPZimJWZpp4BalRa",
+    "rol": "administrador",
+    "estado": "activo",
+    "fecha_alta": "2024-01-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 5,
+    "nombre": "Laura Gómez Ruiz",
+    "email": "laura.gomez@gmail.com",
+    "password": "$2b$10$I9XYpwDrn8ItwXm2CFJa..tqcM8RBhCI37PmNxwWDd4WZNcPez2vC",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-06-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 6,
+    "nombre": "Carlos Pérez Martín",
+    "email": "carlos.perez@gmail.com",
+    "password": "$2b$10$SWma9woRn0FV4dsk6TOP5.z9VaqSLXiR41aDSlBx.WTIMV5AFQUX.",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-07-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 7,
+    "nombre": "María Santos López",
+    "email": "maria.santos@gmail.com",
+    "password": "$2b$10$HZOWrwUOxEdsVV5ZO7/qsu2W4EZ0pmtKCCOlIWBKE8XBDjIMI.Mlm",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-08-12",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 8,
+    "nombre": "Andrés Morales Díaz",
+    "email": "andres.morales@gmail.com",
+    "password": "$2b$10$vztj.OnbeRFJfWx3w8iDJ.C4I5as/F5azvnE7DJYZD3q2R6WRTaeu",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-09-05",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 9,
+    "nombre": "Lucía Fernández Soto",
+    "email": "lucia.fernandez@gmail.com",
+    "password": "$2b$10$KSQRFc6Fb.zYthoUZdTgw.1BlKQmJ14LHTeQ/Fo4zOlPOz7AsGV1q",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-10-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 10,
+    "nombre": "Javier Romero Gil",
+    "email": "javier.romero@gmail.com",
+    "password": "$2b$10$kYE7Ds1U8gVZ4nLFSXY6w.taYkITJ1vhtdTF7pa5G5qf8RpW43v1m",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-11-20",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 11,
+    "nombre": "Patricia Delgado Torres",
+    "email": "patricia.delgado@gmail.com",
+    "password": "$2b$10$VQJGWPLti6VVp03x77/tseApCXk7t0Rjeg/.qZMngbEiE14kaCkyu",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-12-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 12,
+    "nombre": "Sergio Navarro León",
+    "email": "sergio.navarro@gmail.com",
+    "password": "$2b$10$A8DqWrTdoNNRMmWJKZj7nuNvsZUglooU6YUKQ3wtdxvF8XA7TXbPq",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-12-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 13,
+    "nombre": "Marta Cano Serrano",
+    "email": "marta.cano@gmail.com",
+    "password": "$2b$10$cZuufT83HBCXqFDKja4NHeVmRldQxY.wXtoADp82mAvqChVK7UCBy",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-05",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 14,
+    "nombre": "David Vega Alonso",
+    "email": "david.vega@gmail.com",
+    "password": "$2b$10$HvFCLBnvaJ8tcsExjJi93udfKdbgPZSrd.g/y0diRNRS1rpdSzRBK",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-10",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 15,
+    "nombre": "Elena Ramos Castillo",
+    "email": "elena.ramos@gmail.com",
+    "password": "$2b$10$/gAdDCSBBYGDXAO2ZdeReeEa4AikAImnysaGL9DAJ9.c26dWVFqv6",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 16,
+    "nombre": "Raúl Jiménez Bravo",
+    "email": "raul.jimenez@gmail.com",
+    "password": "$2b$10$JM3MMN8OIPWUr8TwIgBxNOEs4bSMxqKrUVnVUaY1QZ5aPzb7lAB6y",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-18",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 17,
+    "nombre": "Ana Torres Muñoz",
+    "email": "ana.torres@gmail.com",
+    "password": "$2b$10$GS1.s79lMJ7WV6Sibyn36.dKE3utOIpEj4YlQxRSi/Z/3049SDEN.",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-20",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 18,
+    "nombre": "Miguel Sánchez Lara",
+    "email": "miguel.sanchez@gmail.com",
+    "password": "$2b$10$hUrd2v7PO4oupK.Xv2qmS.9K97MS3tKghxYijWNpRaxnh36s.ae7q",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-05-10",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 19,
+    "nombre": "Clara García Soler",
+    "email": "clara.garcia@gmail.com",
+    "password": "$2b$10$XAVeXuoT/b.Hk.3y/NMC5OdTB41UZILqMdWCdivhIFEew0e4WRpNO",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-06-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 20,
+    "nombre": "Pedro Ruiz Delgado",
+    "email": "pedro.ruiz@gmail.com",
+    "password": "$2b$10$29FWjQz95LHR.arm249yzuMG52ja7hwOgKbUSfmPERToaC4ehSfzS",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-07-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 21,
+    "nombre": "Lucía Cano Reyes",
+    "email": "lucia.cano@gmail.com",
+    "password": "$2b$10$U0CH/EscAkbVS9qmkkrQIupUxi7cIrGsH.y12MO4BY4JY9nZdzbk6",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-08-20",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 22,
+    "nombre": "Sofía López Cabrera",
+    "email": "sofia.lopez@gmail.com",
+    "password": "$2b$10$MEvGtTqoAqZ7gCcZW6te/.E0.mjMbh0hR0ywAeGjoQmteTR1CY1HK",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-09-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 23,
+    "nombre": "Diego Vega Moreno",
+    "email": "diego.vega@gmail.com",
+    "password": "$2b$10$6rAUH7g31R3VLUs9kEQT7.pJhAMZvHwKrClv.Lzn3yefVtzOdfvi.",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-10-05",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 24,
+    "nombre": "Nuria Pérez Campos",
+    "email": "nuria.perez@gmail.com",
+    "password": "$2b$10$mbCB4CoFrA69bPQIBYNIVeDpfAFbsrYNpwgchPA1a0L/0PIfoMCEu",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-11-10",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 25,
+    "nombre": "Iván Morales Ruiz",
+    "email": "ivan.morales@gmail.com",
+    "password": "$2b$10$x4JMFBO3ssxfCJguwd6At.gD8lix4/86DCVNKyrvIfe3mTowzwTc2",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-12-01",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 26,
+    "nombre": "Carmen Jiménez Soto",
+    "email": "carmen.jimenez@gmail.com",
+    "password": "$2b$10$9KCjXq5W1lF2AUBe7zhstOJGgemnDeyHGYWV0cOq.uKNGd4SFjwLG",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2024-12-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 27,
+    "nombre": "Raúl Fernández López",
+    "email": "raul.fernandez@gmail.com",
+    "password": "$2b$10$DWrGJXWBmCLoY/qgeDUsvu3844SE13WDgyQoCslOoFDQo3fjag8pK",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-02",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 28,
+    "nombre": "Elena González Ramírez",
+    "email": "elena.gonzalez@gmail.com",
+    "password": "$2b$10$mauiGyxp0idUul9zy6e6fuXWZku2t1Nkzf1m7Hrbgj79QRQr0aGZG",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-08",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 29,
+    "nombre": "Hugo Santos Díaz",
+    "email": "hugo.santos@gmail.com",
+    "password": "$2b$10$mqEuUAGtxCF.E2pJLkfdq.YSZtDy0GHcxBGnZTkbBsCk9dKZYr2KG",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-12",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 30,
+    "nombre": "Laura Vega Ortega",
+    "email": "laura.vega@gmail.com",
+    "password": "$2b$10$2bliCp85nadt76.x8lRPL.24FsNCrufC.ZE1H17h7ajP91SCcsOTW",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-15",
+    "puntos": 0
+  },
+  {
+    "id_usuario": 31,
+    "nombre": "Mario Ruiz Castro",
+    "email": "mario.ruiz@gmail.com",
+    "password": "$2b$10$cWZNS2Vmhf5mb.bpHRfBze8liu1nlVr9uoTxB8uCX9fRXITNGKHfu",
+    "rol": "profesional",
+    "estado": "activo",
+    "fecha_alta": "2025-01-18",
+    "puntos": 0
+  }
+]

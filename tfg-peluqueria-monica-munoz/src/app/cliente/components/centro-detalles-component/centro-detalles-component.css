@@ -1,0 +1,327 @@
+.centro-detalles-section {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.btn-outline-primary {
+  border: 2px solid #ff69b4;
+  color: #ff69b4;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+  background: #ff69b4;
+  border-color: #ff69b4;
+  color: white;
+  transform: scale(1.05);
+}
+
+.centro-header {
+  background: white;
+  padding: 3rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.08);
+}
+
+.btn-reservar-cita {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-reservar-cita:hover {
+  background: linear-gradient(135deg, #d1558f, #e63fa5);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 105, 180, 0.5);
+  color: white;
+}
+
+.btn-reservar-cita i {
+  font-size: 1.2rem;
+}
+
+.centro-icon-large {
+  font-size: 4rem;
+  display: inline-block;
+  animation: bounce-icon 2s infinite;
+}
+
+@keyframes bounce-icon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.centro-titulo {
+  color: #ff69b4;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.centro-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background: #fff5f9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.1);
+}
+
+.info-item i {
+  color: #ff69b4;
+  font-size: 1.5rem;
+  margin-top: 0.2rem;
+}
+
+.info-item strong {
+  color: #333;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.info-item p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Sección de profesionales */
+.profesionales-section {
+  margin-top: 3rem;
+}
+
+.section-title {
+  color: #ff69b4;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  font-size: 1.8rem;
+}
+
+.profesional-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.profesional-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.15);
+}
+
+.profesional-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.profesional-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.profesional-header h4 {
+  color: #333;
+  font-weight: 700;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.servicios-profesional {
+  padding-top: 1rem;
+}
+
+.servicios-titulo {
+  color: #ff69b4;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.servicios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.servicio-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.servicio-item:hover {
+  background: #fff5f9;
+  transform: translateX(5px);
+}
+
+.servicio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.servicio-nombre {
+  font-weight: 600;
+  color: #333;
+}
+
+.servicio-duracion {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.servicio-precio {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Horarios del profesional */
+.horarios-profesional {
+  padding-top: 1rem;
+  border-top: 2px solid #f8f9fa;
+}
+
+.horarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.horario-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.horario-item:hover {
+  background: #fff5f9;
+  transform: translateX(5px);
+}
+
+.horario-dias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.dia-badge {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.horario-horas {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.horario-horas i {
+  color: #ff69b4;
+  font-size: 1rem;
+}
+
+.alert {
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert i {
+  font-size: 1.5rem;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .centro-header {
+    padding: 2rem;
+  }
+
+  .centro-titulo {
+    font-size: 2rem;
+  }
+
+  .centro-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+}

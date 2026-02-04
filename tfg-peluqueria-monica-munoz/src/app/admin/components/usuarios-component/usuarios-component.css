@@ -1,0 +1,255 @@
+/* Sección con fondo completo */
+.admin-section {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+  min-height: 100vh;
+  padding: 3rem 0;
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+}
+
+/* Título principal */
+.title-main {
+  color: #ff69b4;
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin-bottom: 50px !important;
+}
+
+/* Filtros */
+.filtros-container {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.1);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 2rem;
+}
+
+.filtro-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filtro-grupo label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.filtro-grupo label i {
+  margin-right: 5px;
+  color: #ff69b4;
+}
+
+.resultados-count {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.empty-state h3 {
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+/* Tabla personalizada */
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  background: white;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 15px 50px rgba(255, 105, 180, 0.15);
+}
+
+.table-custom thead {
+  background: linear-gradient(135deg, #ff69b4 0%, #ff89c4 100%);
+}
+
+.table-custom thead tr th {
+  color: white;
+  padding: 18px 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+}
+
+.table-custom thead tr th i {
+  margin-right: 6px;
+  font-size: 1rem;
+}
+
+.table-custom tbody tr {
+  border-bottom: 1px solid rgba(255, 105, 180, 0.08);
+  transition: all 0.3s ease;
+}
+
+.table-custom tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table-custom tbody tr:hover {
+  background: linear-gradient(135deg, #fff5f9 0%, #ffffff 100%);
+  transform: scale(1.005);
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.1);
+}
+
+.table-custom tbody tr td {
+  padding: 16px 15px;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+/* Selectores en la tabla */
+.select-rol,
+.select-estado {
+  font-weight: 600;
+  border: 1.5px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.4rem 2rem 0.4rem 0.6rem !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 14px !important;
+}
+
+.select-rol:hover,
+.select-estado:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.2);
+}
+
+/* Clases para roles - Colores pastel bonitos y profesionales */
+.select-admin {
+  background: #ffb366;
+  color: white;
+  border-color: #ffb366;
+}
+
+.select-admin option {
+  background: white;
+  color: #333;
+}
+
+.select-profesional {
+  background: #ff99cc;
+  color: white;
+  border-color: #ff99cc;
+}
+
+.select-profesional option {
+  background: white;
+  color: #333;
+}
+
+.select-cliente {
+  background: #66b3ff;
+  color: white;
+  border-color: #66b3ff;
+}
+
+.select-cliente option {
+  background: white;
+  color: #333;
+}
+
+/* Clases para estados - Tonos profesionales */
+.select-activo {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.select-activo option {
+  background: white;
+  color: #333;
+}
+
+.select-inactivo {
+  background: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.select-inactivo option {
+  background: white;
+  color: #333;
+}
+
+/* Botones */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filtros-container {
+    grid-template-columns: 1fr;
+  }
+
+  .table-custom {
+    font-size: 0.85rem;
+  }
+
+  .table-custom thead tr th,
+  .table-custom tbody tr td {
+    padding: 10px 8px;
+  }
+
+  .select-rol,
+  .select-estado {
+    font-size: 0.8rem;
+  }
+}

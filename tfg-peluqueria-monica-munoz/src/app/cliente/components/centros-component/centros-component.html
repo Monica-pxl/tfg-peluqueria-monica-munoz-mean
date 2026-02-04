@@ -1,0 +1,70 @@
+<section class="centros-section">
+  <div class="container py-5">
+    <div class="section-header mb-5">
+      <h2 class="text-center mb-3">Nuestros Centros</h2>
+      <p class="text-center text-muted" style="font-size: 1.1rem;">Encuentra el centro más cercano a ti</p>
+    </div>
+
+    <div class="search-wrapper mb-4">
+      <div class="search-container">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Buscar centros por nombre, dirección o teléfono..."
+          [(ngModel)]="textoBusqueda"
+          (input)="filtrarCentros()"
+        />
+        @if(textoBusqueda) {
+          <button class="clear-search" (click)="limpiarBusqueda()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="row g-4" style="margin-bottom: 70px;">
+
+      @for(centro of centrosFiltrados; track centro.id_centro) {
+
+        @if($index >= (paginaActual - 1) * cantidadPorPagina && 
+             $index < paginaActual * cantidadPorPagina) {
+
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm centro-hover position-relative">
+              <div class="card-badge">Disponible</div>
+
+              <div class="centro-icon-wrapper">
+                <div class="centro-icon">🏢</div>
+              </div>
+
+              <div class="card-body text-center">
+                <h4 class="card-title">{{ centro.nombre }}</h4>
+                <p class="card-text mb-2">
+                  <i class="bi bi-geo-alt"></i> {{ centro.direccion }}
+                </p>
+                <p class="card-text mb-3">
+                  <i class="bi bi-telephone"></i> {{ centro.telefono }}
+                </p>
+                <a [routerLink]="['/centro-detalles', centro.id_centro]" class="btn btn-primary text-white mt-3 w-100">
+                  Detalles
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+        }
+
+      }
+    </div>
+
+    <div class="pagination-wrapper d-flex justify-content-center mt-4 gap-3">
+      <button class="btn btn-pagination" (click)="CambiarPagina('primera')">Primera</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('anterior')">Anterior</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('siguiente')">Siguiente</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('ultima')">Última</button>
+    </div>
+
+  </div>
+</section>

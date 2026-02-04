@@ -1,0 +1,145 @@
+<section class="reservar-section">
+  <div class="container py-5">
+    <div class="section-header mb-5">
+      <h2 class="text-center mb-3" style="color:#ff69b4;">Reservar Cita</h2>
+      <p class="text-center text-muted">Selecciona el centro, servicio, profesional, fecha y hora que prefieras.</p>
+    </div>
+
+    <form (ngSubmit)="reservarCita(selectCentro, selectServicio, selectProf)" class="reservar-form mx-auto">
+    
+    <div class="mb-4">
+      <label class="form-label">Centro</label>
+      <select class="form-select form-control-custom" #selectCentro (change)="seleccionarCentro(selectCentro.value)">
+        <option selected disabled>Selecciona un centro</option>
+        <option *ngFor="let centro of centros" [value]="centro.id_centro">
+          {{ centro.nombre }} ({{ centro.direccion }}) 
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Servicio</label>
+      <select class="form-select form-control-custom" #selectServicio (change)="seleccionarServicio(selectServicio.value)">
+        <option selected disabled>Selecciona un servicio</option>
+        <option *ngFor="let servicio of serviciosFiltrados" [value]="servicio.id_servicio">
+          {{ servicio.nombre }} - {{ servicio.precio + ' EUR' }}
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Profesional</label>
+      <select class="form-select form-control-custom" #selectProf (change)="seleccionarProfesional(selectProf.value)">
+        <option selected disabled>Selecciona un profesional</option>
+        <option *ngFor="let profesional of profesionalesFiltrados" [value]="profesional.id_profesional">
+          {{ profesional.nombre }} {{ profesional.apellidos }}
+        </option>
+      </select>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Fecha</label>
+        <input
+            type="date"
+            class="form-control form-control-custom"
+            [(ngModel)]="fechaSeleccionada"
+            (change)="seleccionarFecha(fechaSeleccionada)"
+            name="fecha"
+            [attr.min]="fechaMinima"
+            [disabled]="!profesionalSeleccionado"
+        />
+        <small class="text-muted" *ngIf="!profesionalSeleccionado">
+          Selecciona primero un profesional.
+        </small>
+
+
+        <div class="mt-2" *ngIf="profesionalSeleccionado">
+          <!-- Navegación entre meses -->
+          <div class="month-navigation mb-3">
+            <button 
+              type="button"
+              class="btn-month btn-month-prev" 
+              (click)="mesAnterior()" 
+              [disabled]="!puedeIrMesAnterior()"
+              title="Mes anterior">
+              <i class="bi bi-chevron-left"></i> Anterior
+            </button>
+            <span class="current-month">{{ nombreMesVisualizado }}</span>
+            <button 
+              type="button"
+              class="btn-month btn-month-next" 
+              (click)="mesSiguiente()" 
+              [disabled]="!puedeIrMesSiguiente()"
+              title="Mes siguiente">
+              Siguiente <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Leyenda del calendario -->
+          <div class="calendar-legend mb-3">
+            <div class="legend-item">
+              <span class="legend-box dia-disponible-box"></span>
+              <span class="legend-text">Disponible</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-box dia-festivo-box">
+                <i class="bi bi-star-fill"></i>
+              </span>
+              <span class="legend-text">Festivo (horario especial)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-box dia-no-disponible-box"></span>
+              <span class="legend-text">No disponible</span>
+            </div>
+          </div>
+
+          <!-- Grid completo: títulos + días -->
+          <div class="calendar-grid">
+            <!-- Cabecera de días -->
+            <span class="dia-header" *ngFor="let d of ['Lu','Ma','Mi','Ju','Vi','Sa','Do']">
+              {{ d }}
+            </span>
+
+            <!-- Días del mes -->
+            <span 
+              *ngFor="let dia of diasMes" 
+              class="dia text-center"
+              [ngClass]="{
+                'dia-disponible': dia && esDiaDisponible(formatDate(dia)) && !esDiaFestivo(formatDate(dia)),
+                'dia-festivo': dia && esDiaFestivo(formatDate(dia)),
+                'dia-no-disponible': dia && !esDiaDisponible(formatDate(dia)) && !esDiaFestivo(formatDate(dia)),
+                'hueco-dia': !dia
+              }"
+              [title]="dia && esDiaFestivo(formatDate(dia)) ? 'Día festivo - horario especial' : ''"
+              (click)="dia ? seleccionarFecha(formatDate(dia)) : null"
+            >
+              {{ dia ? dia.getDate() : '' }}
+              @if(dia && esDiaFestivo(formatDate(dia))) {
+                <i class="bi bi-star-fill festivo-icon"></i>
+              }
+            </span>
+          </div>
+        </div>
+
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Hora</label>
+      <select class="form-select form-control-custom" [(ngModel)]="horaSeleccionada" name="hora" [disabled]="!horasDisponibles.length">
+        <option selected disabled>Selecciona una hora</option>
+        <option *ngFor="let hora of horasDisponibles" [value]="hora">{{hora}}</option>
+      </select>
+    </div>
+
+    <div class="text-center mt-5">
+      <button type="submit" class="btn btn-reservar px-5 py-2 fw-bold">
+        Reservar Cita
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="mensajeConfirmacion" class="alert alert-success mt-4" style="max-width: 700px; margin-left: auto; margin-right: auto;">
+    {{ mensajeConfirmacion }}
+  </div>
+  </div>
+</section>

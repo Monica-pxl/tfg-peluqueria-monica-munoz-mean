@@ -1,0 +1,23 @@
+h1 {
+  color: #333;
+  font-weight: 700;
+}
+
+.card {
+  border: none;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-title {
+  color: #000;
+  font-weight: 600;
+}
+
+.card-text {
+  color: #666;
+  line-height: 1.8;
+}

@@ -1,0 +1,113 @@
+<section class="admin-section">
+  <div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center title-main">Gestión de Horarios</h2>
+
+    <div class="mb-4">
+      <button class="btn btn-success" (click)="crearHorario()">
+        <i class="bi bi-plus-circle"></i> Crear Horario
+      </button>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filtros-container mb-4">
+      <div class="filtro-grupo busqueda">
+        <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
+        <input 
+          type="text" 
+          id="busqueda" 
+          [(ngModel)]="busquedaTexto" 
+          (input)="aplicarFiltros()"
+          placeholder="Profesional o día..."
+          class="form-control">
+      </div>
+
+      <div class="resultados-count">
+        <span class="badge bg-info">{{ horariosFiltrados.length }} de {{ horarios.length }} horarios</span>
+      </div>
+    </div>
+
+    @if(cargando) {
+      <div class="empty-state">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3">Cargando horarios...</p>
+      </div>
+    }
+
+    @if(error) {
+      <div class="alert alert-danger text-center">
+        <i class="bi bi-exclamation-triangle"></i> Error al cargar los horarios
+      </div>
+    }
+
+    @if(!cargando && horarios.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🕐</div>
+        <h3>No hay horarios registrados</h3>
+        <p>Crea el primer horario para comenzar</p>
+      </div>
+    }
+
+    @if(!cargando && horarios.length > 0 && horariosFiltrados.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron horarios</h3>
+        <p>No hay horarios que coincidan con la búsqueda</p>
+      </div>
+    }
+
+    @if(!cargando && horariosFiltrados.length > 0) {
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-person"></i> Profesional</th>
+            <th><i class="bi bi-calendar-week"></i> Días</th>
+            <th><i class="bi bi-clock"></i> Hora Inicio</th>
+            <th><i class="bi bi-clock-fill"></i> Hora Fin</th>
+            <th><i class="bi bi-calendar-event"></i> Fechas Festivas</th>
+            <th><i class="bi bi-gear"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (horario of horariosFiltrados; track horario.id_horario) {
+            <tr>
+              <td>{{ horario.id_horario }}</td>
+              <td class="fw-bold">{{ getNombreProfesional(horario.id_profesional) }}</td>
+            <td>
+              {{ formatearDias(horario.dias) }}
+            </td>
+            <td>
+              <span class="badge-hora">{{ horario.hora_inicio }}</span>
+            </td>
+            <td>
+              <span class="badge-hora">{{ horario.hora_fin }}</span>
+            </td>
+            <td>
+              @if(tieneFechasFestivas(horario)) {
+                <span class="badge badge-festivos" [title]="formatearFechasFestivas(horario)">
+                  <i class="bi bi-calendar-event me-1"></i>{{ horario.fechas_festivas!.length }} fecha(s)
+                </span>
+              } @else {
+                <span class="badge bg-secondary">Ninguna</span>
+              }
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary me-1" (click)="editarHorario(horario.id_horario)" title="Editar horario">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-danger" 
+                (click)="eliminarHorario(horario.id_horario)"
+                title="Eliminar horario">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

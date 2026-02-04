@@ -1,0 +1,154 @@
+[
+  {
+    "id_profesional": 1,
+    "id_servicio": 1
+  },
+  {
+    "id_profesional": 2,
+    "id_servicio": 2
+  },
+  {
+    "id_profesional": 3,
+    "id_servicio": 3
+  },
+  {
+    "id_profesional": 1,
+    "id_servicio": 4
+  },
+  {
+    "id_profesional": 4,
+    "id_servicio": 5
+  },
+  {
+    "id_profesional": 5,
+    "id_servicio": 7
+  },
+  {
+    "id_profesional": 6,
+    "id_servicio": 6
+  },
+  {
+    "id_profesional": 5,
+    "id_servicio": 8
+  },
+  {
+    "id_profesional": 7,
+    "id_servicio": 9
+  },
+  {
+    "id_profesional": 8,
+    "id_servicio": 10
+  },
+  {
+    "id_profesional": 9,
+    "id_servicio": 11
+  },
+  {
+    "id_profesional": 7,
+    "id_servicio": 12
+  },
+  {
+    "id_profesional": 10,
+    "id_servicio": 13
+  },
+  {
+    "id_profesional": 11,
+    "id_servicio": 14
+  },
+  {
+    "id_profesional": 10,
+    "id_servicio": 15
+  },
+  {
+    "id_profesional": 12,
+    "id_servicio": 16
+  },
+  {
+    "id_profesional": 13,
+    "id_servicio": 17
+  },
+  {
+    "id_profesional": 14,
+    "id_servicio": 18
+  },
+  {
+    "id_profesional": 15,
+    "id_servicio": 19
+  },
+  {
+    "id_profesional": 16,
+    "id_servicio": 20
+  },
+  {
+    "id_profesional": 17,
+    "id_servicio": 21
+  },
+  {
+    "id_profesional": 16,
+    "id_servicio": 22
+  },
+  {
+    "id_profesional": 17,
+    "id_servicio": 23
+  },
+  {
+    "id_profesional": 18,
+    "id_servicio": 24
+  },
+  {
+    "id_profesional": 19,
+    "id_servicio": 25
+  },
+  {
+    "id_profesional": 18,
+    "id_servicio": 26
+  },
+  {
+    "id_profesional": 20,
+    "id_servicio": 27
+  },
+  {
+    "id_profesional": 21,
+    "id_servicio": 28
+  },
+  {
+    "id_profesional": 20,
+    "id_servicio": 29
+  },
+  {
+    "id_profesional": 22,
+    "id_servicio": 30
+  },
+  {
+    "id_profesional": 23,
+    "id_servicio": 31
+  },
+  {
+    "id_profesional": 22,
+    "id_servicio": 32
+  },
+  {
+    "id_profesional": 24,
+    "id_servicio": 33
+  },
+  {
+    "id_profesional": 25,
+    "id_servicio": 34
+  },
+  {
+    "id_profesional": 24,
+    "id_servicio": 35
+  },
+  {
+    "id_profesional": 26,
+    "id_servicio": 36
+  },
+  {
+    "id_profesional": 27,
+    "id_servicio": 37
+  },
+  {
+    "id_profesional": 26,
+    "id_servicio": 38
+  }
+]

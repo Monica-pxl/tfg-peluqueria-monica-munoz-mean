@@ -1,0 +1,108 @@
+<section class="admin-section">
+  <div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center title-main">Gestión de Centros</h2>
+
+    <div class="mb-4">
+      <button class="btn btn-success" (click)="crearCentro()">
+        <i class="bi bi-plus-circle"></i> Crear Centro
+      </button>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="filtros-container mb-4">
+      <div class="filtro-grupo busqueda">
+        <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
+        <input 
+          type="text" 
+          id="busqueda" 
+          [(ngModel)]="busquedaTexto" 
+          (input)="aplicarFiltros()"
+          placeholder="Nombre, dirección o email..."
+          class="form-control">
+      </div>
+
+      <div class="resultados-count">
+        <span class="badge bg-info">{{ centrosFiltrados.length }} de {{ centros.length }} centros</span>
+      </div>
+    </div>
+
+    @if(cargando) {
+      <div class="empty-state">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3">Cargando centros...</p>
+      </div>
+    }
+
+    @if(error) {
+      <div class="alert alert-danger text-center">
+        <i class="bi bi-exclamation-triangle"></i> Error al cargar los centros
+      </div>
+    }
+
+    @if(!cargando && centrosFiltrados.length === 0 && centros.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🏢</div>
+        <h3>No hay centros registrados</h3>
+        <p>Crea tu primer centro para comenzar</p>
+      </div>
+    }
+
+    @if(!cargando && centrosFiltrados.length === 0 && centros.length > 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron centros</h3>
+        <p>No hay centros que coincidan con la búsqueda</p>
+      </div>
+    }
+
+    @if(centrosFiltrados.length > 0) {
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th><i class="bi bi-hash"></i> ID</th>
+            <th><i class="bi bi-building"></i> Nombre</th>
+            <th><i class="bi bi-geo-alt"></i> Dirección</th>
+            <th><i class="bi bi-telephone"></i> Teléfono</th>
+            <th><i class="bi bi-envelope"></i> Email</th>
+            <th><i class="bi bi-clock"></i> Horario</th>
+            <th><i class="bi bi-people"></i> Profesionales</th>
+            <th><i class="bi bi-gear"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let centro of centrosFiltrados">
+            <td>{{ centro.id_centro }}</td>
+            <td class="fw-bold">{{ centro.nombre }}</td>
+            <td>{{ centro.direccion }}</td>
+            <td>{{ centro.telefono }}</td>
+            <td>{{ centro.email }}</td>
+            <td>
+              <span class="badge-hora">{{ centro.horario_apertura }} - {{ centro.horario_cierre }}</span>
+            </td>
+            <td>
+              @if(cantidadProfesionales(centro.id_centro) > 0) {
+                <span class="badge bg-info">{{ cantidadProfesionales(centro.id_centro) }} profesional(es)</span>
+              } @else {
+                <span class="text-muted">Sin profesionales</span>
+              }
+            </td>
+            <td>
+              <button class="btn btn-sm btn-primary me-1" (click)="editarCentro(centro.id_centro)" title="Editar centro">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-danger" 
+                (click)="borrarCentro(centro)"
+                [disabled]="cantidadProfesionales(centro.id_centro) > 0"
+                [title]="cantidadProfesionales(centro.id_centro) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : 'Eliminar centro'">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    }
+  </div>
+</section>

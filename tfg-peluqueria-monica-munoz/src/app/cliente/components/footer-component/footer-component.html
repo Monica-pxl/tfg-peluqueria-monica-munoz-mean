@@ -1,0 +1,76 @@
+<footer class="footer-custom py-5" style="background-color:#000; color:#fff;">
+  <div class="container">
+    <div class="row">
+      <!-- Columna 1: Información de la empresa -->
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5 class="footer-heading">HairGest</h5>
+        <p class="footer-description">
+          Sistema de gestión de citas para peluquerías multicentro. 
+          Reserva tu cita de forma fácil y rápida.
+        </p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/" class="text-white me-3" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/" class="text-white me-3" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://twitter.com/" class="text-white me-3" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
+          <a href="https://www.linkedin.com/" class="text-white" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Enlaces rápidos según rol -->
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5 class="footer-heading">Enlaces Rápidos</h5>
+        <ul class="list-unstyled footer-links">
+          <!-- Enlaces para Cliente -->
+          @if(usuariosService.getUsuarioLogueado()?.rol === 'cliente' || !usuariosService.getUsuarioLogueado()){
+            @for(ruta of rutasCliente; track ruta.ruta){
+              <li><a [routerLink]="ruta.ruta" class="text-white">{{ruta.nombre}}</a></li>
+            }
+          }
+
+          <!-- Enlaces para Admin -->
+          @if(usuariosService.getUsuarioLogueado()?.rol === 'administrador'){
+            @for(ruta of rutasAdmin; track ruta.ruta){
+              <li><a [routerLink]="ruta.ruta" class="text-white">{{ruta.nombre}}</a></li>
+            }
+          }
+
+          <!-- Enlaces para Profesional -->
+          @if(usuariosService.getUsuarioLogueado()?.rol === 'profesional'){
+            @for(ruta of rutasProfesional; track ruta.ruta){
+              <li><a [routerLink]="ruta.ruta" class="text-white">{{ruta.nombre}}</a></li>
+            }
+          }
+        </ul>
+      </div>
+
+      <!-- Columna 3: Contacto -->
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5 class="footer-heading">Contacto</h5>
+        <ul class="list-unstyled footer-contact">
+          <li><i class="bi bi-geo-alt-fill me-2"></i>España</li>
+          <li><i class="bi bi-telephone-fill me-2"></i>+34 XXX XXX XXX</li>
+          <li><i class="bi bi-envelope-fill me-2"></i>info@hairgest.com</li>
+          <li><i class="bi bi-clock-fill me-2"></i>Lun-Sáb: 9:00 - 20:00</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Línea divisoria -->
+    <hr class="footer-divider my-4" style="border-color: rgba(255,255,255,0.1);">
+
+    <!-- Copyright y enlaces legales -->
+    <div class="row">
+      <div class="col-md-6 text-center text-md-start">
+        <p class="mb-0 footer-text">
+          © {{ currentYear }} HairGest - Todos los derechos reservados
+        </p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <a routerLink="/politica-privacidad" class="text-white me-3 footer-legal">Política de Privacidad</a>
+        <a routerLink="/terminos-condiciones" class="text-white me-3 footer-legal">Términos y Condiciones</a>
+        <a routerLink="/cookies" class="text-white footer-legal">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+

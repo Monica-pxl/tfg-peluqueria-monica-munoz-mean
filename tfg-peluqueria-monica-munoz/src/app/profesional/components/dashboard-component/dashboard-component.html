@@ -1,0 +1,162 @@
+<div class="profesional-dashboard">
+
+  <section class="hero-banner-profesional">
+    <div class="container text-center">
+      <div class="hero-icon-wrapper">
+        <i class="bi bi-calendar-check hero-icon"></i>
+      </div>
+      <h1 class="display-4 fw-bold mb-3 title-animated">
+        Bienvenido/a, {{ usuarioLogueado?.nombre }}
+      </h1>
+      <p class="lead mb-0 subtitle-animated">
+        Gestiona tus citas y servicios desde tu panel profesional.
+      </p>
+    </div>
+  </section>
+
+  <section class="dashboard-stats" style="margin-bottom: 50px;">
+    <div class="container">
+      <div class="row g-4">
+        
+        <div class="col-md-3">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-calendar-check card-icon"></i>
+              </div>
+              <h2 class="stat-number mb-2">{{ citasTotales }}</h2>
+              <p class="card-text text-gray-light mb-0">Citas</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-calendar-day card-icon"></i>
+              </div>
+              <h2 class="stat-number mb-2">{{ citasHoy }}</h2>
+              <p class="card-text text-gray-light mb-0">Citas Hoy</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-clock-history card-icon"></i>
+              </div>
+              <h2 class="stat-number mb-2">{{ citasPendientes }}</h2>
+              <p class="card-text text-gray-light mb-0">Citas Pendientes</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover card-clickable" routerLink="/profesional/mis-citas">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-arrow-right-circle card-icon"></i>
+              </div>
+              <h2 class="stat-number mb-2">Ver</h2>
+              <p class="card-text text-gray-light mb-0">Mis Citas</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="next-appointment-section" style="margin-bottom: 50px;">
+    <div class="container">
+      <h2 class="section-title text-center mb-4">
+        <span class="title-badge"><i class="bi bi-alarm"></i> Próxima Cita</span>
+      </h2>
+      <div class="card shadow-lg rounded-4 border-0 p-4 appointment-card">
+        @if(proximaCita) {
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-4 text-center mb-3 mb-md-0">
+                <div class="appointment-date-wrapper">
+                  <div class="date-circle">
+                    <i class="bi bi-calendar3 appointment-icon"></i>
+                    <h3 class="appointment-date">{{ proximaCita.fecha }}</h3>
+                    <div class="appointment-time">
+                      <i class="bi bi-clock-fill"></i> {{ proximaCita.hora }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="appointment-details">
+                  <div class="detail-item">
+                    <i class="bi bi-person-fill"></i>
+                    <span><strong>Cliente:</strong> {{ proximaCita.nombreCliente }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <i class="bi bi-scissors"></i>
+                    <span><strong>Servicio:</strong> {{ proximaCita.servicio || 'Servicio' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <i class="bi bi-building"></i>
+                    <span><strong>Centro:</strong> {{ proximaCita.centro || 'Centro' }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <i class="bi bi-info-circle"></i>
+                    <span><strong>Estado:</strong> <span class="badge bg-gradient-pink">{{ proximaCita.estado }}</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="card-body text-center py-5">
+            <div class="no-appointment-wrapper">
+              <i class="bi bi-calendar-x no-appointment-icon"></i>
+              <p class="lead mb-0">No tienes citas programadas próximamente</p>
+              <p class="text-muted mt-2">Las nuevas citas aparecerán aquí automáticamente</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="quick-access-section" style="margin-bottom: 50px;">
+    <div class="container">
+      <h2 class="section-title text-center mb-4"><i class="bi bi-lightning-charge"></i> Accesos Rápidos</h2>
+      <div class="row g-4">
+        
+        <div class="col-md-6">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover card-clickable" routerLink="/profesional/mis-citas">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-calendar-check-fill card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Gestionar Citas</h5>
+              <p class="card-text text-gray-light mb-0">Ver y administrar todas tus citas programadas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover card-clickable" routerLink="/profesional/notificaciones">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-bell-fill card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Notificaciones</h5>
+              <p class="card-text text-gray-light mb-0">Alertas y recordatorios importantes sobre tus citas.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+

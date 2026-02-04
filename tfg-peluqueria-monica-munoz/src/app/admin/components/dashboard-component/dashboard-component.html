@@ -1,0 +1,243 @@
+<div class="admin-dashboard">
+
+  <section class="hero-banner-admin">
+    <div class="container text-center">
+      <div class="hero-icon-wrapper">
+        <i class="bi bi-speedometer2 hero-icon"></i>
+      </div>
+      <h1 class="display-4 fw-bold mb-3 title-animated">
+        Bienvenido, Administrador
+      </h1>
+      <p class="lead mb-0 subtitle-animated">
+        Gestiona citas, servicios, profesionales y usuarios desde aquí.
+      </p>
+    </div>
+  </section>
+
+
+
+  
+  <section class="dashboard-cards mb-5">
+    <div class="container">
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-calendar-check card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Citas</h5>
+              <p class="card-text text-gray-light mb-4">Ver y gestionar todas las citas registradas.</p>
+              <a [routerLink]="'/admin/citas'" class="btn px-4 btn-custom">Ir a Citas</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-scissors card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Servicios</h5>
+              <p class="card-text text-gray-light mb-4">Añadir, editar o eliminar servicios ofrecidos.</p>
+              <a [routerLink]="'/admin/servicios'" class="btn px-4 btn-custom">Ir a Servicios</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-people-fill card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Profesionales</h5>
+              <p class="card-text text-gray-light mb-4">Gestionar profesionales y asignarles servicios o horarios.</p>
+              <a [routerLink]="'/admin/profesionales'" class="btn px-4 btn-custom">Ir a Profesionales</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-building card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Centros</h5>
+              <p class="card-text text-gray-light mb-4">Gestionar los centros disponibles de la peluquería.</p>
+              <a [routerLink]="'/admin/centros'" class="btn px-4 btn-custom">Ir a Centros</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-clock-fill card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Horarios</h5>
+              <p class="card-text text-gray-light mb-4">Definir horarios disponibles para cada profesional.</p>
+              <a [routerLink]="'/admin/horarios'" class="btn px-4 btn-custom">Ir a Horarios</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-person-lines-fill card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Usuarios</h5>
+              <p class="card-text text-gray-light mb-4">Ver y gestionar clientes y profesionales registrados.</p>
+              <a [routerLink]="'/admin/usuarios'" class="btn px-4 btn-custom">Ir a Usuarios</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="dashboard-stats my-5 py-5">
+    <div class="container">
+      <h2 class="mb-5 text-center stats-title">Estadísticas rápidas</h2>
+      <div class="row g-4 justify-content-center">
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card text-center h-100 shadow rounded-4 border-0 p-4 stats-card">
+            <div class="card-body">
+              <div class="stats-icon-wrapper mb-3">
+                <i class="bi bi-calendar2-check stats-icon"></i>
+              </div>
+              <h5 class="card-title mb-2">Total Citas</h5>
+              <p class="display-6 fw-bold mb-0 stats-number">{{ totalCitas }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card text-center h-100 shadow rounded-4 border-0 p-4 stats-card">
+            <div class="card-body">
+              <div class="stats-icon-wrapper mb-3">
+                <i class="bi bi-person-badge stats-icon"></i>
+              </div>
+              <h5 class="card-title mb-2">Clientes</h5>
+              <p class="display-6 fw-bold mb-0 stats-number">{{ totalClientes }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card text-center h-100 shadow rounded-4 border-0 p-4 stats-card">
+            <div class="card-body">
+              <div class="stats-icon-wrapper mb-3">
+                <i class="bi bi-person-workspace stats-icon"></i>
+              </div>
+              <h5 class="card-title mb-2">Profesionales</h5>
+              <p class="display-6 fw-bold mb-0 stats-number">{{ totalProfesionales }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card text-center h-100 shadow rounded-4 border-0 p-4 stats-card">
+            <div class="card-body">
+              <div class="stats-icon-wrapper mb-3">
+                <i class="bi bi-geo-alt-fill stats-icon"></i>
+              </div>
+              <h5 class="card-title mb-2">Centros</h5>
+              <p class="display-6 fw-bold mb-0 stats-number">{{ totalCentros }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="card text-center h-100 shadow rounded-4 border-0 p-4 stats-card">
+            <div class="card-body">
+              <div class="stats-icon-wrapper mb-3">
+                <i class="bi bi-star-fill stats-icon"></i>
+              </div>
+              <h5 class="card-title mb-2">Servicios</h5>
+              <p class="display-6 fw-bold mb-0 stats-number">{{ totalServicios }}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Accesos Rápidos Adicionales -->
+  <section class="quick-access-section mb-5">
+    <div class="container">
+      <h2 class="mb-5 text-center stats-title">Gestión Rápida</h2>
+      <div class="row g-4">
+        
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/horarios'">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-clock-history card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Nuevo Horario</h5>
+              <p class="card-text text-gray-light mb-0">Crear y gestionar horarios para profesionales.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/servicios'">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-plus-circle card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Nuevo Servicio</h5>
+              <p class="card-text text-gray-light mb-0">Añadir un nuevo servicio al catálogo.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/usuarios'">
+            <div class="card-body text-center">
+              <div class="icon-wrapper mb-3">
+                <i class="bi bi-person-plus card-icon"></i>
+              </div>
+              <h5 class="card-title mb-3">Gestión Usuarios</h5>
+              <p class="card-text text-gray-light mb-0">Administrar clientes y profesionales.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Información del Sistema -->
+  <section class="system-info-section mb-5 py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="info-banner">
+            <div class="info-content">
+              <div class="info-icon">
+                <i class="bi bi-lightbulb-fill"></i>
+              </div>
+              <div class="info-text">
+                <h4>Consejo de Administración</h4>
+                <p>Revisa regularmente las estadísticas de citas y servicios para optimizar la gestión del negocio. Mantén actualizados los horarios de los profesionales para evitar conflictos de programación.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

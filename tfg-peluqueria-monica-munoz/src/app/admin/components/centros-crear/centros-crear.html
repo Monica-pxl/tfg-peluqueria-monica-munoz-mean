@@ -1,0 +1,99 @@
+<section class="form-section d-flex justify-content-center align-items-center">
+  <div class="form-card">
+    <div class="form-header">
+      <i class="bi bi-building-fill-add"></i>
+      <h2 class="fw-bold mb-2">Crear Nuevo Centro</h2>
+      <p class="text-muted">Añade un nuevo centro a la red de peluquerías</p>
+    </div>
+
+    <form (ngSubmit)="crearCentro()">
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-building me-2"></i>Nombre del Centro
+        </label>
+        <input 
+          type="text" 
+          class="form-control form-control-custom" 
+          [(ngModel)]="nombre" 
+          name="nombre" 
+          placeholder="Ej: Peluquería Centro Madrid"
+          required>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-geo-alt-fill me-2"></i>Dirección
+        </label>
+        <input 
+          type="text" 
+          class="form-control form-control-custom" 
+          [(ngModel)]="direccion" 
+          name="direccion" 
+          placeholder="Calle, número, ciudad"
+          required>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <label class="form-label">
+            <i class="bi bi-telephone-fill me-2"></i>Teléfono
+          </label>
+          <input 
+            type="tel" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="telefono" 
+            name="telefono" 
+            placeholder="123456789"
+            pattern="[0-9]{9}"
+            required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-envelope-fill me-2"></i>Email
+          </label>
+          <input 
+            type="email" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="email" 
+            name="email" 
+            placeholder="centro@ejemplo.com"
+            required>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <label class="form-label">
+            <i class="bi bi-clock-fill me-2"></i>Horario Apertura
+          </label>
+          <input 
+            type="time" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="horario_apertura" 
+            name="horario_apertura" 
+            required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-clock me-2"></i>Horario Cierre
+          </label>
+          <input 
+            type="time" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="horario_cierre" 
+            name="horario_cierre" 
+            required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel" (click)="cancelar()">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button type="submit" class="btn btn-create">
+          <i class="bi bi-check-circle me-2"></i>Crear Centro
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

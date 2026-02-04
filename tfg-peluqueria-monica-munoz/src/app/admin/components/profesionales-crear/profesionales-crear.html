@@ -1,0 +1,117 @@
+<section class="form-section d-flex justify-content-center align-items-center">
+  <div class="form-card">
+    <div class="form-header">
+      <i class="bi bi-person-plus-fill"></i>
+      <h2 class="fw-bold mb-2">Crear Nuevo Profesional</h2>
+      <p class="text-muted">Añade un nuevo profesional al equipo</p>
+    </div>
+
+    @if(cargando) {
+      <div class="empty-state">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3">Cargando datos...</p>
+      </div>
+    }
+
+    @if(!cargando && usuariosProfesionales.length === 0) {
+      <div class="alert alert-warning text-center">
+        <i class="bi bi-exclamation-triangle"></i> Todos los usuarios con rol "profesional" ya tienen un perfil de profesional creado.
+        <br><br>
+        <strong>Para crear un nuevo profesional:</strong>
+        <br>1. Ve a "Gestión de Usuarios"
+        <br>2. Crea un nuevo usuario con rol "profesional"
+        <br>3. Luego vuelve aquí para asignarle un perfil de profesional
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn-cancel" (click)="cancelar()">
+          <i class="bi bi-arrow-left me-2"></i>Volver a Profesionales
+        </button>
+      </div>
+    }
+
+    @if(!cargando && usuariosProfesionales.length > 0) {
+      <form (ngSubmit)="crearProfesional()">
+        
+        <div class="mb-4">
+          <label for="id_usuario" class="form-label">
+            <i class="bi bi-person-fill me-2"></i>Usuario Profesional
+          </label>
+          <select 
+            id="id_usuario" 
+            [(ngModel)]="id_usuario" 
+            name="id_usuario" 
+            class="form-select form-control-custom"
+            required>
+            <option value="0" disabled selected>Selecciona un usuario...</option>
+            @for(usuario of usuariosProfesionales; track usuario.id_usuario) {
+              <option [value]="usuario.id_usuario">{{ usuario.nombre }} ({{ usuario.email }})</option>
+            }
+          </select>
+          <small class="text-muted d-block mt-2">
+            <i class="bi bi-info-circle me-1"></i>Solo se muestran usuarios con rol "profesional" sin asignar
+          </small>
+        </div>
+
+        <div class="mb-4">
+          <label for="id_centro" class="form-label">
+            <i class="bi bi-geo-alt-fill me-2"></i>Centro
+          </label>
+          <select 
+            id="id_centro" 
+            [(ngModel)]="id_centro" 
+            name="id_centro" 
+            class="form-select form-control-custom"
+            (change)="onCentroChange()"
+            required>
+            <option value="0" disabled selected>Selecciona un centro...</option>
+            @for(centro of centros; track centro.id_centro) {
+              <option [value]="centro.id_centro">{{ centro.nombre }} - {{ centro.direccion }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label for="id_servicios" class="form-label">
+            <i class="bi bi-scissors me-2"></i>Servicios que Ofrece
+          </label>
+          @if(!id_centro) {
+            <p class="text-muted"><i class="bi bi-info-circle me-1"></i>Primero selecciona un centro</p>
+          }
+          @if(id_centro && serviciosFiltrados.length === 0) {
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle"></i> No hay servicios disponibles para este centro.
+              <br><small>No te preocupes, puedes crear el profesional ahora y asignarle servicios después editando su perfil.</small>
+            </div>
+          }
+          @if(id_centro && serviciosFiltrados.length > 0) {
+            <select 
+              id="id_servicios" 
+              [(ngModel)]="id_servicios" 
+              name="id_servicios" 
+              class="form-select form-control-custom multi-select"
+              multiple
+              size="6">
+              @for(servicio of serviciosFiltrados; track servicio.id_servicio) {
+                <option [value]="servicio.id_servicio">{{ servicio.nombre }}</option>
+              }
+            </select>
+            <small class="text-muted d-block mt-2">
+              <i class="bi bi-info-circle me-1"></i>Opcional: Puedes asignar servicios ahora o editarlos después
+            </small>
+          }
+        </div>
+
+        <div class="d-flex gap-3 mt-4 justify-content-center">
+          <button type="submit" class="btn-submit">
+            <i class="bi bi-check-circle-fill me-2"></i>Crear Profesional
+          </button>
+          <button type="button" class="btn-cancel" (click)="cancelar()">
+            <i class="bi bi-x-circle-fill me-2"></i>Cancelar
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</section>

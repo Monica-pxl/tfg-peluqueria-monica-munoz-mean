@@ -1,0 +1,91 @@
+<section class="form-section d-flex justify-content-center align-items-center">
+  <div class="form-card">
+    <div class="form-header">
+      <i class="bi bi-person-fill-gear"></i>
+      <h2 class="fw-bold mb-2">Editar Profesional</h2>
+      <p class="text-muted">Modifica la información del profesional</p>
+    </div>
+
+    <div class="text-center py-5">
+      <div class="spinner-border text-pink" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted mt-3">Cargando datos del profesional...</p>
+    </div>
+
+    @if(error) {
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      </div>
+    }
+
+    <form (ngSubmit)="actualizarProfesional()">
+      <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <label class="form-label">
+            <i class="bi bi-person-fill me-2"></i>Nombre
+          </label>
+          <input 
+            type="text" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="profesional.nombre" 
+            name="nombre" 
+            placeholder="Nombre del profesional"
+            required>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">
+            <i class="bi bi-person-badge me-2"></i>Apellidos
+          </label>
+          <input 
+            type="text" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="profesional.apellidos" 
+            name="apellidos" 
+            placeholder="Apellidos del profesional"
+            required>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-geo-alt-fill me-2"></i>Centro Asignado
+        </label>
+        <select class="form-select form-control-custom" [(ngModel)]="profesional.id_centro" name="id_centro" required>
+          <option value="" disabled>Selecciona un centro</option>
+          <option [ngValue]="c.id_centro" *ngFor="let c of centros">{{ c.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">
+          <i class="bi bi-scissors me-2"></i>Servicios que Ofrece
+        </label>
+        <select 
+          class="form-select form-control-custom multi-select" 
+          [(ngModel)]="id_servicios" 
+          name="id_servicios" 
+          multiple
+          size="5">
+          <option *ngFor="let s of serviciosFiltrados" [value]="s.id_servicio">
+            {{ s.nombre }}
+          </option>
+        </select>
+        <small class="text-muted d-block mt-2">
+          <i class="bi bi-info-circle me-1"></i>Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples servicios. Solo se muestran servicios del centro asignado.
+        </small>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel" (click)="cancelar()">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </button>
+        <button type="submit" class="btn btn-update">
+          <i class="bi bi-check-circle me-2"></i>Actualizar Profesional
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+

@@ -1,0 +1,102 @@
+.footer-custom {
+  position: relative;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.footer-content {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-text {
+  transition: color 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.footer-custom:hover .footer-text {
+  color: rgb(252, 165, 233) !important;
+}
+
+/* Estilos adicionales */
+.footer-heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.footer-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.footer-social a {
+  font-size: 1.3rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: inline-block;
+}
+
+.footer-social a:hover {
+  color: rgb(252, 165, 233) !important;
+  transform: translateY(-3px);
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease, padding-left 0.3s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: rgb(252, 165, 233) !important;
+  padding-left: 5px;
+}
+
+.footer-contact li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.footer-contact i {
+  color: rgb(252, 165, 233);
+}
+
+.footer-legal {
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.footer-legal:hover {
+  color: rgb(252, 165, 233) !important;
+  text-decoration: underline;
+}
+
+.footer-divider {
+  opacity: 0.3;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-heading {
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .footer-description {
+    font-size: 0.85rem;
+  }
+  
+  .footer-links a, 
+  .footer-contact li {
+    font-size: 0.85rem;
+  }
+}

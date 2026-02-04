@@ -1,0 +1,103 @@
+<section class="form-section d-flex justify-content-center align-items-center">
+  @if(cargando) {
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else if(centro) {
+    <div class="form-card">
+      <div class="form-header">
+        <i class="bi bi-building-fill-gear"></i>
+        <h2 class="fw-bold mb-2">Editar Centro</h2>
+        <p class="text-muted">Modifica la información del centro</p>
+      </div>
+
+      <form (ngSubmit)="actualizarCentro()">
+        <div class="mb-4">
+          <label class="form-label">
+            <i class="bi bi-building me-2"></i>Nombre del Centro
+          </label>
+          <input 
+            type="text" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="centro.nombre" 
+            name="nombre" 
+            required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">
+            <i class="bi bi-geo-alt-fill me-2"></i>Dirección
+          </label>
+          <input 
+            type="text" 
+            class="form-control form-control-custom" 
+            [(ngModel)]="centro.direccion" 
+            name="direccion" 
+            required>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <label class="form-label">
+              <i class="bi bi-telephone-fill me-2"></i>Teléfono
+            </label>
+            <input 
+              type="tel" 
+              class="form-control form-control-custom" 
+              [(ngModel)]="centro.telefono" 
+              name="telefono" 
+              pattern="[0-9]{9}"
+              required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">
+              <i class="bi bi-envelope-fill me-2"></i>Email
+            </label>
+            <input 
+              type="email" 
+              class="form-control form-control-custom" 
+              [(ngModel)]="centro.email" 
+              name="email" 
+              required>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <label class="form-label">
+              <i class="bi bi-clock-fill me-2"></i>Horario Apertura
+            </label>
+            <input 
+              type="time" 
+              class="form-control form-control-custom" 
+              [(ngModel)]="centro.horario_apertura" 
+              name="horario_apertura" 
+              required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">
+              <i class="bi bi-clock me-2"></i>Horario Cierre
+            </label>
+            <input 
+              type="time" 
+              class="form-control form-control-custom" 
+              [(ngModel)]="centro.horario_cierre" 
+              name="horario_cierre" 
+              required>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="cancelar()">
+            <i class="bi bi-x-circle me-2"></i>Cancelar
+          </button>
+          <button type="submit" class="btn btn-create">
+            <i class="bi bi-check-circle me-2"></i>Actualizar Centro
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</section>

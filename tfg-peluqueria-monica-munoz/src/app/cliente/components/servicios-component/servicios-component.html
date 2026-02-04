@@ -1,0 +1,70 @@
+<section class="servicios-section">
+  <div class="container py-5">
+    <div class="section-header mb-5">
+      <h2 class="text-center mb-3">Nuestros Servicios</h2>
+      <p class="text-center text-muted" style="font-size: 1.1rem;">Explora nuestros servicios de belleza y estética</p>
+    </div>
+
+    <div class="search-wrapper mb-4">
+      <div class="search-container">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Buscar servicios por nombre o descripción..."
+          [(ngModel)]="textoBusqueda"
+          (input)="filtrarServicios()"
+        />
+        @if(textoBusqueda) {
+          <button class="clear-search" (click)="limpiarBusqueda()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="row g-4" style="margin-bottom: 70px;">
+
+      @for(servicio of serviciosFiltrados; track servicio.id_servicio) {
+
+        @if($index >= (paginaActual - 1) * cantidadPorPagina && 
+             $index < paginaActual * cantidadPorPagina) {
+
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card h-100 shadow-sm servicio-hover position-relative">
+              <div class="card-badge">Disponible</div>
+
+              <div class="card-image-wrapper">
+                <img [src]="servicio.imagen" class="card-img-top" alt="imagen del servicio" />
+                <div class="card-overlay"></div>
+              </div>
+
+              <div class="card-body text-start">
+                <h5 class="card-title">{{ servicio.nombre }}</h5>
+                <p class="card-text">{{ servicio.descripcion }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <p class="card-text mb-0"><strong class="precio-highlight">{{ servicio.precio }} €</strong></p>
+                  <span class="badge bg-pink text-white">Bestseller</span>
+                </div>
+                <a [routerLink]="'/reservar-cita'" class="btn btn-primary text-white mt-3 w-100">
+                  Reservar Ahora
+                </a>
+              </div>
+
+            </div>
+          </div>
+
+        }
+
+      }
+    </div>
+
+    <div class="pagination-wrapper d-flex justify-content-center mt-4 gap-3">
+      <button class="btn btn-pagination" (click)="CambiarPagina('primera')">Primera</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('anterior')">Anterior</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('siguiente')">Siguiente</button>
+      <button class="btn btn-pagination" (click)="CambiarPagina('ultima')">Última</button>
+    </div>
+
+  </div>
+</section>

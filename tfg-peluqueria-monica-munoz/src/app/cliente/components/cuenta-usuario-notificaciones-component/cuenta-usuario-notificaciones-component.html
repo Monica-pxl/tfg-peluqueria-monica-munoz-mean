@@ -1,0 +1,45 @@
+<div class="contenedor-notificaciones">
+
+  <div class="header-notificaciones">
+    <h2 class="titulo">
+      <span class="icono-titulo">🔔</span>
+      Notificaciones
+      @if(notificaciones.length > 0) {
+        <span class="badge-count">{{ notificaciones.length }}</span>
+      }
+    </h2>
+  </div>
+
+  @if(notificaciones.length > 0) {
+    <button class="btn-limpiar" (click)="limpiar()">
+      <span class="icono-limpiar">✨</span>
+      Limpiar notificaciones
+    </button>
+  }
+
+  @if(notificaciones.length === 0) {
+    <div class="sin-notificaciones">
+      <div class="icono-vacio">📭</div>
+      <p>No tienes notificaciones.</p>
+      <p class="texto-secundario">Te notificaremos cuando haya novedades</p>
+    </div>
+  }
+
+  <div class="lista-notificaciones">
+    @for(n of notificaciones; track $index) {
+      <div class="notificacion-card">
+        <div class="icono-notificacion">💬</div>
+        <div class="contenido-notificacion">
+          <p [innerHTML]="n.mensaje"></p>
+          <span class="fecha">🕒 {{ n.fecha }}</span>
+        </div>
+        <button class="btn-borrar-notif" (click)="borrarNotificacion($index)" title="Eliminar notificación">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    }
+  </div>
+
+</div>
+
+

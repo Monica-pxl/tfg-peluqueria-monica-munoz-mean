@@ -1,0 +1,414 @@
+/* Dashboard Profesional - Estilo Admin en tema claro */
+
+.profesional-dashboard {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 50%, #ffffff 100%);
+  min-height: 100vh;
+  padding-bottom: 50px;
+  position: relative;
+}
+
+.profesional-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, rgba(255, 105, 180, 0.03) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 137, 196, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.profesional-dashboard > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero Banner - Similar a admin pero más claro */
+.hero-banner-profesional {
+  background: linear-gradient(135deg, #ff6fbf 0%, #ff3d94 100%);
+  color: #ffffff; 
+  padding: 90px 0; 
+  margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(255, 111, 191, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-profesional::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.hero-icon-wrapper {
+  margin-bottom: 20px;
+}
+
+.hero-icon {
+  font-size: 4rem;
+  color: #ffffff;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.title-animated {
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.subtitle-animated {
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-banner-profesional h1 {
+  font-size: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-banner-profesional p {
+  font-size: 1.3rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0.95;
+}
+
+/* Tarjetas estilo admin pero tema claro */
+.card-hover {
+  background: linear-gradient(135deg, #ffffff 0%, #fffbfd 100%);
+  transform: translateY(0); 
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid rgba(255, 105, 180, 0.12) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cursor pointer para tarjetas clicables */
+.card-clickable {
+  cursor: pointer;
+}
+
+.card-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.08), transparent);
+  transition: left 0.6s ease;
+}
+
+.card-hover:hover::before {
+  left: 100%;
+}
+
+.card-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff69b4, #ff89c4, #ffc1e3);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.card-hover:hover::after {
+  transform: scaleX(1);
+}
+
+.card-hover:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(255, 105, 180, 0.25);
+  border: 2px solid rgba(255, 105, 180, 0.3) !important;
+}
+
+.icon-wrapper {
+  display: inline-block;
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff89c4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+  transition: all 0.4s ease;
+  animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3); }
+  50% { box-shadow: 0 12px 30px rgba(255, 105, 180, 0.5); }
+}
+
+.card-hover:hover .icon-wrapper {
+  transform: scale(1.15) rotate(360deg);
+  box-shadow: 0 12px 35px rgba(255, 105, 180, 0.6);
+  animation: none;
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: white;
+}
+
+.card-title {
+  color: #ff6fbf;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover .card-title {
+  color: #ff3d94;
+  transform: scale(1.05);
+}
+
+.text-gray-light {
+  color: #666;
+}
+
+/* Números de estadísticas */
+.stat-number {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #ff6fbf;
+  margin: 0;
+}
+
+/* Section titles */
+.section-title {
+  color: #333;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff69b4, transparent);
+}
+
+.section-title i {
+  color: #ff69b4;
+  margin-right: 10px;
+}
+
+.title-badge {
+  display: inline-block;
+  padding: 0.6rem 1.8rem;
+  background: linear-gradient(135deg, #fff0f8, #ffe9f5);
+  color: #ff69b4;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 1.5rem;
+  border: 2px solid rgba(255, 105, 180, 0.2);
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.15);
+}
+
+/* Próxima cita */
+.appointment-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fffbfd 100%);
+  border: 2px solid rgba(255, 105, 180, 0.15) !important;
+  transition: all 0.3s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 25px 60px rgba(255, 105, 180, 0.2) !important;
+  border-color: rgba(255, 105, 180, 0.3) !important;
+}
+
+.appointment-date-wrapper {
+  padding: 20px;
+}
+
+.date-circle {
+  display: inline-block;
+  padding: 25px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fff0f8, #ffe9f5);
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2);
+  border: 2px solid rgba(255, 105, 180, 0.15);
+}
+
+.appointment-icon {
+  font-size: 3.5rem;
+  color: #ff69b4;
+  margin-bottom: 15px;
+  display: block;
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.appointment-date {
+  color: #333;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.appointment-time {
+  color: #666;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 20px;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.1);
+}
+
+.appointment-time i {
+  color: #ff6fbf;
+}
+
+.appointment-details {
+  padding-left: 30px;
+  border-left: 4px solid transparent;
+  border-image: linear-gradient(to bottom, #ff69b4, #ff89c4) 1;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff8fc 0%, #ffffff 100%);
+  border-radius: 12px;
+  border-left: 3px solid #ff69b4;
+  transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.15);
+}
+
+.detail-item i {
+  color: #ff69b4;
+  font-size: 1.3rem;
+  min-width: 25px;
+  text-align: center;
+}
+
+.detail-item span {
+  color: #333;
+  font-size: 1.05rem;
+}
+
+.bg-gradient-pink {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4);
+  padding: 6px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.no-appointment-wrapper {
+  padding: 30px;
+}
+
+.no-appointment-icon {
+  font-size: 5rem;
+  color: rgba(255, 105, 180, 0.25);
+  margin-bottom: 20px;
+  display: block;
+  animation: fadeInScale 1s ease;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Secciones con espaciado */
+.dashboard-stats {
+  padding: 30px 0;
+}
+
+.next-appointment-section {
+  padding: 30px 0;
+}
+
+.quick-access-section {
+  padding: 30px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-banner-profesional h1 {
+    font-size: 2rem;
+  }
+
+  .hero-banner-profesional p {
+    font-size: 1rem;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+  }
+
+  .appointment-details {
+    border-left: none;
+    border-top: 3px solid #ff6fbf;
+    padding-left: 0;
+    padding-top: 20px;
+    margin-top: 20px;
+  }
+}

@@ -1,0 +1,20 @@
+@if(mostrarAviso) {
+  <div class="aviso-privacidad-overlay" (click)="aceptarAviso()">
+    <div class="aviso-privacidad-banner" (click)="$event.stopPropagation()">
+      <div class="aviso-icono">
+        <i class="bi bi-shield-check"></i>
+      </div>
+      <div class="aviso-contenido">
+        <p class="aviso-texto">
+          Este sitio usa almacenamiento local para mejorar la experiencia. No utilizamos cookies de seguimiento.
+        </p>
+        <button class="btn-aceptar" (click)="aceptarAviso()">
+          Aceptar
+        </button>
+      </div>
+      <button class="btn-cerrar" (click)="aceptarAviso()" title="Cerrar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+}

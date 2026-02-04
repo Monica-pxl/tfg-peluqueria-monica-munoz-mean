@@ -1,0 +1,17 @@
+@if (alert) {
+  <div class="alert-container alert-{{ alert.type }}">
+    <div class="alert-content-wrapper">
+      <div class="alert-icon-wrapper">
+        <i class="bi {{ getIcon() }}"></i>
+      </div>
+      <div class="alert-text">
+        <h4 class="alert-title">{{ getTitle() }}</h4>
+        <p class="alert-message">{{ alert.message }}</p>
+      </div>
+    </div>
+    <button class="alert-close" (click)="close()" aria-label="Cerrar">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="alert-progress" [class.active]="alert.autoClose"></div>
+  </div>
+}

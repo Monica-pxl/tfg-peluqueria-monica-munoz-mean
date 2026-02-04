@@ -1,0 +1,37 @@
+<div class="error-container">
+  <div class="error-content">
+    <div class="error-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <h1 class="error-code">500</h1>
+    <h2 class="error-title">Error interno del servidor</h2>
+    <p class="error-message">
+      Lo sentimos, ha ocurrido un error inesperado en nuestro servidor. Nuestro equipo ha sido notificado y estamos trabajando para solucionarlo.
+    </p>
+    <div class="error-actions">
+      <a routerLink="/home" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Volver al inicio
+      </a>
+      <button (click)="recargar()" class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Reintentar
+      </button>
+    </div>
+  </div>
+  <div class="error-decoration">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+</div>
