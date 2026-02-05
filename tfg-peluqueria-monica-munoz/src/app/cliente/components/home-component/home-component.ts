@@ -12,32 +12,35 @@ import { CentrosService } from "../../services/centros-service";
   imports: [RouterLink, CommonModule],
   templateUrl: './home-component.html',
   styleUrls: ['./home-component.css'],
+  standalone: true
 })
 export class HomeComponent implements OnInit {
 
-    servicios: ServiciosInterface[] = []; 
+    servicios: ServiciosInterface[] = [];
     centros: CentrosInterface[] = [];
     centrosVisibles: CentrosInterface[] = [];
     currentPage: number = 0;
     itemsPerPage: number = 3;
     Math = Math;
-  
+
     constructor(
       private APIservicios: ServiciosService,
       private APIcentros: CentrosService
     ) {}
-  
+
 
     ngOnInit(): void {
       this.loadServicios();
       this.loadCentros();
     }
-  
+
 
     loadServicios(): void {
       this.APIservicios.getAllServices().subscribe({
         next: (data) => {
-          this.servicios = data;
+          // Ordenar servicios por id_servicio de forma ascendente
+          this.servicios = data.sort((a, b) => a.id_servicio - b.id_servicio);
+          console.log('Servicios cargados en home:', this.servicios);
         },
         error: (err) => {
           console.error('Error al cargar los servicios', err)

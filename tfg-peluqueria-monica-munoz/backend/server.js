@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Servicio = require('./models/Servicio');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -152,50 +153,62 @@ app.get('/api/usuarios', (req, res) => {
 
 
 
-app.get('/api/servicios', (req, res) => {
-  res.json(leerJSON('servicios.json'));
-});
-
-
-app.post('/api/servicios', (req, res) => {
-  const servicios = leerJSON('servicios.json');
-  const nuevo = req.body;
-
-  // Generar ID consecutivo basado en el máximo ID existente
-  nuevo.id_servicio = Math.max(...servicios.map(s => s.id_servicio), 0) + 1;
-  servicios.push(nuevo);
-
-  escribirJSON('servicios.json', servicios);
-
-  res.status(201).json(nuevo);
-});
-
-
-app.put('/api/servicios/:id', (req, res) => {
-  const servicios = leerJSON('servicios.json');
-  const id = Number(req.params.id);
-  const datos = req.body;
-
-  const index = servicios.findIndex(s => s.id_servicio === id);
-  if (index === -1) {
-    return res.status(404).json({ mensaje: "Servicio no encontrado" });
+// GET todos los servicios
+app.get('/api/servicios', async (req, res) => {
+  try {
+    const servicios = await Servicio.find().sort({ id_servicio: 1 });
+    res.json(servicios);
+  } catch (err) {
+    res.status(500).json({ mensaje: 'Error al obtener servicios' });
   }
-
-  servicios[index] = { ...servicios[index], ...datos };
-  escribirJSON('servicios.json', servicios);
-
-  res.json(servicios[index]);
 });
 
+// POST nuevo servicio
+app.post('/api/servicios', async (req, res) => {
+  try {
+    // Obtener el id_servicio máximo para generar consecutivo
+    const ultimo = await Servicio.findOne().sort({ id_servicio: -1 });
+    const nuevoId = ultimo ? ultimo.id_servicio + 1 : 1;
 
-app.delete('/api/servicios/:id', (req, res) => {
-  const servicios = leerJSON('servicios.json');
-  const id = Number(req.params.id);
+    const nuevoServicio = new Servicio({ ...req.body, id_servicio: nuevoId });
+    await nuevoServicio.save();
 
-  const filtrados = servicios.filter(s => s.id_servicio !== id);
-  escribirJSON('servicios.json', filtrados);
+    res.status(201).json(nuevoServicio);
+  } catch (err) {
+    res.status(400).json({ mensaje: 'Error al crear servicio', error: err });
+  }
+});
 
-  res.json({ mensaje: "Servicio eliminado" });
+// PUT actualizar servicio
+app.put('/api/servicios/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const actualizado = await Servicio.findOneAndUpdate(
+      { id_servicio: id },
+      req.body,
+      { new: true }
+    );
+
+    if (!actualizado) return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+
+    res.json(actualizado);
+  } catch (err) {
+    res.status(400).json({ mensaje: 'Error al actualizar servicio', error: err });
+  }
+});
+
+// DELETE borrar servicio
+app.delete('/api/servicios/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const eliminado = await Servicio.findOneAndDelete({ id_servicio: id });
+
+    if (!eliminado) return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+
+    res.json({ mensaje: 'Servicio eliminado' });
+  } catch (err) {
+    res.status(400).json({ mensaje: 'Error al eliminar servicio', error: err });
+  }
 });
 
 

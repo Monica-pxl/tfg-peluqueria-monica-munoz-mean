@@ -11,13 +11,14 @@ import { FormsModule } from '@angular/forms';
   imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './servicios-component.html',
   styleUrl: './servicios-component.css',
+  standalone: true
 })
 
 export class ServiciosComponent implements OnInit {
 
-  servicios: ServiciosInterface[] = []; 
+  servicios: ServiciosInterface[] = [];
   serviciosFiltrados: ServiciosInterface[] = [];
-  serviciosPagina: ServiciosInterface[] = []; 
+  serviciosPagina: ServiciosInterface[] = [];
   paginaActual: number = 1;
   cantidadPorPagina: number = 9;
   textoBusqueda: string = '';
@@ -33,9 +34,11 @@ export class ServiciosComponent implements OnInit {
   loadServicios(): void {
     this.APIservicios.getAllServices().subscribe({
       next: (data) => {
-        this.servicios = data;
-        this.serviciosFiltrados = data;
-        this.actualizarPagina(); 
+        // Ordenar servicios por id_servicio de forma ascendente
+        this.servicios = data.sort((a, b) => a.id_servicio - b.id_servicio);
+        this.serviciosFiltrados = this.servicios;
+        this.actualizarPagina();
+        console.log('Servicios cargados:', this.servicios);
       },
       error: (err) => console.error('Error al cargar los servicios', err)
     });
@@ -46,7 +49,7 @@ export class ServiciosComponent implements OnInit {
       this.serviciosFiltrados = this.servicios;
     } else {
       const busqueda = this.textoBusqueda.toLowerCase();
-      this.serviciosFiltrados = this.servicios.filter(servicio => 
+      this.serviciosFiltrados = this.servicios.filter(servicio =>
         servicio.nombre.toLowerCase().includes(busqueda) ||
         servicio.descripcion.toLowerCase().includes(busqueda)
       );
