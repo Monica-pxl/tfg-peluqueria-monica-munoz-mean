@@ -36,8 +36,7 @@
     "password": "$2b$10$5fuxgpQdr7wZQ1d3Wk4YCOOK3K1fwQtZBCGrTRPZimJWZpp4BalRa",
     "rol": "administrador",
     "estado": "activo",
-    "fecha_alta": "2024-01-01",
-    "puntos": 0
+    "fecha_alta": "2024-01-01"
   },
   {
     "id_usuario": 5,
@@ -46,8 +45,7 @@
     "password": "$2b$10$I9XYpwDrn8ItwXm2CFJa..tqcM8RBhCI37PmNxwWDd4WZNcPez2vC",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-06-15",
-    "puntos": 0
+    "fecha_alta": "2024-06-15"
   },
   {
     "id_usuario": 6,
@@ -56,8 +54,7 @@
     "password": "$2b$10$SWma9woRn0FV4dsk6TOP5.z9VaqSLXiR41aDSlBx.WTIMV5AFQUX.",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-07-01",
-    "puntos": 0
+    "fecha_alta": "2024-07-01"
   },
   {
     "id_usuario": 7,
@@ -66,8 +63,7 @@
     "password": "$2b$10$HZOWrwUOxEdsVV5ZO7/qsu2W4EZ0pmtKCCOlIWBKE8XBDjIMI.Mlm",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-08-12",
-    "puntos": 0
+    "fecha_alta": "2024-08-12"
   },
   {
     "id_usuario": 8,
@@ -76,8 +72,7 @@
     "password": "$2b$10$vztj.OnbeRFJfWx3w8iDJ.C4I5as/F5azvnE7DJYZD3q2R6WRTaeu",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-09-05",
-    "puntos": 0
+    "fecha_alta": "2024-09-05"
   },
   {
     "id_usuario": 9,
@@ -86,8 +81,7 @@
     "password": "$2b$10$KSQRFc6Fb.zYthoUZdTgw.1BlKQmJ14LHTeQ/Fo4zOlPOz7AsGV1q",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-10-01",
-    "puntos": 0
+    "fecha_alta": "2024-10-01"
   },
   {
     "id_usuario": 10,
@@ -96,8 +90,7 @@
     "password": "$2b$10$kYE7Ds1U8gVZ4nLFSXY6w.taYkITJ1vhtdTF7pa5G5qf8RpW43v1m",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-11-20",
-    "puntos": 0
+    "fecha_alta": "2024-11-20"
   },
   {
     "id_usuario": 11,
@@ -106,8 +99,7 @@
     "password": "$2b$10$VQJGWPLti6VVp03x77/tseApCXk7t0Rjeg/.qZMngbEiE14kaCkyu",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-12-01",
-    "puntos": 0
+    "fecha_alta": "2024-12-01"
   },
   {
     "id_usuario": 12,
@@ -116,8 +108,7 @@
     "password": "$2b$10$A8DqWrTdoNNRMmWJKZj7nuNvsZUglooU6YUKQ3wtdxvF8XA7TXbPq",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-12-15",
-    "puntos": 0
+    "fecha_alta": "2024-12-15"
   },
   {
     "id_usuario": 13,
@@ -126,8 +117,7 @@
     "password": "$2b$10$cZuufT83HBCXqFDKja4NHeVmRldQxY.wXtoADp82mAvqChVK7UCBy",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-05",
-    "puntos": 0
+    "fecha_alta": "2025-01-05"
   },
   {
     "id_usuario": 14,
@@ -136,8 +126,7 @@
     "password": "$2b$10$HvFCLBnvaJ8tcsExjJi93udfKdbgPZSrd.g/y0diRNRS1rpdSzRBK",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-10",
-    "puntos": 0
+    "fecha_alta": "2025-01-10"
   },
   {
     "id_usuario": 15,
@@ -146,8 +135,7 @@
     "password": "$2b$10$/gAdDCSBBYGDXAO2ZdeReeEa4AikAImnysaGL9DAJ9.c26dWVFqv6",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-15",
-    "puntos": 0
+    "fecha_alta": "2025-01-15"
   },
   {
     "id_usuario": 16,
@@ -156,8 +144,7 @@
     "password": "$2b$10$JM3MMN8OIPWUr8TwIgBxNOEs4bSMxqKrUVnVUaY1QZ5aPzb7lAB6y",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-18",
-    "puntos": 0
+    "fecha_alta": "2025-01-18"
   },
   {
     "id_usuario": 17,
@@ -166,8 +153,7 @@
     "password": "$2b$10$GS1.s79lMJ7WV6Sibyn36.dKE3utOIpEj4YlQxRSi/Z/3049SDEN.",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-20",
-    "puntos": 0
+    "fecha_alta": "2025-01-20"
   },
   {
     "id_usuario": 18,
@@ -176,8 +162,7 @@
     "password": "$2b$10$hUrd2v7PO4oupK.Xv2qmS.9K97MS3tKghxYijWNpRaxnh36s.ae7q",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-05-10",
-    "puntos": 0
+    "fecha_alta": "2024-05-10"
   },
   {
     "id_usuario": 19,
@@ -186,8 +171,7 @@
     "password": "$2b$10$XAVeXuoT/b.Hk.3y/NMC5OdTB41UZILqMdWCdivhIFEew0e4WRpNO",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-06-01",
-    "puntos": 0
+    "fecha_alta": "2024-06-01"
   },
   {
     "id_usuario": 20,
@@ -196,8 +180,7 @@
     "password": "$2b$10$29FWjQz95LHR.arm249yzuMG52ja7hwOgKbUSfmPERToaC4ehSfzS",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-07-15",
-    "puntos": 0
+    "fecha_alta": "2024-07-15"
   },
   {
     "id_usuario": 21,
@@ -206,8 +189,7 @@
     "password": "$2b$10$U0CH/EscAkbVS9qmkkrQIupUxi7cIrGsH.y12MO4BY4JY9nZdzbk6",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-08-20",
-    "puntos": 0
+    "fecha_alta": "2024-08-20"
   },
   {
     "id_usuario": 22,
@@ -216,8 +198,7 @@
     "password": "$2b$10$MEvGtTqoAqZ7gCcZW6te/.E0.mjMbh0hR0ywAeGjoQmteTR1CY1HK",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-09-01",
-    "puntos": 0
+    "fecha_alta": "2024-09-01"
   },
   {
     "id_usuario": 23,
@@ -226,8 +207,7 @@
     "password": "$2b$10$6rAUH7g31R3VLUs9kEQT7.pJhAMZvHwKrClv.Lzn3yefVtzOdfvi.",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-10-05",
-    "puntos": 0
+    "fecha_alta": "2024-10-05"
   },
   {
     "id_usuario": 24,
@@ -236,8 +216,7 @@
     "password": "$2b$10$mbCB4CoFrA69bPQIBYNIVeDpfAFbsrYNpwgchPA1a0L/0PIfoMCEu",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-11-10",
-    "puntos": 0
+    "fecha_alta": "2024-11-10"
   },
   {
     "id_usuario": 25,
@@ -246,8 +225,7 @@
     "password": "$2b$10$x4JMFBO3ssxfCJguwd6At.gD8lix4/86DCVNKyrvIfe3mTowzwTc2",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-12-01",
-    "puntos": 0
+    "fecha_alta": "2024-12-01"
   },
   {
     "id_usuario": 26,
@@ -256,8 +234,7 @@
     "password": "$2b$10$9KCjXq5W1lF2AUBe7zhstOJGgemnDeyHGYWV0cOq.uKNGd4SFjwLG",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2024-12-15",
-    "puntos": 0
+    "fecha_alta": "2024-12-15"
   },
   {
     "id_usuario": 27,
@@ -266,8 +243,7 @@
     "password": "$2b$10$DWrGJXWBmCLoY/qgeDUsvu3844SE13WDgyQoCslOoFDQo3fjag8pK",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-02",
-    "puntos": 0
+    "fecha_alta": "2025-01-02"
   },
   {
     "id_usuario": 28,
@@ -276,8 +252,7 @@
     "password": "$2b$10$mauiGyxp0idUul9zy6e6fuXWZku2t1Nkzf1m7Hrbgj79QRQr0aGZG",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-08",
-    "puntos": 0
+    "fecha_alta": "2025-01-08"
   },
   {
     "id_usuario": 29,
@@ -286,8 +261,7 @@
     "password": "$2b$10$mqEuUAGtxCF.E2pJLkfdq.YSZtDy0GHcxBGnZTkbBsCk9dKZYr2KG",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-12",
-    "puntos": 0
+    "fecha_alta": "2025-01-12"
   },
   {
     "id_usuario": 30,
@@ -296,8 +270,7 @@
     "password": "$2b$10$2bliCp85nadt76.x8lRPL.24FsNCrufC.ZE1H17h7ajP91SCcsOTW",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-15",
-    "puntos": 0
+    "fecha_alta": "2025-01-15"
   },
   {
     "id_usuario": 31,
@@ -306,7 +279,6 @@
     "password": "$2b$10$cWZNS2Vmhf5mb.bpHRfBze8liu1nlVr9uoTxB8uCX9fRXITNGKHfu",
     "rol": "profesional",
     "estado": "activo",
-    "fecha_alta": "2025-01-18",
-    "puntos": 0
+    "fecha_alta": "2025-01-18"
   }
 ]
