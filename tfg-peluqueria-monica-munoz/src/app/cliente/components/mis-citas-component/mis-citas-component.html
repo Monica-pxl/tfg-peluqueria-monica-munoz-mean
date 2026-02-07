@@ -30,7 +30,6 @@
         <table class="table-custom">
           <thead>
             <tr>
-              <th><i class="bi bi-hash"></i>ID</th>
               <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
               <th><i class="bi bi-scissors"></i> Servicio</th>
               <th><i class="bi bi-person-fill"></i> Profesional</th>
@@ -43,7 +42,6 @@
           <tbody>
             @for(cita of citasUsuario; track $index) {
               <tr>
-                <td class="cell-number">{{ $index + 1 }}</td>
                 <td>{{ cita.centro }}</td>
                 <td>{{ cita.servicio }}</td>
                 <td>{{ cita.profesional }}</td>
@@ -56,8 +54,8 @@
                 </td>
                 <td>
                   @if(puedeSerCancelada(cita)) {
-                    <button 
-                      class="btn btn-danger btn-sm" 
+                    <button
+                      class="btn btn-danger btn-sm"
                       (click)="cancelarCita(cita)"
                       title="Cancelar cita">
                       <i class="bi bi-x-circle"></i> Cancelar

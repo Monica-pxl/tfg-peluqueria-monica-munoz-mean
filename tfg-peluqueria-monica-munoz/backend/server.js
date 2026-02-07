@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const Servicio = require('./models/Servicio');
-const Usuario = require('./models/Usuario');
-const Centro = require('./models/Centro');
-const Horario = require('./models/Horario');
-const ProfesionalServicio = require('./models/ProfesionalServicio');
-const Profesional = require('./models/Profesional');
+const Servicio = require('./models/servicio');
+const Usuario = require('./models/usuario');
+const Centro = require('./models/centro');
+const Horario = require('./models/horario');
+const ProfesionalServicio = require('./models/profesionalServicio');
+const Profesional = require('./models/profesional');
 
 
 const express = require('express');
@@ -51,46 +51,44 @@ app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email y contraseña requeridos" });
-    }
-
-    const usuarios = leerJSON('usuarios.json');
-    const usuario = usuarios.find(u => u.email === email);
-
+    const usuario = await Usuario.findOne({ email });
     if (!usuario) {
-      return res.status(401).json({ error: "Email o contraseña incorrectos" });
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
     const esValida = await bcrypt.compare(password, usuario.password);
-
     if (!esValida) {
-      return res.status(401).json({ error: "Email o contraseña incorrectos" });
+      return res.status(401).json({ error: 'Email o contraseña incorrectos' });
     }
 
-    // Validar que el usuario esté activo
     if (usuario.estado === 'inactivo') {
-      return res.status(403).json({ error: "Tu cuenta ha sido desactivada. Contacta con el administrador." });
+      return res.status(403).json({ error: 'Cuenta desactivada' });
     }
 
     const token = jwt.sign(
       {
-        id_usuario: usuario.id_usuario,
+        id: usuario._id,
         rol: usuario.rol,
         email: usuario.email
       },
       SECRET_KEY,
-      { expiresIn: "2h" }
+      { expiresIn: '2h' }
     );
 
     res.json({
-      mensaje: "Login exitoso",
+      mensaje: 'Login correcto',
       token,
-      usuario: usuarioSinPassword(usuario)
+      usuario: {
+        _id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+        puntos: usuario.puntos
+      }
     });
 
-  } catch (error) {
-    res.status(500).json({ error: "Error en el servidor" });
+  } catch (err) {
+    res.status(500).json({ error: 'Error del servidor' });
   }
 });
 
@@ -101,35 +99,40 @@ app.post('/api/registro', async (req, res) => {
   try {
     const { nombre, email, password, rol = 'cliente' } = req.body;
 
+    console.log('📝 Intento de registro:', { nombre, email, rol });
+
     if (!nombre || !email || !password) {
       return res.status(400).json({ error: "Todos los campos son requeridos" });
     }
 
-    const usuarios = leerJSON('usuarios.json');
-
-    if (usuarios.some(u => u.email === email)) {
+    // 1. Comprobar si el email ya existe
+    const existeUsuario = await Usuario.findOne({ email });
+    if (existeUsuario) {
+      console.log('⚠️ Email ya registrado:', email);
       return res.status(400).json({ error: "El email ya está registrado" });
     }
 
+    // 2. Hashear contraseña
     const passwordHasheada = await bcrypt.hash(password, 10);
 
-    const nuevoUsuario = {
-      id_usuario: Math.max(...usuarios.map(u => u.id_usuario), 0) + 1,
+    // 3. Crear usuario
+    const nuevoUsuario = new Usuario({
       nombre,
       email,
       password: passwordHasheada,
       rol,
       estado: 'activo',
-      fecha_alta: new Date().toISOString().split('T')[0],
-      puntos: 0
-    };
+      fecha_alta: new Date(),
+      ...(rol === 'cliente' && { puntos: 0 })
+    });
 
-    usuarios.push(nuevoUsuario);
-    escribirJSON('usuarios.json', usuarios);
+    await nuevoUsuario.save();
+    console.log('✅ Usuario guardado en MongoDB:', { _id: nuevoUsuario._id, email: nuevoUsuario.email });
 
+    // 4. Crear token
     const token = jwt.sign(
       {
-        id_usuario: nuevoUsuario.id_usuario,
+        id_usuario: nuevoUsuario._id,
         rol: nuevoUsuario.rol,
         email: nuevoUsuario.email
       },
@@ -140,19 +143,34 @@ app.post('/api/registro', async (req, res) => {
     res.status(201).json({
       mensaje: "Usuario registrado exitosamente",
       token,
-      usuario: usuarioSinPassword(nuevoUsuario)
+      usuario: usuarioSinPassword(nuevoUsuario.toObject())
     });
 
   } catch (error) {
+    console.error('❌ Error en registro:', error);
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
 
 
-app.get('/api/usuarios', (req, res) => {
-  const usuarios = leerJSON('usuarios.json');
-  const usuariosSeguros = usuarios.map(usuarioSinPassword);
-  res.json(usuariosSeguros);
+
+// GET todos los usuarios (MongoDB)
+app.get('/api/usuarios', async (req, res) => {
+  try {
+    console.log('📊 Consultando usuarios en MongoDB...');
+    const usuarios = await Usuario.find();
+    console.log(`✅ Usuarios encontrados en MongoDB: ${usuarios.length}`);
+    console.log('Usuarios:', usuarios.map(u => ({ email: u.email, nombre: u.nombre })));
+
+    const usuariosSeguros = usuarios.map(u => {
+      const { password, ...usuarioSeguro } = u.toObject();
+      return usuarioSeguro;
+    });
+    res.json(usuariosSeguros);
+  } catch (err) {
+    console.error('❌ Error al obtener usuarios:', err);
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
 });
 
 
@@ -161,61 +179,95 @@ app.get('/api/usuarios', (req, res) => {
 
 
 
-// GET todos los servicios
+
+
+// GET todos los servicios (MongoDB)
 app.get('/api/servicios', async (req, res) => {
   try {
-    const servicios = await Servicio.find().sort({ id_servicio: 1 });
+    console.log('📊 Consultando servicios en MongoDB...');
+    const servicios = await Servicio.find().sort({ _id: 1 });
+    console.log(`✅ Servicios encontrados: ${servicios.length}`);
     res.json(servicios);
   } catch (err) {
+    console.error('❌ Error al obtener servicios:', err);
     res.status(500).json({ mensaje: 'Error al obtener servicios' });
   }
 });
 
-// POST nuevo servicio
+// POST nuevo servicio (MongoDB)
 app.post('/api/servicios', async (req, res) => {
   try {
-    // Obtener el id_servicio máximo para generar consecutivo
-    const ultimo = await Servicio.findOne().sort({ id_servicio: -1 });
-    const nuevoId = ultimo ? ultimo.id_servicio + 1 : 1;
+    console.log('📝 Creando nuevo servicio:', req.body);
 
-    const nuevoServicio = new Servicio({ ...req.body, id_servicio: nuevoId });
+    const nuevoServicio = new Servicio(req.body);
     await nuevoServicio.save();
 
+    console.log('✅ Servicio creado con _id:', nuevoServicio._id);
     res.status(201).json(nuevoServicio);
   } catch (err) {
-    res.status(400).json({ mensaje: 'Error al crear servicio', error: err });
+    console.error('❌ Error al crear servicio:', err);
+    res.status(400).json({ mensaje: 'Error al crear servicio', error: err.message });
   }
 });
 
-// PUT actualizar servicio
+// PUT actualizar servicio (MongoDB)
 app.put('/api/servicios/:id', async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const actualizado = await Servicio.findOneAndUpdate(
-      { id_servicio: id },
+    const { id } = req.params;
+
+    console.log('📝 Actualizando servicio con _id:', id);
+    console.log('Datos a actualizar:', req.body);
+
+    // Validar que el ID sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ ID no válido:', id);
+      return res.status(400).json({ mensaje: "ID de servicio no válido" });
+    }
+
+    const actualizado = await Servicio.findByIdAndUpdate(
+      id,
       req.body,
       { new: true }
     );
 
-    if (!actualizado) return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+    if (!actualizado) {
+      console.log('❌ Servicio no encontrado con _id:', id);
+      return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+    }
 
+    console.log('✅ Servicio actualizado:', actualizado.nombre);
     res.json(actualizado);
   } catch (err) {
-    res.status(400).json({ mensaje: 'Error al actualizar servicio', error: err });
+    console.error('❌ Error al actualizar servicio:', err);
+    res.status(400).json({ mensaje: 'Error al actualizar servicio', error: err.message });
   }
 });
 
-// DELETE borrar servicio
+// DELETE borrar servicio (MongoDB)
 app.delete('/api/servicios/:id', async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const eliminado = await Servicio.findOneAndDelete({ id_servicio: id });
+    const { id } = req.params;
 
-    if (!eliminado) return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+    console.log('🗑️ Eliminando servicio con _id:', id);
 
+    // Validar que el ID sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ ID no válido:', id);
+      return res.status(400).json({ mensaje: "ID de servicio no válido" });
+    }
+
+    const eliminado = await Servicio.findByIdAndDelete(id);
+
+    if (!eliminado) {
+      console.log('❌ Servicio no encontrado con _id:', id);
+      return res.status(404).json({ mensaje: 'Servicio no encontrado' });
+    }
+
+    console.log('✅ Servicio eliminado:', eliminado.nombre);
     res.json({ mensaje: 'Servicio eliminado' });
   } catch (err) {
-    res.status(400).json({ mensaje: 'Error al eliminar servicio', error: err });
+    console.error('❌ Error al eliminar servicio:', err);
+    res.status(400).json({ mensaje: 'Error al eliminar servicio', error: err.message });
   }
 });
 
@@ -677,133 +729,123 @@ app.delete('/api/profesionales/:id', (req, res) => {
 });
 
 
-// Actualizar usuario (solo rol y estado)
-app.put('/api/usuarios/:id', (req, res) => {
+// Actualizar usuario (solo rol y estado) - MongoDB
+app.put('/api/usuarios/:id', async (req, res) => {
   try {
-    const usuarios = leerJSON('usuarios.json');
-    const id = Number(req.params.id);
+    const { id } = req.params;
     const { rol, estado } = req.body;
 
-    const index = usuarios.findIndex(u => u.id_usuario === id);
-    if (index === -1) {
+    console.log('📝 Actualizando usuario con _id:', id);
+    console.log('Datos a actualizar:', { rol, estado });
+
+    // Validar que el ID sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ ID no válido:', id);
+      return res.status(400).json({ error: "ID de usuario no válido" });
+    }
+
+    // Buscar y actualizar solo los campos permitidos
+    const actualizado = await Usuario.findByIdAndUpdate(
+      id,
+      { ...(rol && { rol }), ...(estado !== undefined && { estado }) },
+      { new: true }
+    );
+
+    if (!actualizado) {
+      console.log('❌ Usuario no encontrado con _id:', id);
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Solo actualizar rol y estado
-    if (rol) usuarios[index].rol = rol;
-    if (estado !== undefined) usuarios[index].estado = estado;
+    console.log('✅ Usuario actualizado:', actualizado.email);
 
-    escribirJSON('usuarios.json', usuarios);
+    // Eliminar la contraseña antes de enviar la respuesta
+    const { password, ...usuarioSeguro } = actualizado.toObject();
+
     res.json({
       mensaje: "Usuario actualizado exitosamente",
-      usuario: usuarioSinPassword(usuarios[index])
+      usuario: usuarioSeguro
     });
+
   } catch (error) {
-    res.status(500).json({ error: "Error al actualizar usuario" });
+    console.error('❌ Error al actualizar usuario:', error);
+    res.status(500).json({ error: "Error al actualizar usuario", detalle: error.message });
   }
 });
 
-// Eliminar usuario con validaciones
-app.delete('/api/usuarios/:id', (req, res) => {
+
+
+// Eliminar usuario con validaciones - MongoDB
+app.delete('/api/usuarios/:id', async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const { id_admin } = req.body;
+    const { id } = req.params;             // _id de MongoDB del usuario a eliminar
+    const id_admin = req.query.id_admin;   // _id del admin que intenta eliminar (desde query param)
 
-    console.log(`\n=== ELIMINANDO USUARIO ID: ${id} ===`);
+    console.log(`\n=== ELIMINANDO USUARIO _id: ${id} ===`);
 
-    // 1. Leer y buscar el usuario
-    let usuarios = leerJSON('usuarios.json');
-    const usuario = usuarios.find(u => Number(u.id_usuario) === Number(id));
+    // Validar que los IDs sean ObjectId válidos
+    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(id_admin)) {
+      return res.status(400).json({ error: "ID de usuario o admin no válido" });
+    }
 
+    // 1️⃣ Buscar usuario a eliminar
+    const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
     console.log(`Usuario encontrado: ${usuario.nombre}, Rol: ${usuario.rol}`);
 
-    // Validación: Solo admin puede eliminar admin
+    // 2️⃣ Validación: solo admin puede eliminar admin
     if (usuario.rol === 'administrador') {
-      const admin = usuarios.find(u => Number(u.id_usuario) === Number(id_admin));
+      const admin = await Usuario.findById(id_admin);
       if (!admin || admin.rol !== 'administrador') {
         return res.status(403).json({ error: "Solo un administrador puede eliminar otro administrador" });
       }
     }
 
-    // 2. BORRADO EN CASCADA si es profesional
+    // 3️⃣ Borrado en cascada si es profesional
     if (usuario.rol === 'profesional') {
-      console.log('🔍 Es profesional, buscando registro en profesionales...');
+      console.log('🔍 Es profesional, eliminando registros relacionados...');
 
-      let profesionales = leerJSON('profesionales.json');
-      const profesional = profesionales.find(p => Number(p.id_usuario) === Number(id));
+      // 3.1 Eliminar horarios
+      try {
+        const result = await Horario.deleteMany({ id_profesional: usuario._id });
+        console.log(`✓ Horarios eliminados: ${result.deletedCount}`);
+      } catch (e) {
+        console.error('Error eliminando horarios:', e.message);
+      }
 
-      if (profesional) {
-        const idProfesional = Number(profesional.id_profesional);
-        console.log(`✓ Profesional encontrado con ID: ${idProfesional}`);
+      // 3.2 Eliminar relaciones profesional-servicio
+      try {
+        const result = await ProfesionalServicio.deleteMany({ id_profesional: usuario._id });
+        console.log(`✓ Relaciones con servicios eliminadas: ${result.deletedCount}`);
+      } catch (e) {
+        console.error('Error eliminando relaciones profesional-servicio:', e.message);
+      }
 
-        // 2.1 Eliminar HORARIOS
-        try {
-          let horarios = leerJSON('horarios.json');
-          const horariosAntes = horarios.length;
-          horarios = horarios.filter(h => Number(h.id_profesional) !== idProfesional);
-          fs.writeFileSync(
-            path.join(__dirname, 'data', 'horarios.json'),
-            JSON.stringify(horarios, null, 2),
-            'utf8'
-          );
-          console.log(`✓ Horarios eliminados: ${horariosAntes - horarios.length}`);
-        } catch (e) {
-          console.error('Error eliminando horarios:', e.message);
-        }
-
-        // 2.2 Eliminar RELACIONES profesional-servicio
-        try {
-          let profesionalServicio = leerJSON('profesional_servicio.json');
-          const relacionesAntes = profesionalServicio.length;
-          profesionalServicio = profesionalServicio.filter(ps => Number(ps.id_profesional) !== idProfesional);
-          fs.writeFileSync(
-            path.join(__dirname, 'data', 'profesional_servicio.json'),
-            JSON.stringify(profesionalServicio, null, 2),
-            'utf8'
-          );
-          console.log(`✓ Relaciones con servicios eliminadas: ${relacionesAntes - profesionalServicio.length}`);
-        } catch (e) {
-          console.error('Error eliminando relaciones:', e.message);
-        }
-
-        // 2.3 Eliminar PROFESIONAL
-        try {
-          profesionales = profesionales.filter(p => Number(p.id_profesional) !== idProfesional);
-          fs.writeFileSync(
-            path.join(__dirname, 'data', 'profesionales.json'),
-            JSON.stringify(profesionales, null, 2),
-            'utf8'
-          );
-          console.log(`✓ Profesional eliminado de profesionales.json`);
-        } catch (e) {
-          console.error('Error eliminando profesional:', e.message);
-        }
-      } else {
-        console.log('⚠ No se encontró registro de profesional');
+      // 3.3 Eliminar profesional
+      try {
+        const result = await Profesional.deleteOne({ id_usuario: usuario._id });
+        if (result.deletedCount) console.log('✓ Profesional eliminado de la colección profesional');
+      } catch (e) {
+        console.error('Error eliminando profesional:', e.message);
       }
     }
 
-    // 3. Eliminar USUARIO
-    usuarios = usuarios.filter(u => Number(u.id_usuario) !== Number(id));
-    fs.writeFileSync(
-      path.join(__dirname, 'data', 'usuarios.json'),
-      JSON.stringify(usuarios, null, 2),
-      'utf8'
-    );
-    console.log(`✓ Usuario eliminado de usuarios.json`);
+    // 4️⃣ Eliminar usuario
+    await Usuario.findByIdAndDelete(id);
+    console.log(`✓ Usuario eliminado: ${usuario.nombre}`);
     console.log('=== ELIMINACIÓN COMPLETADA ===\n');
 
     res.json({ mensaje: "Usuario eliminado exitosamente" });
+
   } catch (error) {
     console.error('❌ Error al eliminar usuario:', error);
-    console.error('Detalles:', error.message);
     res.status(500).json({ error: "Error al eliminar usuario", detalle: error.message });
   }
 });
+
+
 
 
 // ============= ENDPOINTS PARA SISTEMA DE PUNTOS =============

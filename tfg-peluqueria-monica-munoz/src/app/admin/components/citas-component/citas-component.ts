@@ -91,7 +91,7 @@ export class CitasComponent implements OnInit {
 
   cambiarEstado(cita: CitasInterface, nuevoEstado: string): void {
     const estadoAnterior = cita.estado;
-    
+
     // Validar si la cita fue cancelada por el cliente
     if (cita.canceladaPor === 'cliente') {
       this.alertService.warning('No puedes cambiar el estado de una cita cancelada por el cliente');
@@ -123,13 +123,13 @@ export class CitasComponent implements OnInit {
       }, 0);
       return;
     }
-    
+
     // Si se marca como realizada, sumar puntos al cliente
     if (nuevoEstado === 'realizada' && estadoAnterior !== 'realizada') {
       // Cambiar el estado temporalmente para actualizar el UI
       cita.estado = 'realizada';
       cita.canceladaPor = null;
-      
+
       this.citasService.marcarCitaRealizada(cita.id_usuario).subscribe({
         next: (response) => {
           // Actualizar el estado en localStorage
@@ -141,15 +141,15 @@ export class CitasComponent implements OnInit {
               console.error('Error al actualizar estado en localStorage');
             }
           });
-          
+
           // Notificar sobre los puntos y el cambio de estado
           let mensajeCliente = `Tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora} ha sido marcada como <strong class="notif-status">realizada</strong>. ¡Has ganado ${response.puntosSumados} puntos!`;
-          
+
           // Si subió de nivel, añadir información del nivel
           if (response.subeNivel) {
             mensajeCliente += ` <br><strong>¡Felicidades! Has alcanzado el nivel ${response.nivelActual}.</strong>`;
           }
-          
+
           this.notificacionesService.crearNotificacion({
             idUsuario: cita.id_usuario,
             mensaje: mensajeCliente,
@@ -180,18 +180,18 @@ export class CitasComponent implements OnInit {
       });
       return;
     }
-    
+
     // Para otros estados (pendiente, confirmada, cancelada)
     // Cambiar el estado temporalmente en la UI
     cita.estado = nuevoEstado as 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
-    
+
     // Marcar quién canceló si el nuevo estado es cancelada
     if (nuevoEstado === 'cancelada') {
       cita.canceladaPor = 'admin';
     } else {
       cita.canceladaPor = null;
     }
-    
+
     // Actualizar el estado (incluyendo cancelada) sin borrar la cita
     this.citasService.actualizarCitaEstado(cita).subscribe({
       next: () => {
@@ -261,7 +261,7 @@ export class CitasComponent implements OnInit {
     if (cita.estado === 'realizada') {
       return ['realizada'];
     }
-    
+
     // Si la cita ya está cancelada, solo puede marcar como realizada o mantener cancelada
     if (cita.estado === 'cancelada') {
       if (this.citaYaPaso(cita)) {
@@ -270,7 +270,7 @@ export class CitasComponent implements OnInit {
         return ['cancelada'];
       }
     }
-    
+
     // Si la cita está confirmada
     if (cita.estado === 'confirmada') {
       if (this.citaYaPaso(cita)) {
@@ -281,7 +281,7 @@ export class CitasComponent implements OnInit {
         return ['confirmada', 'cancelada'];
       }
     }
-    
+
     // Si la cita está pendiente
     if (this.citaYaPaso(cita)) {
       return ['pendiente', 'confirmada', 'cancelada', 'realizada'];
@@ -298,17 +298,17 @@ export class CitasComponent implements OnInit {
       'Sí, eliminar',
       'Cancelar'
     );
-    
+
     if (!confirmed) return;
 
     // NO notificar al cliente cuando se elimina la cita
 
     // Borrar la cita del localStorage
     this.citasService.borrarCita(cita);
-    
+
     // Recargar la lista
     this.cargarCitas();
-    
+
     this.alertService.success('Cita eliminada exitosamente');
   }
 

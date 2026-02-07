@@ -11,6 +11,7 @@ import { AlertService } from '../../../shared/services/alert-service';
   imports: [RouterLink, FormsModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
+  standalone: true
 })
 export class LoginComponent {
   email = '';
@@ -18,7 +19,7 @@ export class LoginComponent {
   cargando = false;
 
   constructor(
-    private usuariosService: UsuariosService, 
+    private usuariosService: UsuariosService,
     private router: Router,
     private alertService: AlertService
   ) {}
@@ -48,7 +49,7 @@ export class LoginComponent {
         } else {
           this.router.navigate(['/home']);
         }
-        
+
       },
 
       error: (error) => {

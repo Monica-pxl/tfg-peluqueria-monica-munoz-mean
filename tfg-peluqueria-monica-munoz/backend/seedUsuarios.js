@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const Usuario = require('./models/Usuario');
-const bcrypt = require('bcryptjs');
 
 const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
 
@@ -16,29 +15,24 @@ mongoose.connect(uri)
     await Usuario.deleteMany({});
 
     // Preparar usuarios
-    const usuariosPreparados = await Promise.all(
-      usuariosData.map(async u => {
-        // Hashear la contraseña
-        const passwordHasheada = await bcrypt.hash(u.password, 10);
+    const usuariosPreparados = usuariosData.map(u => {
+      // Crear objeto final
+      const usuarioMongo = {
+        nombre: u.nombre,
+        email: u.email,
+        password: u.password, // Ya está hasheada en el JSON
+        rol: u.rol,
+        estado: u.estado || 'activo',
+        fecha_alta: u.fecha_alta || new Date(),
+      };
 
-        // Crear objeto final
-        const usuarioMongo = {
-          nombre: u.nombre,
-          email: u.email,
-          password: passwordHasheada,
-          rol: u.rol,
-          estado: u.estado || 'activo',
-          fecha_alta: u.fecha_alta || new Date(),
-        };
+      // Solo los clientes tienen puntos
+      if (u.rol === 'cliente') {
+        usuarioMongo.puntos = u.puntos || 0;
+      }
 
-        // Solo los clientes tienen puntos
-        if (u.rol === 'cliente') {
-          usuarioMongo.puntos = u.puntos || 0;
-        }
-
-        return usuarioMongo;
-      })
-    );
+      return usuarioMongo;
+    });
 
     await Usuario.insertMany(usuariosPreparados);
 

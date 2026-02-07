@@ -58,7 +58,7 @@
       </div>
     </div>
   </section>
-  
+
   <section class="servicios-section">
   <div class="container">
     <div class="section-header mb-5">
@@ -67,8 +67,8 @@
     </div>
 
     <div class="row g-4">
-      @for(servicio of servicios; track servicio.id_servicio) {
-        @if(servicio.id_servicio < 7){
+      @for(servicio of servicios; track servicio.id_servicio; let idx = $index) {
+        @if(idx < 6){
           <div class="col-12 col-sm-6 col-lg-4">
             <div class="card h-100 shadow-sm servicio-hover position-relative">
               <div class="card-badge">Disponible</div>
@@ -111,8 +111,8 @@
       </div>
 
       <div class="centros-carousel-wrapper">
-        <button 
-          class="carousel-btn carousel-btn-prev" 
+        <button
+          class="carousel-btn carousel-btn-prev"
           (click)="prevPage()"
           [disabled]="!canGoPrev()"
           [ngClass]="{'btn-disabled': !canGoPrev()}">
@@ -138,8 +138,8 @@
             }
           </div>
         </div>
-        <button 
-          class="carousel-btn carousel-btn-next" 
+        <button
+          class="carousel-btn carousel-btn-next"
           (click)="nextPage()"
           [disabled]="!canGoNext()"
           [ngClass]="{'btn-disabled': !canGoNext()}">
@@ -168,7 +168,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading1">
-            <button class="accordion-button fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" 
+            <button class="accordion-button fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1"
                     aria-expanded="true" aria-controls="faqCollapse1">
               <i class="bi bi-scissors me-2"></i> ¿Cómo puedo reservar una cita en HairGest?
             </button>
@@ -182,7 +182,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading2">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2"
                     aria-expanded="false" aria-controls="faqCollapse2">
               <i class="bi bi-arrow-repeat me-2"></i> ¿Puedo cambiar o cancelar mi cita?
             </button>
@@ -196,7 +196,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading3">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3"
                     aria-expanded="false" aria-controls="faqCollapse3">
               <i class="bi bi-clock me-2"></i> ¿Cómo sé si un profesional está disponible en el horario que quiero?
             </button>
@@ -210,7 +210,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading4">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4"
                     aria-expanded="false" aria-controls="faqCollapse4">
               <i class="bi bi-lock-fill me-2"></i> ¿Es obligatorio crear una cuenta para reservar?
             </button>
@@ -224,7 +224,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading5">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5"
                     aria-expanded="false" aria-controls="faqCollapse5">
               <i class="bi bi-envelope-fill me-2"></i> ¿Recibiré notificaciones sobre mis citas?
             </button>
@@ -239,7 +239,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading6">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6"
                     aria-expanded="false" aria-controls="faqCollapse6">
               <i class="bi bi-calendar-plus me-2"></i> ¿Puedo reservar citas para otra persona?
             </button>
@@ -253,7 +253,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading7">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse7" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse7"
                     aria-expanded="false" aria-controls="faqCollapse7">
               <i class="bi bi-alarm me-2"></i> ¿Puedo reservar citas con poco tiempo de antelación?
             </button>
@@ -267,7 +267,7 @@
 
         <div class="accordion-item mb-3">
           <h2 class="accordion-header" id="faqHeading8">
-            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse8" 
+            <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse8"
                     aria-expanded="false" aria-controls="faqCollapse8">
               <i class="bi bi-journal-text me-2"></i> ¿Puedo ver un historial de mis citas anteriores?
             </button>

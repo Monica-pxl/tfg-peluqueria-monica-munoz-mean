@@ -12,10 +12,10 @@
     <div class="filtros-container mb-4">
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Profesional o día..."
           class="form-control">
@@ -61,7 +61,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-person"></i> Profesional</th>
             <th><i class="bi bi-calendar-week"></i> Días</th>
             <th><i class="bi bi-clock"></i> Hora Inicio</th>
@@ -73,7 +72,6 @@
         <tbody>
           @for (horario of horariosFiltrados; track horario.id_horario) {
             <tr>
-              <td>{{ horario.id_horario }}</td>
               <td class="fw-bold">{{ getNombreProfesional(horario.id_profesional) }}</td>
             <td>
               {{ formatearDias(horario.dias) }}
@@ -97,8 +95,8 @@
               <button class="btn btn-sm btn-primary me-1" (click)="editarHorario(horario.id_horario)" title="Editar horario">
                 <i class="bi bi-pencil"></i>
               </button>
-              <button 
-                class="btn btn-sm btn-danger" 
+              <button
+                class="btn btn-sm btn-danger"
                 (click)="eliminarHorario(horario.id_horario)"
                 title="Eliminar horario">
                 <i class="bi bi-trash3"></i>

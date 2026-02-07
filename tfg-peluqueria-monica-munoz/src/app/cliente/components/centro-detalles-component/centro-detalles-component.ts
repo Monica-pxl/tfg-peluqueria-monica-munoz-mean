@@ -24,9 +24,10 @@ interface ProfesionalConServicios {
   imports: [CommonModule, RouterLink],
   templateUrl: './centro-detalles-component.html',
   styleUrl: './centro-detalles-component.css',
+  standalone: true
 })
 export class CentroDetallesComponent implements OnInit {
-  
+
   centro: CentrosInterface | null = null;
   profesionalesConServicios: ProfesionalConServicios[] = [];
   cargando: boolean = true;

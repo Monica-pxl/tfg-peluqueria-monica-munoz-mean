@@ -6,13 +6,13 @@
     </div>
 
     <form (ngSubmit)="reservarCita(selectCentro, selectServicio, selectProf)" class="reservar-form mx-auto">
-    
+
     <div class="mb-4">
       <label class="form-label">Centro</label>
       <select class="form-select form-control-custom" #selectCentro (change)="seleccionarCentro(selectCentro.value)">
         <option selected disabled>Selecciona un centro</option>
         <option *ngFor="let centro of centros" [value]="centro.id_centro">
-          {{ centro.nombre }} ({{ centro.direccion }}) 
+          {{ centro.nombre }} ({{ centro.direccion }})
         </option>
       </select>
     </div>
@@ -56,19 +56,19 @@
         <div class="mt-2" *ngIf="profesionalSeleccionado">
           <!-- Navegación entre meses -->
           <div class="month-navigation mb-3">
-            <button 
+            <button
               type="button"
-              class="btn-month btn-month-prev" 
-              (click)="mesAnterior()" 
+              class="btn-month btn-month-prev"
+              (click)="mesAnterior()"
               [disabled]="!puedeIrMesAnterior()"
               title="Mes anterior">
               <i class="bi bi-chevron-left"></i> Anterior
             </button>
             <span class="current-month">{{ nombreMesVisualizado }}</span>
-            <button 
+            <button
               type="button"
-              class="btn-month btn-month-next" 
-              (click)="mesSiguiente()" 
+              class="btn-month btn-month-next"
+              (click)="mesSiguiente()"
               [disabled]="!puedeIrMesSiguiente()"
               title="Mes siguiente">
               Siguiente <i class="bi bi-chevron-right"></i>
@@ -101,8 +101,8 @@
             </span>
 
             <!-- Días del mes -->
-            <span 
-              *ngFor="let dia of diasMes" 
+            <span
+              *ngFor="let dia of diasMes"
               class="dia text-center"
               [ngClass]="{
                 'dia-disponible': dia && esDiaDisponible(formatDate(dia)) && !esDiaFestivo(formatDate(dia)),

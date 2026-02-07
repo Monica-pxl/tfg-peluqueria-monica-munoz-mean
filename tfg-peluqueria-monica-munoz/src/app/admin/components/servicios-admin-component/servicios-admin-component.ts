@@ -77,10 +77,10 @@ export class ServiciosAdminComponent implements OnInit {
 
   aplicarFiltros() {
     this.serviciosFiltrados = this.servicios.filter(servicio => {
-      const cumpleBusqueda = this.busquedaTexto === '' || 
+      const cumpleBusqueda = this.busquedaTexto === '' ||
         servicio.nombre.toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         servicio.descripcion.toLowerCase().includes(this.busquedaTexto.toLowerCase());
-      
+
       return cumpleBusqueda;
     });
   }
@@ -134,7 +134,7 @@ export class ServiciosAdminComponent implements OnInit {
       'Sí, eliminar',
       'Cancelar'
     );
-    
+
     if (!confirmed) return;
 
     this.serviciosService.borrarServicio(servicio.id_servicio).subscribe({

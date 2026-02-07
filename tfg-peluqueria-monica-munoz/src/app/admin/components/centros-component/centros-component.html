@@ -12,10 +12,10 @@
     <div class="filtros-container mb-4">
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Nombre, dirección o email..."
           class="form-control">
@@ -61,7 +61,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-building"></i> Nombre</th>
             <th><i class="bi bi-geo-alt"></i> Dirección</th>
             <th><i class="bi bi-telephone"></i> Teléfono</th>
@@ -73,7 +72,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let centro of centrosFiltrados">
-            <td>{{ centro.id_centro }}</td>
             <td class="fw-bold">{{ centro.nombre }}</td>
             <td>{{ centro.direccion }}</td>
             <td>{{ centro.telefono }}</td>
@@ -92,8 +90,8 @@
               <button class="btn btn-sm btn-primary me-1" (click)="editarCentro(centro.id_centro)" title="Editar centro">
                 <i class="bi bi-pencil"></i>
               </button>
-              <button 
-                class="btn btn-sm btn-danger" 
+              <button
+                class="btn btn-sm btn-danger"
                 (click)="borrarCentro(centro)"
                 [disabled]="cantidadProfesionales(centro.id_centro) > 0"
                 [title]="cantidadProfesionales(centro.id_centro) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : 'Eliminar centro'">

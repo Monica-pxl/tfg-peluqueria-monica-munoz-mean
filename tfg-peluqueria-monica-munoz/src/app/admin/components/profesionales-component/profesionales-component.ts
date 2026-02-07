@@ -21,6 +21,7 @@ import { ConfirmService } from '../../../shared/services/confirm-service';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './profesionales-component.html',
   styleUrl: './profesionales-component.css',
+  standalone: true
 })
 export class ProfesionalesComponent implements OnInit {
 
@@ -106,7 +107,7 @@ export class ProfesionalesComponent implements OnInit {
     }).filter(n => n !== "");
     return nombres.join(", ");
   }
-  
+
 
   async borrarProfesional(p: ProfesionalesInterface): Promise<void> {
     const confirmed = await this.confirmService.confirm(
@@ -115,7 +116,7 @@ export class ProfesionalesComponent implements OnInit {
       'Sí, eliminar',
       'Cancelar'
     );
-    
+
     if (!confirmed) return;
 
     this.relService.borrarRelacionesPorProfesional(p.id_profesional).subscribe({

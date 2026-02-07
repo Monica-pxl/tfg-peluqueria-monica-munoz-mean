@@ -8,9 +8,9 @@
     <div class="search-wrapper mb-4">
       <div class="search-container">
         <i class="bi bi-search search-icon"></i>
-        <input 
-          type="text" 
-          class="form-control search-input" 
+        <input
+          type="text"
+          class="form-control search-input"
           placeholder="Buscar servicios por nombre o descripción..."
           [(ngModel)]="textoBusqueda"
           (input)="filtrarServicios()"
@@ -27,7 +27,7 @@
 
       @for(servicio of serviciosFiltrados; track servicio.id_servicio) {
 
-        @if($index >= (paginaActual - 1) * cantidadPorPagina && 
+        @if($index >= (paginaActual - 1) * cantidadPorPagina &&
              $index < paginaActual * cantidadPorPagina) {
 
           <div class="col-12 col-sm-6 col-lg-4">

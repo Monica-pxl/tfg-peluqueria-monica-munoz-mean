@@ -12,10 +12,10 @@
     <div class="filtros-container mb-4">
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Nombre, apellidos o centro..."
           class="form-control">
@@ -61,7 +61,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-person-fill"></i> Profesional</th>
             <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
             <th><i class="bi bi-scissors"></i> Servicios</th>
@@ -71,7 +70,6 @@
         <tbody>
           @for (p of profesionalesFiltrados; track p.id_profesional) {
             <tr>
-              <td>{{ p.id_profesional }}</td>
               <td class="fw-bold">{{ p.nombre }} {{ p.apellidos }}</td>
               <td>{{ nombreCentro(p.id_centro) }}</td>
               <td>{{ serviciosDelProfesional(p.id_profesional) }}</td>

@@ -25,11 +25,11 @@
           <label class="form-label">
             <i class="bi bi-person-fill me-2"></i>Nombre
           </label>
-          <input 
-            type="text" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="profesional.nombre" 
-            name="nombre" 
+          <input
+            type="text"
+            class="form-control form-control-custom"
+            [(ngModel)]="profesional.nombre"
+            name="nombre"
             placeholder="Nombre del profesional"
             required>
         </div>
@@ -38,11 +38,11 @@
           <label class="form-label">
             <i class="bi bi-person-badge me-2"></i>Apellidos
           </label>
-          <input 
-            type="text" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="profesional.apellidos" 
-            name="apellidos" 
+          <input
+            type="text"
+            class="form-control form-control-custom"
+            [(ngModel)]="profesional.apellidos"
+            name="apellidos"
             placeholder="Apellidos del profesional"
             required>
         </div>
@@ -62,10 +62,10 @@
         <label class="form-label">
           <i class="bi bi-scissors me-2"></i>Servicios que Ofrece
         </label>
-        <select 
-          class="form-select form-control-custom multi-select" 
-          [(ngModel)]="id_servicios" 
-          name="id_servicios" 
+        <select
+          class="form-select form-control-custom multi-select"
+          [(ngModel)]="id_servicios"
+          name="id_servicios"
           multiple
           size="5">
           <option *ngFor="let s of serviciosFiltrados" [value]="s.id_servicio">

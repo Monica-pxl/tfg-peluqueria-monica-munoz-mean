@@ -34,5 +34,5 @@ export class ServiciosService {
   getServicePages(page : string): Observable<ServiciosInterface[]>{
     return this.http.get<ServiciosInterface[]>(`data/${page}.json`)
   }
-  
+
 }

@@ -25,10 +25,10 @@
 
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Nombre o email..."
           class="form-control">
@@ -59,7 +59,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-person"></i> Nombre</th>
             <th><i class="bi bi-envelope"></i> Email</th>
             <th><i class="bi bi-person-badge"></i> Rol</th>
@@ -70,11 +69,10 @@
         </thead>
         <tbody>
           <tr *ngFor="let usuario of usuariosFiltrados">
-            <td>{{ usuario.id_usuario }}</td>
             <td class="fw-bold">{{ usuario.nombre }}</td>
             <td>{{ usuario.email }}</td>
             <td>
-              <select 
+              <select
                 class="form-select form-select-sm select-rol"
                 [value]="usuario.rol"
                 (change)="cambiarRol(usuario, $event)"
@@ -85,7 +83,7 @@
               </select>
             </td>
             <td>
-              <select 
+              <select
                 class="form-select form-select-sm select-estado"
                 [value]="usuario.estado"
                 (change)="cambiarEstado(usuario, $event)"
@@ -94,10 +92,10 @@
                 <option value="inactivo">Inactivo</option>
               </select>
             </td>
-            <td>{{ usuario.fecha_alta || 'N/A' }}</td>
+            <td>{{ formatearFecha(usuario.fecha_alta) }}</td>
             <td>
-              <button 
-                class="btn btn-sm btn-danger" 
+              <button
+                class="btn btn-sm btn-danger"
                 (click)="eliminarUsuario(usuario)"
                 [disabled]="usuarioLogueado?.id_usuario === usuario.id_usuario"
                 [title]="usuarioLogueado?.id_usuario === usuario.id_usuario ? 'No puedes eliminarte a ti mismo' : 'Eliminar usuario'">

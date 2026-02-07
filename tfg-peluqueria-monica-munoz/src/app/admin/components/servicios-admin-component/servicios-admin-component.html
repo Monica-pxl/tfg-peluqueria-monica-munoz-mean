@@ -12,10 +12,10 @@
     <div class="filtros-container mb-4">
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Nombre o descripción..."
           class="form-control">
@@ -62,7 +62,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-tag"></i> Nombre</th>
             <th><i class="bi bi-file-text"></i> Descripción</th>
             <th><i class="bi bi-clock"></i> Duración</th>
@@ -74,7 +73,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let servicio of serviciosFiltrados">
-            <td>{{ servicio.id_servicio }}</td>
             <td class="fw-bold">{{ servicio.nombre }}</td>
             <td>{{ servicio.descripcion }}</td>
             <td><span class="badge-hora">{{ servicio.duracion }} min</span></td>

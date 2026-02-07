@@ -33,15 +33,15 @@
 
     @if(!cargando && usuariosProfesionales.length > 0) {
       <form (ngSubmit)="crearProfesional()">
-        
+
         <div class="mb-4">
           <label for="id_usuario" class="form-label">
             <i class="bi bi-person-fill me-2"></i>Usuario Profesional
           </label>
-          <select 
-            id="id_usuario" 
-            [(ngModel)]="id_usuario" 
-            name="id_usuario" 
+          <select
+            id="id_usuario"
+            [(ngModel)]="id_usuario"
+            name="id_usuario"
             class="form-select form-control-custom"
             required>
             <option value="0" disabled selected>Selecciona un usuario...</option>
@@ -58,10 +58,10 @@
           <label for="id_centro" class="form-label">
             <i class="bi bi-geo-alt-fill me-2"></i>Centro
           </label>
-          <select 
-            id="id_centro" 
-            [(ngModel)]="id_centro" 
-            name="id_centro" 
+          <select
+            id="id_centro"
+            [(ngModel)]="id_centro"
+            name="id_centro"
             class="form-select form-control-custom"
             (change)="onCentroChange()"
             required>
@@ -86,10 +86,10 @@
             </div>
           }
           @if(id_centro && serviciosFiltrados.length > 0) {
-            <select 
-              id="id_servicios" 
-              [(ngModel)]="id_servicios" 
-              name="id_servicios" 
+            <select
+              id="id_servicios"
+              [(ngModel)]="id_servicios"
+              name="id_servicios"
               class="form-select form-control-custom multi-select"
               multiple
               size="6">
