@@ -1,6 +1,5 @@
 [
   {
-    "id_centro": 1,
     "nombre": "Glamour Studio",
     "direccion": "Calle Sierpes 25, Sevilla",
     "telefono": "954123456",
@@ -9,7 +8,6 @@
     "horario_cierre": "20:00"
   },
   {
-    "id_centro": 2,
     "nombre": "Belleza Total",
     "direccion": "Av. Eduardo Dato 85, Sevilla",
     "telefono": "955654321",
@@ -18,7 +16,6 @@
     "horario_cierre": "19:30"
   },
   {
-    "id_centro": 3,
     "nombre": "Estilo & Arte",
     "direccion": "Calle Betis 112, Sevilla",
     "telefono": "955789012",
@@ -27,7 +24,6 @@
     "horario_cierre": "19:00"
   },
   {
-    "id_centro": 4,
     "nombre": "Salón Elegance",
     "direccion": "Calle Larios 22, Málaga",
     "telefono": "952334455",
@@ -36,7 +32,6 @@
     "horario_cierre": "20:00"
   },
   {
-    "id_centro": 5,
     "nombre": "Look Perfecto",
     "direccion": "Av. Ricardo Soriano 52, Marbella",
     "telefono": "951987654",
@@ -45,7 +40,6 @@
     "horario_cierre": "20:00"
   },
   {
-    "id_centro": 6,
     "nombre": "Studio Belle",
     "direccion": "Calle Recogidas 41, Granada",
     "telefono": "958445566",
@@ -54,7 +48,6 @@
     "horario_cierre": "19:30"
   },
   {
-    "id_centro": 7,
     "nombre": "Hair & Style",
     "direccion": "Av. del Gran Capitán 18, Córdoba",
     "telefono": "957223344",
@@ -63,7 +56,6 @@
     "horario_cierre": "19:00"
   },
   {
-    "id_centro": 8,
     "nombre": "Brillo Urbano",
     "direccion": "Calle Ancha 16, Cádiz",
     "telefono": "956778899",
@@ -72,7 +64,6 @@
     "horario_cierre": "19:30"
   },
   {
-    "id_centro": 9,
     "nombre": "Arte y Belleza",
     "direccion": "Av. Andalucía 73, Huelva",
     "telefono": "959667788",
@@ -81,7 +72,6 @@
     "horario_cierre": "19:30"
   },
   {
-    "id_centro": 10,
     "nombre": "Salón Vanguardia",
     "direccion": "Paseo de Almería 45, Almería",
     "telefono": "950554433",
@@ -90,7 +80,6 @@
     "horario_cierre": "20:00"
   },
   {
-    "id_centro": 11,
     "nombre": "Estética Plus",
     "direccion": "Calle Larga 88, Jerez de la Frontera",
     "telefono": "956332211",
@@ -99,12 +88,29 @@
     "horario_cierre": "19:30"
   },
   {
-    "id_centro": 12,
     "nombre": "Salon Chic",
     "direccion": "Av. de España 101, Dos Hermanas",
     "telefono": "955221133",
     "email": "doshermanas@hairgest.com",
     "horario_apertura": "09:00",
+    "horario_cierre": "19:00"
+  },
+  {
+    "id_centro": null,
+    "nombre": "Centro nuevo",
+    "direccion": "Calle Sierpes 25, Sevilla",
+    "telefono": "954123456",
+    "email": "centro@hairgest.com",
+    "horario_apertura": "10:00",
+    "horario_cierre": "19:00"
+  },
+  {
+    "id_centro": null,
+    "nombre": "Centro nuevo",
+    "direccion": "Calle Sierpes 25, Sevilla",
+    "telefono": "954123456",
+    "email": "centro@hairgest.com",
+    "horario_apertura": "10:00",
     "horario_cierre": "19:00"
   }
 ]

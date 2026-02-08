@@ -1,7 +1,5 @@
 [
   {
-    "id_horario": 1,
-    "id_profesional": 1,
     "dias": [
       "Lunes",
       "Martes",
@@ -15,8 +13,6 @@
     "fechas_festivas": []
   },
   {
-    "id_horario": 2,
-    "id_profesional": 2,
     "dias": [
       "Miércoles",
       "Jueves",
@@ -27,8 +23,6 @@
     "festivo": false
   },
   {
-    "id_horario": 3,
-    "id_profesional": 3,
     "dias": [
       "Lunes",
       "Martes",
@@ -40,8 +34,6 @@
     "festivo": false
   },
   {
-    "id_horario": 4,
-    "id_profesional": 4,
     "dias": [
       "Lunes",
       "Martes",
@@ -52,8 +44,6 @@
     "festivo": false
   },
   {
-    "id_horario": 5,
-    "id_profesional": 5,
     "dias": [
       "Martes",
       "Miércoles",
@@ -64,8 +54,6 @@
     "festivo": false
   },
   {
-    "id_horario": 6,
-    "id_profesional": 6,
     "dias": [
       "Sábado"
     ],
@@ -74,8 +62,6 @@
     "festivo": false
   },
   {
-    "id_horario": 7,
-    "id_profesional": 7,
     "dias": [
       "Lunes",
       "Martes",
@@ -87,8 +73,6 @@
     "festivo": false
   },
   {
-    "id_horario": 8,
-    "id_profesional": 8,
     "dias": [
       "Martes",
       "Miércoles",
@@ -99,8 +83,6 @@
     "festivo": false
   },
   {
-    "id_horario": 9,
-    "id_profesional": 9,
     "dias": [
       "Miércoles",
       "Jueves",
@@ -111,8 +93,6 @@
     "festivo": false
   },
   {
-    "id_horario": 10,
-    "id_profesional": 10,
     "dias": [
       "Lunes",
       "Jueves",
@@ -123,8 +103,6 @@
     "festivo": false
   },
   {
-    "id_horario": 11,
-    "id_profesional": 11,
     "dias": [
       "Martes",
       "Viernes"
@@ -135,8 +113,6 @@
     "fechas_festivas": []
   },
   {
-    "id_horario": 12,
-    "id_profesional": 12,
     "dias": [
       "Lunes",
       "Martes",
@@ -147,8 +123,6 @@
     "festivo": false
   },
   {
-    "id_horario": 13,
-    "id_profesional": 13,
     "dias": [
       "Miércoles",
       "Jueves",
@@ -160,8 +134,6 @@
     "fechas_festivas": []
   },
   {
-    "id_horario": 14,
-    "id_profesional": 14,
     "dias": [
       "Lunes",
       "Martes",
@@ -173,8 +145,6 @@
     "festivo": false
   },
   {
-    "id_horario": 15,
-    "id_profesional": 15,
     "dias": [
       "Martes",
       "Miércoles",
@@ -185,8 +155,6 @@
     "festivo": false
   },
   {
-    "id_horario": 16,
-    "id_profesional": 16,
     "dias": [
       "Lunes",
       "Martes",
@@ -197,8 +165,6 @@
     "festivo": false
   },
   {
-    "id_horario": 17,
-    "id_profesional": 17,
     "dias": [
       "Lunes",
       "Miércoles",
@@ -209,8 +175,6 @@
     "festivo": false
   },
   {
-    "id_horario": 18,
-    "id_profesional": 18,
     "dias": [
       "Viernes",
       "Sábado"
@@ -220,8 +184,6 @@
     "festivo": false
   },
   {
-    "id_horario": 19,
-    "id_profesional": 19,
     "dias": [
       "Sábado",
       "Domingo"
@@ -231,8 +193,6 @@
     "festivo": false
   },
   {
-    "id_horario": 20,
-    "id_profesional": 20,
     "dias": [
       "Lunes",
       "Martes",
@@ -244,8 +204,6 @@
     "festivo": false
   },
   {
-    "id_horario": 21,
-    "id_profesional": 21,
     "dias": [
       "Martes",
       "Miércoles",
@@ -256,8 +214,6 @@
     "festivo": false
   },
   {
-    "id_horario": 22,
-    "id_profesional": 22,
     "dias": [
       "Lunes",
       "Miércoles",
@@ -268,8 +224,6 @@
     "festivo": false
   },
   {
-    "id_horario": 23,
-    "id_profesional": 23,
     "dias": [
       "Martes",
       "Jueves",
@@ -280,8 +234,6 @@
     "festivo": false
   },
   {
-    "id_horario": 24,
-    "id_profesional": 24,
     "dias": [
       "Lunes",
       "Miércoles",
@@ -292,8 +244,6 @@
     "festivo": false
   },
   {
-    "id_horario": 25,
-    "id_profesional": 25,
     "dias": [
       "Sábado"
     ],
@@ -302,8 +252,6 @@
     "festivo": false
   },
   {
-    "id_horario": 26,
-    "id_profesional": 26,
     "dias": [
       "Lunes",
       "Martes",
@@ -314,8 +262,6 @@
     "festivo": false
   },
   {
-    "id_horario": 27,
-    "id_profesional": 27,
     "dias": [
       "Martes",
       "Miércoles",

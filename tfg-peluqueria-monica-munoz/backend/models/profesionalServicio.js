@@ -1,8 +1,17 @@
 const mongoose = require('mongoose');
 
 const profesionalServicioSchema = new mongoose.Schema({
-  id_profesional: { type: Number, required: true },
-  id_servicio: { type: Number, required: true }
+  profesional: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Profesional',
+    required: true
+  },
+  servicio: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Servicio',
+    required: true
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('ProfesionalServicio', profesionalServicioSchema);
+

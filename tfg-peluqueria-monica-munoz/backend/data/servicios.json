@@ -1,344 +1,268 @@
 [
   {
-    "id_servicio": 1,
     "nombre": "Corte de Cabello",
     "descripcion": "Corte personalizado adaptado a tu estilo y tipo de cabello. Incluye lavado y peinado.",
     "duracion": 45,
     "precio": 15.99,
-    "id_centro": 1,
     "imagen": "/img/servicio1.png"
   },
   {
-    "id_servicio": 2,
     "nombre": "Coloración",
     "descripcion": "Servicio de color completo o mechas con productos de alta calidad.",
     "duracion": 90,
     "precio": 39.99,
-    "id_centro": 1,
     "imagen": "/img/servicio2.png"
   },
   {
-    "id_servicio": 3,
     "nombre": "Peinado de Evento",
     "descripcion": "Peinados elegantes para bodas, fiestas o eventos especiales.",
     "duracion": 60,
     "precio": 25,
-    "id_centro": 1,
     "imagen": "/img/servicio3.png"
   },
   {
-    "id_servicio": 4,
     "nombre": "Tratamiento Capilar",
     "descripcion": "Hidratación profunda y nutrición intensiva para revitalizar el cabello dañado o seco.",
     "duracion": 50,
     "precio": 29.5,
-    "id_centro": 1,
     "imagen": "/img/servicio4.png"
   },
   {
-    "id_servicio": 5,
     "nombre": "Manicura",
     "descripcion": "Cuidado completo de uñas con opción de esmaltado tradicional o semipermanente.",
     "duracion": 40,
     "precio": 18,
-    "id_centro": 2,
     "imagen": "/img/servicio5.png"
   },
   {
-    "id_servicio": 6,
     "nombre": "Depilación con Cera",
     "descripcion": "Eliminación del vello con cera tibia o caliente para una piel suave y duradera.",
     "duracion": 40,
     "precio": 18.5,
-    "id_centro": 2,
     "imagen": "/img/servicio6.png"
   },
   {
-    "id_servicio": 7,
     "nombre": "Pedicura",
     "descripcion": "Cuidado completo de pies y uñas, con exfoliación y masaje incluido.",
     "duracion": 50,
     "precio": 22,
-    "id_centro": 2,
     "imagen": "/img/servicio7.png"
   },
   {
-    "id_servicio": 8,
     "nombre": "Coloración de Cabello",
     "descripcion": "Tintes y mechas adaptadas a tu estilo y cuidado capilar.",
     "duracion": 90,
     "precio": 35,
-    "id_centro": 2,
     "imagen": "/img/servicio8.png"
   },
   {
-    "id_servicio": 9,
     "nombre": "Maquillaje Profesional",
     "descripcion": "Maquillaje completo para eventos, sesiones de fotos o bodas.",
     "duracion": 60,
     "precio": 45,
-    "id_centro": 3,
     "imagen": "/img/servicio9.png"
   },
   {
-    "id_servicio": 10,
     "nombre": "Peinado Rápido",
     "descripcion": "Peinados rápidos y prácticos para uso diario.",
     "duracion": 30,
     "precio": 20,
-    "id_centro": 3,
     "imagen": "/img/servicio10.png"
   },
   {
-    "id_servicio": 11,
     "nombre": "Tratamiento Capilar Intensivo",
     "descripcion": "Nutrición profunda e hidratación para cabello dañado.",
     "duracion": 50,
     "precio": 30,
-    "id_centro": 3,
     "imagen": "/img/servicio11.png"
   },
   {
-    "id_servicio": 12,
     "nombre": "Alisado con Keratina",
     "descripcion": "Tratamiento profesional de alisado para cabello suave y sin frizz.",
     "duracion": 120,
     "precio": 79.99,
-    "id_centro": 3,
     "imagen": "/img/servicio12.png"
   },
   {
-    "id_servicio": 13,
     "nombre": "Corte Moderno",
     "descripcion": "Corte de cabello con estilo moderno y tendencia actual.",
     "duracion": 45,
     "precio": 16,
-    "id_centro": 4,
     "imagen": "/img/servicio13.png"
   },
   {
-    "id_servicio": 14,
     "nombre": "Coloración Creativa",
     "descripcion": "Colores vibrantes y mechas creativas para un look único.",
     "duracion": 90,
     "precio": 42,
-    "id_centro": 4,
     "imagen": "/img/servicio14.png"
   },
   {
-    "id_servicio": 15,
     "nombre": "Masaje Capilar Relajante",
     "descripcion": "Masaje en cuero cabelludo para aliviar el estrés y mejorar circulación.",
     "duracion": 30,
     "precio": 20,
-    "id_centro": 4,
     "imagen": "/img/servicio15.png"
   },
   {
-    "id_servicio": 16,
     "nombre": "Depilación Piernas",
     "descripcion": "Depilación con cera para piernas, suave y duradera.",
     "duracion": 40,
     "precio": 18.5,
-    "id_centro": 5,
     "imagen": "/img/servicio16.png"
   },
   {
-    "id_servicio": 17,
     "nombre": "Manicura Semipermanente",
     "descripcion": "Esmaltado duradero con acabado profesional.",
     "duracion": 50,
     "precio": 25,
-    "id_centro": 5,
     "imagen": "/img/servicio17.png"
   },
   {
-    "id_servicio": 18,
     "nombre": "Extensiones de Cabello",
     "descripcion": "Colocación de extensiones naturales o sintéticas para añadir longitud y volumen.",
     "duracion": 150,
     "precio": 120,
-    "id_centro": 6,
     "imagen": "/img/servicio18.png"
   },
   {
-    "id_servicio": 19,
     "nombre": "Alisado Keratina Profesional",
     "descripcion": "Tratamiento de alisado profesional con keratina para cabello brillante y sedoso.",
     "duracion": 120,
     "precio": 80,
-    "id_centro": 6,
     "imagen": "/img/servicio19.png"
   },
   {
-    "id_servicio": 20,
     "nombre": "Corte Tradicional",
     "descripcion": "Corte clásico adaptado a cualquier estilo y tipo de cabello.",
     "duracion": 45,
     "precio": 16.5,
-    "id_centro": 7,
     "imagen": "/img/servicio20.png"
   },
   {
-    "id_servicio": 21,
     "nombre": "Coloración Natural",
     "descripcion": "Tintes naturales que cuidan la salud del cabello.",
     "duracion": 60,
     "precio": 35,
-    "id_centro": 7,
     "imagen": "/img/servicio21.png"
   },
   {
-    "id_servicio": 22,
     "nombre": "Peinado Elegante",
     "descripcion": "Peinados para eventos especiales con acabado profesional.",
     "duracion": 60,
     "precio": 28,
-    "id_centro": 7,
     "imagen": "/img/servicio22.png"
   },
   {
-    "id_servicio": 23,
     "nombre": "Tratamiento Anticaída",
     "descripcion": "Fortalece el cuero cabelludo y estimula el crecimiento capilar.",
     "duracion": 50,
     "precio": 34.9,
-    "id_centro": 7,
     "imagen": "/img/servicio23.png"
   },
   {
-    "id_servicio": 24,
     "nombre": "Alisado con Keratina",
     "descripcion": "Alisado profesional con keratina, eliminando el frizz.",
     "duracion": 120,
     "precio": 79.99,
-    "id_centro": 8,
     "imagen": "/img/servicio24.png"
   },
   {
-    "id_servicio": 25,
     "nombre": "Corte Moderno",
     "descripcion": "Corte de cabello moderno y estilizado.",
     "duracion": 45,
     "precio": 17,
-    "id_centro": 8,
     "imagen": "/img/servicio25.png"
   },
   {
-    "id_servicio": 26,
     "nombre": "Coloración de Mechas",
     "descripcion": "Mechas y balayage para un look natural y luminoso.",
     "duracion": 90,
     "precio": 40,
-    "id_centro": 8,
     "imagen": "/img/servicio26.png"
   },
   {
-    "id_servicio": 27,
     "nombre": "Depilación Facial",
     "descripcion": "Eliminación del vello facial con cera delicada.",
     "duracion": 30,
     "precio": 15,
-    "id_centro": 9,
     "imagen": "/img/servicio27.png"
   },
   {
-    "id_servicio": 28,
     "nombre": "Maquillaje Social",
     "descripcion": "Maquillaje para fiestas y eventos sociales.",
     "duracion": 60,
     "precio": 42,
-    "id_centro": 9,
     "imagen": "/img/servicio28.png"
   },
   {
-    "id_servicio": 29,
     "nombre": "Tratamiento Capilar Hidratante",
     "descripcion": "Hidratación profunda para cabello seco o dañado.",
     "duracion": 50,
     "precio": 30,
-    "id_centro": 9,
     "imagen": "/img/servicio29.png"
   },
   {
-    "id_servicio": 30,
     "nombre": "Tinte de Cejas y Pestañas",
     "descripcion": "Realza la mirada con un tinte natural.",
     "duracion": 30,
     "precio": 22,
-    "id_centro": 10,
     "imagen": "/img/servicio30.png"
   },
   {
-    "id_servicio": 31,
     "nombre": "Corte Ejecutivo",
     "descripcion": "Corte profesional adaptado a un estilo formal.",
     "duracion": 40,
     "precio": 16,
-    "id_centro": 10,
     "imagen": "/img/servicio31.png"
   },
   {
-    "id_servicio": 32,
     "nombre": "Peinado Express",
     "descripcion": "Peinados rápidos para uso diario.",
     "duracion": 25,
     "precio": 18,
-    "id_centro": 10,
     "imagen": "/img/servicio32.png"
   },
   {
-    "id_servicio": 33,
     "nombre": "Lifting de Pestañas",
     "descripcion": "Tratamiento que levanta y riza las pestañas de forma natural, aportando volumen y curvatura durante semanas.",
     "duracion": 60,
     "precio": 35,
-    "id_centro": 11,
     "imagen": "/img/servicio33.png"
   },
   {
-    "id_servicio": 34,
     "nombre": "Microblading de Cejas",
     "descripcion": "Técnica de micropigmentación semi-permanente que rellena y define las cejas de manera natural y realista.",
     "duracion": 120,
     "precio": 150,
-    "id_centro": 11,
     "imagen": "/img/servicio34.png"
   },
   {
-    "id_servicio": 35,
     "nombre": "Balayage Premium",
     "descripcion": "Técnica de coloración a mano alzada que crea reflejos naturales y degradados suaves para un acabado luminoso.",
     "duracion": 180,
     "precio": 95,
-    "id_centro": 11,
     "imagen": "/img/servicio35.png"
   },
   {
-    "id_servicio": 36,
     "nombre": "Corte Familiar",
     "descripcion": "Cortes de cabello para toda la familia con acabado profesional.",
     "duracion": 45,
     "precio": 15.5,
-    "id_centro": 12,
     "imagen": "/img/servicio36.png"
   },
   {
-    "id_servicio": 37,
     "nombre": "Peinado de Novia",
     "descripcion": "Peinado nupcial personalizado con prueba previa incluida. Elegante y duradero para el día más especial.",
     "duracion": 90,
     "precio": 65,
-    "id_centro": 12,
     "imagen": "/img/servicio37.png"
   },
   {
-    "id_servicio": 38,
     "nombre": "Tratamiento Botox Capilar",
     "descripcion": "Terapia intensiva que rellena las fibras capilares, eliminando el frizz y aportando brillo extremo y suavidad.",
     "duracion": 100,
     "precio": 55,
-    "id_centro": 12,
     "imagen": "/img/servicio38.png"
   }
 ]

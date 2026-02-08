@@ -5,7 +5,11 @@ const servicioSchema = new mongoose.Schema({
   descripcion: { type: String },
   duracion: { type: Number },
   precio: { type: Number },
-  id_centro: { type: Number },
+  centro: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Centro',
+    required: true
+  },
   imagen: { type: String }
 }, { timestamps: true });
 

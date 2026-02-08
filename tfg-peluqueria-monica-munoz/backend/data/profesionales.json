@@ -1,191 +1,110 @@
 [
   {
-    "id_profesional": 1,
-    "id_usuario": 5,
     "nombre": "Laura",
-    "apellidos": "Gómez Ruiz",
-    "id_centro": 1
+    "apellidos": "Gómez Ruiz"
   },
   {
-    "id_profesional": 2,
-    "id_usuario": 6,
     "nombre": "Carlos",
-    "apellidos": "Pérez Martín",
-    "id_centro": 1
+    "apellidos": "Pérez Martín"
   },
   {
-    "id_profesional": 3,
-    "id_usuario": 7,
     "nombre": "María",
-    "apellidos": "Santos López",
-    "id_centro": 1
+    "apellidos": "Santos López"
   },
   {
-    "id_profesional": 4,
-    "id_usuario": 8,
     "nombre": "Andrés",
-    "apellidos": "Morales Díaz",
-    "id_centro": 2
+    "apellidos": "Morales Díaz"
   },
   {
-    "id_profesional": 5,
-    "id_usuario": 9,
     "nombre": "Lucía",
-    "apellidos": "Fernández Soto",
-    "id_centro": 2
+    "apellidos": "Fernández Soto"
   },
   {
-    "id_profesional": 6,
-    "id_usuario": 10,
     "nombre": "Javier",
-    "apellidos": "Romero Gil",
-    "id_centro": 2
+    "apellidos": "Romero Gil"
   },
   {
-    "id_profesional": 7,
-    "id_usuario": 11,
     "nombre": "Patricia",
-    "apellidos": "Delgado Torres",
-    "id_centro": 3
+    "apellidos": "Delgado Torres"
   },
   {
-    "id_profesional": 8,
-    "id_usuario": 12,
     "nombre": "Sergio",
-    "apellidos": "Navarro León",
-    "id_centro": 3
+    "apellidos": "Navarro León"
   },
   {
-    "id_profesional": 9,
-    "id_usuario": 13,
     "nombre": "Marta",
-    "apellidos": "Cano Serrano",
-    "id_centro": 3
+    "apellidos": "Cano Serrano"
   },
   {
-    "id_profesional": 10,
-    "id_usuario": 14,
     "nombre": "David",
-    "apellidos": "Vega Alonso",
-    "id_centro": 4
+    "apellidos": "Vega Alonso"
   },
   {
-    "id_profesional": 11,
-    "id_usuario": 15,
     "nombre": "Elena",
-    "apellidos": "Ramos Castillo",
-    "id_centro": 4
+    "apellidos": "Ramos Castillo"
   },
   {
-    "id_profesional": 12,
-    "id_usuario": 16,
     "nombre": "Raúl",
-    "apellidos": "Jiménez Bravo",
-    "id_centro": 5
+    "apellidos": "Jiménez Bravo"
   },
   {
-    "id_profesional": 13,
-    "id_usuario": 17,
     "nombre": "Ana",
-    "apellidos": "Torres Muñoz",
-    "id_centro": 5
+    "apellidos": "Torres Muñoz"
   },
   {
-    "id_profesional": 14,
-    "id_usuario": 18,
     "nombre": "Miguel",
-    "apellidos": "Sánchez Lara",
-    "id_centro": 6
+    "apellidos": "Sánchez Lara"
   },
   {
-    "id_profesional": 15,
-    "id_usuario": 19,
     "nombre": "Clara",
-    "apellidos": "García Soler",
-    "id_centro": 6
+    "apellidos": "García Soler"
   },
   {
-    "id_profesional": 16,
-    "id_usuario": 20,
     "nombre": "Pedro",
-    "apellidos": "Ruiz Delgado",
-    "id_centro": 7
+    "apellidos": "Ruiz Delgado"
   },
   {
-    "id_profesional": 17,
-    "id_usuario": 21,
     "nombre": "Lucía",
-    "apellidos": "Cano Reyes",
-    "id_centro": 7
+    "apellidos": "Cano Reyes"
   },
   {
-    "id_profesional": 18,
-    "id_usuario": 22,
     "nombre": "Sofía",
-    "apellidos": "López Cabrera",
-    "id_centro": 8
+    "apellidos": "López Cabrera"
   },
   {
-    "id_profesional": 19,
-    "id_usuario": 23,
     "nombre": "Diego",
-    "apellidos": "Vega Moreno",
-    "id_centro": 8
+    "apellidos": "Vega Moreno"
   },
   {
-    "id_profesional": 20,
-    "id_usuario": 24,
     "nombre": "Nuria",
-    "apellidos": "Pérez Campos",
-    "id_centro": 9
+    "apellidos": "Pérez Campos"
   },
   {
-    "id_profesional": 21,
-    "id_usuario": 25,
     "nombre": "Iván",
-    "apellidos": "Morales Ruiz",
-    "id_centro": 9
+    "apellidos": "Morales Ruiz"
   },
   {
-    "id_profesional": 22,
-    "id_usuario": 26,
     "nombre": "Carmen",
-    "apellidos": "Jiménez Soto",
-    "id_centro": 10
+    "apellidos": "Jiménez Soto"
   },
   {
-    "id_profesional": 23,
-    "id_usuario": 27,
     "nombre": "Raúl",
-    "apellidos": "Fernández López",
-    "id_centro": 10
+    "apellidos": "Fernández López"
   },
   {
-    "id_profesional": 24,
-    "id_usuario": 28,
     "nombre": "Elena",
-    "apellidos": "González Ramírez",
-    "id_centro": 11
+    "apellidos": "González Ramírez"
   },
   {
-    "id_profesional": 25,
-    "id_usuario": 29,
     "nombre": "Hugo",
-    "apellidos": "Santos Díaz",
-    "id_centro": 11
+    "apellidos": "Santos Díaz"
   },
   {
-    "id_profesional": 26,
-    "id_usuario": 30,
     "nombre": "Laura",
-    "apellidos": "Vega Ortega",
-    "id_centro": 12
+    "apellidos": "Vega Ortega"
   },
   {
-    "id_profesional": 27,
-    "id_usuario": 31,
     "nombre": "Mario",
-    "apellidos": "Ruiz Castro",
-    "id_centro": 12
+    "apellidos": "Ruiz Castro"
   }
 ]
