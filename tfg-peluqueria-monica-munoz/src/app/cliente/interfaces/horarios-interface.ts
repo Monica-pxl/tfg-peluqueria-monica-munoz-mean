@@ -1,8 +1,16 @@
 export type Horarios = HorariosInterface[];
 
+export interface ProfesionalPoblado {
+  _id: string;
+  nombre: string;
+  apellidos: string;
+}
+
 export interface HorariosInterface {
-  id_horario: number;
-  id_profesional: number;
+  _id?: string;  // MongoDB ObjectId
+  id_horario?: number;  // Deprecated: mantener por compatibilidad
+  profesional?: string | ProfesionalPoblado;  // Puede ser ObjectId (string) o profesional poblado
+  id_profesional?: number;  // Deprecated: mantener por compatibilidad
   dias: string[];
   hora_inicio: string;
   hora_fin: string;

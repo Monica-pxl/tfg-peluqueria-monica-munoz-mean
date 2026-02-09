@@ -19,9 +19,10 @@ import { AlertService } from '../../../shared/services/alert-service';
   imports: [CommonModule, FormsModule],
   templateUrl: './horarios-crear.html',
   styleUrl: './horarios-crear.css',
+  standalone: true
 })
 export class HorariosCrear implements OnInit {
-  
+
   id_profesional: string | null = null;
   diasSeleccionados: string[] = [];
   fechasFestivas: string[] = []; // Fechas específicas festivas (YYYY-MM-DD)
@@ -94,17 +95,17 @@ export class HorariosCrear implements OnInit {
 
   getJornadaCentro(): string {
     if (!this.id_profesional) return '';
-    
+
     const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
     if (!profesional) {
       console.warn('Profesional no encontrado con ID:', this.id_profesional);
       console.log('Profesionales disponibles:', this.profesionales);
       return '';
     }
-    
+
     const centro = this.centros.find(c => c.id_centro === profesional.id_centro);
     if (!centro) return '';
-    
+
     return `${centro.horario_apertura} - ${centro.horario_cierre}`;
   }
 
@@ -130,7 +131,7 @@ export class HorariosCrear implements OnInit {
     // Validar que la fecha corresponda a un día del horario
     const fecha = new Date(this.nuevaFechaFestiva + 'T00:00:00');
     const diaSemana = this.obtenerNombreDia(fecha.getDay());
-    
+
     if (!this.diasSeleccionados.includes(diaSemana)) {
       this.alertService.warning(`La fecha seleccionada (${diaSemana}) no está en los días del horario`);
       return;
@@ -146,14 +147,14 @@ export class HorariosCrear implements OnInit {
     this.citasService.getAllCitas(this.usuarios).subscribe({
       next: (todasCitas: CitasInterface[]) => {
         // Filtrar citas del profesional en esa fecha
-        const citasEnFecha = todasCitas.filter(cita => 
+        const citasEnFecha = todasCitas.filter(cita =>
           cita.id_profesional === Number(this.id_profesional) &&
           cita.fecha === this.nuevaFechaFestiva
         );
 
         // Verificar si hay citas confirmadas
         const citasConfirmadas = citasEnFecha.filter(c => c.estado === 'confirmada');
-        
+
         if (citasConfirmadas.length > 0) {
           // BLOQUEAR: No permitir marcar como festivo si hay citas confirmadas
           this.alertService.error(
@@ -165,7 +166,7 @@ export class HorariosCrear implements OnInit {
 
         // Cancelar citas pendientes y notificar
         const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente');
-        
+
         if (citasPendientes.length > 0) {
           // Cancelar cada cita pendiente
           citasPendientes.forEach(cita => {
@@ -176,7 +177,7 @@ export class HorariosCrear implements OnInit {
             // Notificar al cliente
             const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
             const nombreProfesional = profesional ? `${profesional.nombre} ${profesional.apellidos}` : 'el profesional';
-            
+
             this.notificacionesService.crearNotificacion({
               idUsuario: cita.id_usuario,
               mensaje: `Tu cita con <strong class="notif-entity">${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong class="notif-status">cancelada</strong> porque ese día se marcó como festivo.`,
@@ -193,12 +194,12 @@ export class HorariosCrear implements OnInit {
         if (!this.fechasFestivas.includes(this.nuevaFechaFestiva)) {
           this.fechasFestivas.push(this.nuevaFechaFestiva);
           this.fechasFestivas.sort();
-          
+
           if (citasPendientes.length === 0) {
             this.alertService.success('Fecha festiva agregada correctamente');
           }
         }
-        
+
         this.nuevaFechaFestiva = '';
       },
       error: () => {
@@ -253,8 +254,16 @@ export class HorariosCrear implements OnInit {
       return;
     }
 
+    // Buscar el profesional para obtener su _id de MongoDB
+    const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
+
+    if (!profesional || !profesional._id) {
+      this.alertService.error('Profesional no encontrado');
+      return;
+    }
+
     const nuevoHorario = {
-      id_profesional: Number(this.id_profesional),
+      profesional: profesional._id,  // Usar _id de MongoDB
       dias: this.diasSeleccionados,
       hora_inicio: this.hora_inicio,
       hora_fin: this.hora_fin,
@@ -264,17 +273,16 @@ export class HorariosCrear implements OnInit {
     this.horariosService.createHorario(nuevoHorario).subscribe({
       next: () => {
         this.alertService.success('Horario creado exitosamente');
-        
+
         // Crear notificación para el profesional
-        const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
-        if (profesional) {
+        if (profesional.id_usuario) {
           this.notificacionesService.crearNotificacion({
             idUsuario: profesional.id_usuario,
             titulo: 'Nuevo horario asignado',
             mensaje: 'El administrador ha añadido un nuevo horario a tu agenda.'
           });
         }
-        
+
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
       error: (err) => {

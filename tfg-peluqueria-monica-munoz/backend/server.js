@@ -275,66 +275,82 @@ app.delete('/api/servicios/:id', async (req, res) => {
 
 
 
-
-app.get('/api/profesional_servicio', (req, res) => {
-  res.json(leerJSON('profesional_servicio.json'));
-});
-
-
-app.post('/api/profesional_servicio', (req, res) => {
-  const relaciones = leerJSON('profesional_servicio.json');
-  const nueva = req.body;
-
-  // Verificar si ya existe esta relación (evitar duplicados)
-  const yaExiste = relaciones.find(
-    r => r.id_profesional === nueva.id_profesional && r.id_servicio === nueva.id_servicio
-  );
-
-  if (yaExiste) {
-    console.log('Relación duplicada detectada y rechazada:', nueva);
-    return res.status(200).json(nueva); // Devolver éxito sin duplicar
+// GET: Todas las relaciones profesional-servicio
+app.get('/api/profesional_servicio', async (req, res) => {
+  try {
+    const relaciones = await ProfesionalServicio.find()
+      .populate('profesional', 'nombre apellidos') // opcional: si quieres ver datos del profesional
+      .populate('servicio', 'nombre');
+    res.json(relaciones);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener las relaciones" });
   }
-
-  // No agregar id_relacion, solo los campos necesarios
-  relaciones.push(nueva);
-
-  escribirJSON('profesional_servicio.json', relaciones);
-
-  res.status(201).json(nueva);
 });
 
 
-app.delete('/api/profesional_servicio/servicio/:id', (req, res) => {
-  const relaciones = leerJSON('profesional_servicio.json');
-  const id_servicio = Number(req.params.id);
+// POST: Crear nueva relación
+app.post('/api/profesional_servicio', async (req, res) => {
+  try {
+    const { profesional, servicio } = req.body;
 
-  const nuevas = relaciones.filter(r => r.id_servicio !== id_servicio);
-  escribirJSON('profesional_servicio.json', nuevas);
+    if (!profesional || !servicio) {
+      return res.status(400).json({ error: "Se requiere profesional y servicio" });
+    }
 
-  res.json({ mensaje: 'Relaciones eliminadas por servicio' });
+    // Evitar duplicados
+    const existe = await ProfesionalServicio.findOne({ profesional, servicio });
+    if (existe) {
+      return res.status(200).json(existe); // ya existe, devolvemos el existente
+    }
+
+    const nuevaRelacion = new ProfesionalServicio({ profesional, servicio });
+    await nuevaRelacion.save();
+
+    res.status(201).json(nuevaRelacion);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al crear la relación" });
+  }
 });
 
 
-app.delete('/api/profesional_servicio/profesional/:id', (req, res) => {
-  const relaciones = leerJSON('profesional_servicio.json');
-  const id_profesional = Number(req.params.id);
-
-  const nuevas = relaciones.filter(r => r.id_profesional !== id_profesional);
-  escribirJSON('profesional_servicio.json', nuevas);
-
-  res.json({ mensaje: 'Relaciones eliminadas por profesional' });
+// DELETE: Eliminar todas las relaciones de un servicio
+app.delete('/api/profesional_servicio/servicio/:id', async (req, res) => {
+  try {
+    await ProfesionalServicio.deleteMany({ servicio: req.params.id });
+    res.json({ mensaje: 'Relaciones eliminadas por servicio' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar relaciones por servicio" });
+  }
 });
 
 
-app.delete('/api/profesional_servicio/:id', (req, res) => {
-  const relaciones = leerJSON('profesional_servicio.json');
-  const id = Number(req.params.id);
 
-  const nuevas = relaciones.filter(r => r.id_relacion !== id);
-  escribirJSON('profesional_servicio.json', nuevas);
-
-  res.json({ mensaje: 'Relación eliminada' });
+// DELETE: Eliminar todas las relaciones de un profesional
+app.delete('/api/profesional_servicio/profesional/:id', async (req, res) => {
+  try {
+    await ProfesionalServicio.deleteMany({ profesional: req.params.id });
+    res.json({ mensaje: 'Relaciones eliminadas por profesional' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar relaciones por profesional" });
+  }
 });
+
+
+// DELETE: Eliminar una relación específica por _id
+app.delete('/api/profesional_servicio/:id', async (req, res) => {
+  try {
+    await ProfesionalServicio.findByIdAndDelete(req.params.id);
+    res.json({ mensaje: 'Relación eliminada' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar la relación" });
+  }
+});
+
 
 
 
@@ -444,7 +460,7 @@ app.delete('/api/centros/:id', async (req, res) => {
 // Obtener todos los horarios
 app.get('/api/horarios', async (req, res) => {
   try {
-    const horarios = await Horario.find().populate('profesional');
+    const horarios = await Horario.find().populate('profesional', 'nombre apellidos');
     res.json(horarios);
   } catch (error) {
     console.error(error);
@@ -457,7 +473,7 @@ app.get('/api/horarios', async (req, res) => {
 // Obtener un horario por _id
 app.get('/api/horarios/:id', async (req, res) => {
   try {
-    const horario = await Horario.findById(req.params.id).populate('profesional');
+    const horario = await Horario.findById(req.params.id).populate('profesional', 'nombre apellidos');
     if (!horario) return res.status(404).json({ error: "Horario no encontrado" });
     res.json(horario);
   } catch (error) {
@@ -525,66 +541,41 @@ app.post('/api/horarios', async (req, res) => {
 
 
 
-app.put('/api/horarios/:id', (req, res) => {
+// Actualizar horario
+app.put('/api/horarios/:id', async (req, res) => {
   try {
-    const horarios = leerJSON('horarios.json');
-    const id = Number(req.params.id);
+    const horario = await Horario.findById(req.params.id);
+    if (!horario) return res.status(404).json({ error: "Horario no encontrado" });
 
-    const index = horarios.findIndex(h => h.id_horario === id);
-    if (index === -1) return res.status(404).json({ error: "Horario no encontrado" });
+    const { profesional: profesionalId, dias, hora_inicio, hora_fin, fechas_festivas } = req.body;
 
-    const horarioActual = horarios[index];
-    const { id_profesional, dias, hora_inicio, hora_fin, fechas_festivas } = req.body;
+    const nuevoProfesionalId = profesionalId || horario.profesional;
+    const nuevosDias = dias || horario.dias;
+    const nuevaHoraInicio = hora_inicio || horario.hora_inicio;
+    const nuevaHoraFin = hora_fin || horario.hora_fin;
 
-    // Validar que hora_inicio < hora_fin
-    const horaInicio = hora_inicio || horarioActual.hora_inicio;
-    const horaFin = hora_fin || horarioActual.hora_fin;
-
-    if (horaInicio >= horaFin) {
+    if (nuevaHoraInicio >= nuevaHoraFin) {
       return res.status(400).json({ error: "La hora de inicio debe ser menor que la hora de fin" });
     }
 
-    // Validar que el horario esté dentro de la jornada del centro
-    const idProfesional = id_profesional !== undefined ? id_profesional : horarioActual.id_profesional;
+    const profesional = await Profesional.findById(nuevoProfesionalId);
+    if (!profesional) return res.status(404).json({ error: "Profesional no encontrado" });
 
-    const profesionales = leerJSON('profesionales.json');
-    const profesional = profesionales.find(p => p.id_profesional === idProfesional);
+    const centro = await Centro.findById(profesional.centro);
+    if (!centro) return res.status(404).json({ error: "Centro no encontrado" });
 
-    if (!profesional) {
-      return res.status(404).json({ error: "Profesional no encontrado" });
-    }
-
-    const centros = leerJSON('centros.json');
-    const centro = centros.find(c => c.id_centro === profesional.id_centro);
-
-    if (!centro) {
-      return res.status(404).json({ error: "Centro no encontrado" });
-    }
-
-    console.log(`Validando horario: ${horaInicio} - ${horaFin} dentro de ${centro.horario_apertura} - ${centro.horario_cierre}`);
-
-    if (horaInicio < centro.horario_apertura || horaFin > centro.horario_cierre) {
-      console.log('ERROR: Horario fuera de la jornada del centro');
+    if (nuevaHoraInicio < centro.horario_apertura || nuevaHoraFin > centro.horario_cierre) {
       return res.status(400).json({
         error: `El horario debe estar dentro de la jornada del centro (${centro.horario_apertura} - ${centro.horario_cierre})`
       });
     }
 
-    // Validar solapamiento con otros horarios del mismo profesional (excluyendo el actual)
-    const diasNuevos = dias || horarioActual.dias;
-
-    const horariosDelProfesional = horarios.filter(h =>
-      h.id_profesional === idProfesional && h.id_horario !== id
-    );
-
-    for (const horarioExistente of horariosDelProfesional) {
-      const diasEnComun = diasNuevos.filter(dia => horarioExistente.dias.includes(dia));
-
+    // Verificar solapamiento (excluyendo el horario actual)
+    const horariosExistentes = await Horario.find({ profesional: nuevoProfesionalId, _id: { $ne: req.params.id } });
+    for (const h of horariosExistentes) {
+      const diasEnComun = nuevosDias.filter(d => h.dias.includes(d));
       if (diasEnComun.length > 0) {
-        const inicioExistente = horarioExistente.hora_inicio;
-        const finExistente = horarioExistente.hora_fin;
-
-        if (!(horaFin <= inicioExistente || horaInicio >= finExistente)) {
+        if (!(nuevaHoraFin <= h.hora_inicio || nuevaHoraInicio >= h.hora_fin)) {
           return res.status(400).json({
             error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}`
           });
@@ -592,51 +583,49 @@ app.put('/api/horarios/:id', (req, res) => {
       }
     }
 
-    // Actualizar el horario con el nuevo campo fechas_festivas
-    const horarioActualizado = {
-      ...horarioActual,
-      ...req.body,
-      id_horario: id
-    };
+    horario.profesional = nuevoProfesionalId;
+    horario.dias = nuevosDias;
+    horario.hora_inicio = nuevaHoraInicio;
+    horario.hora_fin = nuevaHoraFin;
+    if (fechas_festivas !== undefined) horario.fechas_festivas = fechas_festivas;
 
-    // Si fechas_festivas viene en el request, usarlas directamente
-    if (fechas_festivas !== undefined) {
-      horarioActualizado.fechas_festivas = fechas_festivas;
-    }
-
-    horarios[index] = horarioActualizado;
-
-    escribirJSON('horarios.json', horarios);
-    res.json({ mensaje: "Horario actualizado exitosamente", horario: horarios[index] });
+    await horario.save();
+    res.json({ mensaje: "Horario actualizado exitosamente", horario });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error al actualizar el horario" });
   }
 });
 
-app.delete('/api/horarios/:id', (req, res) => {
-  const horarios = leerJSON('horarios.json');
-  const id = Number(req.params.id);
 
-  const nuevos = horarios.filter(h => h.id_horario !== id);
 
-  if (nuevos.length === horarios.length) {
-    return res.status(404).json({ error: "Horario no encontrado" });
+
+// Eliminar un horario
+app.delete('/api/horarios/:id', async (req, res) => {
+  try {
+    const eliminado = await Horario.findByIdAndDelete(req.params.id);
+    if (!eliminado) return res.status(404).json({ error: "Horario no encontrado" });
+
+    res.json({ mensaje: "Horario eliminado exitosamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar el horario" });
   }
-
-  escribirJSON('horarios.json', nuevos);
-  res.json({ mensaje: "Horario eliminado exitosamente" });
 });
+
 
 // Eliminar todos los horarios de un profesional
-app.delete('/api/horarios/profesional/:id', (req, res) => {
-  const horarios = leerJSON('horarios.json');
-  const id_profesional = Number(req.params.id);
-
-  const nuevos = horarios.filter(h => h.id_profesional !== id_profesional);
-  escribirJSON('horarios.json', nuevos);
-
-  res.json({ mensaje: "Horarios del profesional eliminados exitosamente" });
+app.delete('/api/horarios/profesional/:id', async (req, res) => {
+  try {
+    const idProfesional = mongoose.Types.ObjectId(req.params.id); // convertir a ObjectId
+    const result = await Horario.deleteMany({ profesional: idProfesional });
+    res.json({ mensaje: `Horarios del profesional eliminados: ${result.deletedCount}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al eliminar los horarios del profesional" });
+  }
 });
+
 
 
 

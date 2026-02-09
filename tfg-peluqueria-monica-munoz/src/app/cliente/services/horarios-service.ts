@@ -7,7 +7,7 @@ import { HorariosInterface } from '../interfaces/horarios-interface';
   providedIn: 'root'
 })
 export class HorariosService {
-  
+
   private url = 'http://localhost:3001/api/horarios';
 
   constructor(private http: HttpClient) {}
@@ -16,19 +16,19 @@ export class HorariosService {
     return this.http.get<HorariosInterface[]>(this.url);
   }
 
-  getHorarioById(id: number): Observable<HorariosInterface> {
+  getHorarioById(id: string | number): Observable<HorariosInterface> {
     return this.http.get<HorariosInterface>(`${this.url}/${id}`);
   }
 
-  createHorario(horario: Omit<HorariosInterface, 'id_horario'>): Observable<any> {
+  createHorario(horario: Omit<HorariosInterface, '_id' | 'id_horario'>): Observable<any> {
     return this.http.post(this.url, horario);
   }
 
-  updateHorario(id: number, horario: Partial<HorariosInterface>): Observable<any> {
+  updateHorario(id: string | number, horario: Partial<HorariosInterface>): Observable<any> {
     return this.http.put(`${this.url}/${id}`, horario);
   }
 
-  deleteHorario(id: number): Observable<any> {
+  deleteHorario(id: string | number): Observable<any> {
     return this.http.delete(`${this.url}/${id}`);
   }
 

@@ -70,9 +70,9 @@
           </tr>
         </thead>
         <tbody>
-          @for (horario of horariosFiltrados; track horario.id_horario) {
+          @for (horario of horariosFiltrados; track horario._id || horario.id_horario) {
             <tr>
-              <td class="fw-bold">{{ getNombreProfesional(horario.id_profesional) }}</td>
+              <td class="fw-bold">{{ getNombreProfesional(horario) }}</td>
             <td>
               {{ formatearDias(horario.dias) }}
             </td>
@@ -92,12 +92,12 @@
               }
             </td>
             <td>
-              <button class="btn btn-sm btn-primary me-1" (click)="editarHorario(horario.id_horario)" title="Editar horario">
+              <button class="btn btn-sm btn-primary me-1" (click)="editarHorario(horario)" title="Editar horario">
                 <i class="bi bi-pencil"></i>
               </button>
               <button
                 class="btn btn-sm btn-danger"
-                (click)="eliminarHorario(horario.id_horario)"
+                (click)="eliminarHorario(horario)"
                 title="Eliminar horario">
                 <i class="bi bi-trash3"></i>
               </button>

@@ -11,7 +11,7 @@ const profesionalServicioSchema = new mongoose.Schema({
     ref: 'Servicio',
     required: true
   }
-}, { timestamps: true });
+}, { timestamps: true, collection: 'profesionalservicios' });
 
 module.exports = mongoose.model('ProfesionalServicio', profesionalServicioSchema);
 

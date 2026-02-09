@@ -20,9 +20,10 @@ import { AlertService } from '../../../shared/services/alert-service';
   imports: [CommonModule, FormsModule],
   templateUrl: './horarios-editar.html',
   styleUrl: './horarios-editar.css',
+  standalone: true
 })
 export class HorariosEditar implements OnInit {
-  
+
   horario!: HorariosInterface;
   horarioOriginal!: HorariosInterface;
   profesionales: ProfesionalesInterface[] = [];
@@ -51,25 +52,25 @@ export class HorariosEditar implements OnInit {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     // Cargar profesionales
-    this.profesionalesService.getAllProfesionales().subscribe({ 
-      next: p => this.profesionales = p 
+    this.profesionalesService.getAllProfesionales().subscribe({
+      next: p => this.profesionales = p
     });
 
     // Cargar centros
-    this.centrosService.getAllCentros().subscribe({ 
-      next: c => this.centros = c 
+    this.centrosService.getAllCentros().subscribe({
+      next: c => this.centros = c
     });
 
     // Cargar usuarios
-    this.usuariosService.getAllUsuarios().subscribe({ 
-      next: u => this.usuarios = u 
+    this.usuariosService.getAllUsuarios().subscribe({
+      next: u => this.usuarios = u
     });
 
     // Cargar horario
     this.horariosService.getAllHorarios().subscribe({
       next: horarios => {
         const horarioEncontrado = horarios.find(h => h.id_horario === id);
-        
+
         if (!horarioEncontrado) {
           this.error = true;
           this.cargando = false;
@@ -77,7 +78,7 @@ export class HorariosEditar implements OnInit {
           this.router.navigate(['/admin/horarios']);
           return;
         }
-        
+
         this.horario = horarioEncontrado;
         // Guardar copia profunda del horario original
         this.horarioOriginal = JSON.parse(JSON.stringify(horarioEncontrado));
@@ -120,7 +121,7 @@ export class HorariosEditar implements OnInit {
     // Validar que la fecha corresponda a un día del horario
     const fecha = new Date(this.nuevaFechaFestiva + 'T00:00:00');
     const diaSemana = this.obtenerNombreDia(fecha.getDay());
-    
+
     if (!this.horario.dias.includes(diaSemana)) {
       this.alertService.warning(`La fecha seleccionada (${diaSemana}) no está en los días del horario`);
       return;
@@ -130,14 +131,14 @@ export class HorariosEditar implements OnInit {
     this.citasService.getAllCitas(this.usuarios).subscribe({
       next: (todasCitas: CitasInterface[]) => {
         // Filtrar citas del profesional en esa fecha
-        const citasEnFecha = todasCitas.filter(cita => 
+        const citasEnFecha = todasCitas.filter(cita =>
           cita.id_profesional === this.horario.id_profesional &&
           cita.fecha === this.nuevaFechaFestiva
         );
 
         // Verificar si hay citas confirmadas
         const citasConfirmadas = citasEnFecha.filter(c => c.estado === 'confirmada');
-        
+
         if (citasConfirmadas.length > 0) {
           // BLOQUEAR: No permitir marcar como festivo si hay citas confirmadas
           this.alertService.error(
@@ -149,7 +150,7 @@ export class HorariosEditar implements OnInit {
 
         // Cancelar citas pendientes y notificar
         const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente');
-        
+
         if (citasPendientes.length > 0) {
           // Cancelar cada cita pendiente
           citasPendientes.forEach(cita => {
@@ -175,12 +176,12 @@ export class HorariosEditar implements OnInit {
         if (!this.horario.fechas_festivas!.includes(this.nuevaFechaFestiva)) {
           this.horario.fechas_festivas!.push(this.nuevaFechaFestiva);
           this.horario.fechas_festivas!.sort();
-          
+
           if (citasPendientes.length === 0) {
             this.alertService.success('Fecha festiva agregada correctamente');
           }
         }
-        
+
         this.nuevaFechaFestiva = '';
       },
       error: () => {
@@ -191,7 +192,7 @@ export class HorariosEditar implements OnInit {
 
   eliminarFechaFestiva(fecha: string): void {
     if (!this.horario.fechas_festivas) return;
-    
+
     const index = this.horario.fechas_festivas.indexOf(fecha);
     if (index > -1) {
       this.horario.fechas_festivas.splice(index, 1);
@@ -200,7 +201,7 @@ export class HorariosEditar implements OnInit {
 
   limpiarFechasFestivasDia(dia: string): void {
     if (!this.horario.fechas_festivas) return;
-    
+
     // Eliminar fechas festivas que corresponden a este día de la semana
     this.horario.fechas_festivas = this.horario.fechas_festivas.filter(fecha => {
       const fechaObj = new Date(fecha + 'T00:00:00');
@@ -226,13 +227,13 @@ export class HorariosEditar implements OnInit {
 
   getJornadaCentro(): string {
     if (!this.horario?.id_profesional) return '';
-    
+
     const profesional = this.profesionales.find(p => p.id_profesional === this.horario.id_profesional);
     if (!profesional) return '';
-    
+
     const centro = this.centros.find(c => c.id_centro === profesional.id_centro);
     if (!centro) return '';
-    
+
     return `${centro.horario_apertura} - ${centro.horario_cierre}`;
   }
 
@@ -269,26 +270,32 @@ export class HorariosEditar implements OnInit {
     const fechasFestivasAntes = this.horarioOriginal.fechas_festivas?.length || 0;
     const fechasFestivasDespues = this.horario.fechas_festivas?.length || 0;
 
-    this.horariosService.updateHorario(this.horario.id_horario, this.horario).subscribe({
+    const id = this.horario._id || this.horario.id_horario;
+    if (!id) {
+      this.alertService.error('Error: ID de horario no válido');
+      return;
+    }
+
+    this.horariosService.updateHorario(id, this.horario).subscribe({
       next: () => {
         this.alertService.success('Horario actualizado exitosamente');
-        
+
         // Crear notificación para el profesional
         const profesional = this.profesionales.find(p => p.id_profesional === this.horario.id_profesional);
-        if (profesional) {
+        if (profesional && profesional.id_usuario) {
           let mensaje = 'El administrador ha actualizado tu horario de trabajo.';
-          
+
           // Si se añadieron fechas festivas
           if (fechasFestivasDespues > fechasFestivasAntes) {
             mensaje = 'El administrador ha marcado un día como <strong class="notif-status">no laborable</strong> en tu agenda.';
           }
-          
+
           this.notificacionesService.crearNotificacion({
             idUsuario: profesional.id_usuario,
             mensaje: mensaje
           });
         }
-        
+
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
       error: (err) => {
