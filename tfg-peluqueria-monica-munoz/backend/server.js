@@ -5,8 +5,8 @@ const Centro = require('./models/centro');
 const Horario = require('./models/horario');
 const ProfesionalServicio = require('./models/profesionalServicio');
 const Profesional = require('./models/profesional');
-
-
+const Cita = require('./models/cita');
+const Notificacion = require('./models/notificacion');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -846,83 +846,392 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 
 
 
-// ============= ENDPOINTS PARA SISTEMA DE PUNTOS =============
 
-// Marcar cita como realizada y sumar puntos automáticamente
-// Las citas están en localStorage, por lo que este endpoint recibe el id_usuario
-app.post('/api/citas/marcar-realizada', (req, res) => {
+
+
+
+// ============= ENDPOINTS PARA CITAS =============
+
+// GET: Obtener todas las citas (con populate)
+app.get('/api/citas', async (req, res) => {
   try {
-    const { id_usuario } = req.body;
+    const citas = await Cita.find()
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas:', error);
+    res.status(500).json({ error: "Error al obtener citas" });
+  }
+});
 
-    if (!id_usuario) {
-      return res.status(400).json({ error: "id_usuario es requerido" });
+// GET: Obtener citas de un usuario específico
+app.get('/api/citas/usuario/:id', async (req, res) => {
+  try {
+    const citas = await Cita.find({ usuario: req.params.id })
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas del usuario:', error);
+    res.status(500).json({ error: "Error al obtener citas del usuario" });
+  }
+});
+
+// GET: Obtener citas de un profesional específico
+app.get('/api/citas/profesional/:id', async (req, res) => {
+  try {
+    const citas = await Cita.find({ profesional: req.params.id })
+      .populate('usuario', 'nombre email')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas del profesional:', error);
+    res.status(500).json({ error: "Error al obtener citas del profesional" });
+  }
+});
+
+// GET: Obtener una cita por _id
+app.get('/api/citas/:id', async (req, res) => {
+  try {
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
+
+    if (!cita) {
+      return res.status(404).json({ error: "Cita no encontrada" });
     }
 
-    const usuarios = leerJSON('usuarios.json');
-    const index = usuarios.findIndex(u => u.id_usuario === id_usuario);
+    res.json(cita);
+  } catch (error) {
+    console.error('Error al obtener la cita:', error);
+    res.status(500).json({ error: "Error al obtener la cita" });
+  }
+});
 
-    if (index === -1) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+// POST: Crear nueva cita
+app.post('/api/citas', async (req, res) => {
+  try {
+    const { usuario, profesional, servicio, centro, fecha, hora, notas, precio } = req.body;
+
+    // Validar campos requeridos
+    if (!usuario || !profesional || !servicio || !centro || !fecha || !hora || !precio) {
+      return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
-    // Calcular puntos y niveles
-    const puntosActuales = usuarios[index].puntos || 0;
-    const puntosNuevos = puntosActuales + 10;
-    const nivelAnterior = obtenerNivel(puntosActuales);
-    const nivelNuevo = obtenerNivel(puntosNuevos);
-    const subeNivel = nivelNuevo !== nivelAnterior;
+    // Verificar que no exista otra cita en el mismo horario para el mismo profesional
+    const citaExistente = await Cita.findOne({ profesional, fecha, hora });
+    if (citaExistente) {
+      return res.status(400).json({ error: "Ya existe una cita para ese profesional en ese horario" });
+    }
 
-    // Actualizar puntos
-    usuarios[index].puntos = puntosNuevos;
-    escribirJSON('usuarios.json', usuarios);
-
-    res.json({
-      mensaje: "Cita marcada como realizada y puntos sumados",
-      puntosSumados: 10,
-      puntosActuales: puntosNuevos,
-      nivelAnterior,
-      nivelActual: nivelNuevo,
-      subeNivel,
-      usuario: usuarioSinPassword(usuarios[index])
+    const nuevaCita = new Cita({
+      usuario,
+      profesional,
+      servicio,
+      centro,
+      fecha,
+      hora,
+      notas: notas || '',
+      precio,
+      estado: 'pendiente'
     });
+
+    await nuevaCita.save();
+
+    // Devolver la cita con populate
+    const citaCreada = await Cita.findById(nuevaCita._id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
+
+    res.status(201).json({ mensaje: "Cita creada exitosamente", cita: citaCreada });
+  } catch (error) {
+    console.error('Error al crear cita:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "Ya existe una cita para ese profesional en ese horario" });
+    }
+    res.status(500).json({ error: "Error al crear la cita" });
+  }
+});
+
+// PUT: Actualizar cita (cambiar estado, notas, fecha, hora, etc.)
+app.put('/api/citas/:id', async (req, res) => {
+  try {
+    const { estado, fecha, hora, notas } = req.body;
+
+    const cita = await Cita.findById(req.params.id);
+    if (!cita) {
+      return res.status(404).json({ error: "Cita no encontrada" });
+    }
+
+    // Si se cambia fecha u hora, verificar disponibilidad
+    if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
+      const nuevaFecha = fecha || cita.fecha;
+      const nuevaHora = hora || cita.hora;
+
+      const citaExistente = await Cita.findOne({
+        profesional: cita.profesional,
+        fecha: nuevaFecha,
+        hora: nuevaHora,
+        _id: { $ne: req.params.id }
+      });
+
+      if (citaExistente) {
+        return res.status(400).json({ error: "Ya existe una cita para ese profesional en ese horario" });
+      }
+    }
+
+    // Actualizar campos
+    if (estado) cita.estado = estado;
+    if (fecha) cita.fecha = fecha;
+    if (hora) cita.hora = hora;
+    if (notas !== undefined) cita.notas = notas;
+
+    await cita.save();
+
+    const citaActualizada = await Cita.findById(cita._id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
+
+    res.json({ mensaje: "Cita actualizada exitosamente", cita: citaActualizada });
+  } catch (error) {
+    console.error('Error al actualizar cita:', error);
+    res.status(500).json({ error: "Error al actualizar la cita" });
+  }
+});
+
+// DELETE: Cancelar/eliminar cita
+app.delete('/api/citas/:id', async (req, res) => {
+  try {
+    const cita = await Cita.findByIdAndDelete(req.params.id);
+
+    if (!cita) {
+      return res.status(404).json({ error: "Cita no encontrada" });
+    }
+
+    res.json({ mensaje: "Cita eliminada exitosamente" });
+  } catch (error) {
+    console.error('Error al eliminar cita:', error);
+    res.status(500).json({ error: "Error al eliminar la cita" });
+  }
+});
+
+// PUT: Marcar cita como realizada (cambia estado y suma puntos)
+app.put('/api/citas/:id/marcar-realizada', async (req, res) => {
+  try {
+    const cita = await Cita.findById(req.params.id);
+
+    if (!cita) {
+      return res.status(404).json({ error: "Cita no encontrada" });
+    }
+
+    if (cita.estado === 'realizada') {
+      return res.status(400).json({ error: "La cita ya fue marcada como realizada" });
+    }
+
+    // Actualizar estado de la cita
+    cita.estado = 'realizada';
+    await cita.save();
+
+    // Sumar puntos al usuario
+    const usuario = await Usuario.findById(cita.usuario);
+    if (usuario && usuario.rol === 'cliente') {
+      const puntosActuales = usuario.puntos || 0;
+      const puntosNuevos = puntosActuales + 10;
+
+      usuario.puntos = puntosNuevos;
+      await usuario.save();
+
+      return res.json({
+        mensaje: "Cita marcada como realizada y puntos sumados",
+        cita,
+        puntosSumados: 10,
+        puntosActuales: puntosNuevos
+      });
+    }
+
+    res.json({ mensaje: "Cita marcada como realizada", cita });
   } catch (error) {
     console.error('Error al marcar cita como realizada:', error);
     res.status(500).json({ error: "Error al procesar la cita" });
   }
 });
 
-// Obtener puntos y nivel de un usuario
-app.get('/api/usuarios/:id/puntos', (req, res) => {
+// GET: Verificar disponibilidad de un profesional en fecha/hora específica
+app.get('/api/citas/disponibilidad/:profesionalId/:fecha/:hora', async (req, res) => {
   try {
-    const usuarios = leerJSON('usuarios.json');
-    const id = Number(req.params.id);
+    const { profesionalId, fecha, hora } = req.params;
 
-    const usuario = usuarios.find(u => u.id_usuario === id);
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const puntos = usuario.puntos || 0;
-    const nivel = obtenerNivel(puntos);
-
-    res.json({
-      puntos,
-      nivel
+    const citaExistente = await Cita.findOne({
+      profesional: profesionalId,
+      fecha,
+      hora,
+      estado: { $in: ['pendiente', 'confirmada'] }
     });
+
+    res.json({ disponible: !citaExistente });
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener puntos" });
+    console.error('Error al verificar disponibilidad:', error);
+    res.status(500).json({ error: "Error al verificar disponibilidad" });
   }
 });
 
-// Función auxiliar para obtener el nivel según los puntos
-function obtenerNivel(puntos) {
-  if (puntos >= 100) return 'Cliente Premium';
-  if (puntos >= 50) return 'Cliente Habitual';
-  if (puntos >= 20) return 'Cliente Frecuente';
-  return 'Cliente Nuevo';
-}
+// ============= FIN ENDPOINTS CITAS =============
 
-// ============= FIN ENDPOINTS PUNTOS =============
+
+
+// ============= ENDPOINTS PARA NOTIFICACIONES =============
+
+// GET: Obtener todas las notificaciones de un usuario
+app.get('/api/notificaciones/usuario/:id', async (req, res) => {
+  try {
+    const notificaciones = await Notificacion.find({ usuario: req.params.id })
+      .sort({ createdAt: -1 });
+    res.json(notificaciones);
+  } catch (error) {
+    console.error('Error al obtener notificaciones:', error);
+    res.status(500).json({ error: "Error al obtener notificaciones" });
+  }
+});
+
+// GET: Obtener notificaciones no leídas de un usuario
+app.get('/api/notificaciones/usuario/:id/no-leidas', async (req, res) => {
+  try {
+    const notificaciones = await Notificacion.find({
+      usuario: req.params.id,
+      leida: false
+    }).sort({ createdAt: -1 });
+
+    res.json(notificaciones);
+  } catch (error) {
+    console.error('Error al obtener notificaciones no leídas:', error);
+    res.status(500).json({ error: "Error al obtener notificaciones no leídas" });
+  }
+});
+
+// GET: Contar notificaciones no leídas de un usuario
+app.get('/api/notificaciones/usuario/:id/contar-no-leidas', async (req, res) => {
+  try {
+    const count = await Notificacion.countDocuments({
+      usuario: req.params.id,
+      leida: false
+    });
+
+    res.json({ count });
+  } catch (error) {
+    console.error('Error al contar notificaciones:', error);
+    res.status(500).json({ error: "Error al contar notificaciones" });
+  }
+});
+
+// POST: Crear nueva notificación
+app.post('/api/notificaciones', async (req, res) => {
+  try {
+    const { usuario, titulo, mensaje, tipo } = req.body;
+
+    if (!usuario || !titulo || !mensaje) {
+      return res.status(400).json({ error: "Faltan campos requeridos (usuario, titulo, mensaje)" });
+    }
+
+    const nuevaNotificacion = new Notificacion({
+      usuario,
+      titulo,
+      mensaje,
+      tipo: tipo || 'info',
+      leida: false
+    });
+
+    await nuevaNotificacion.save();
+    res.status(201).json({ mensaje: "Notificación creada exitosamente", notificacion: nuevaNotificacion });
+  } catch (error) {
+    console.error('Error al crear notificación:', error);
+    res.status(500).json({ error: "Error al crear la notificación" });
+  }
+});
+
+// PUT: Marcar notificación como leída
+app.put('/api/notificaciones/:id/marcar-leida', async (req, res) => {
+  try {
+    const notificacion = await Notificacion.findByIdAndUpdate(
+      req.params.id,
+      { leida: true },
+      { new: true }
+    );
+
+    if (!notificacion) {
+      return res.status(404).json({ error: "Notificación no encontrada" });
+    }
+
+    res.json({ mensaje: "Notificación marcada como leída", notificacion });
+  } catch (error) {
+    console.error('Error al marcar notificación como leída:', error);
+    res.status(500).json({ error: "Error al actualizar la notificación" });
+  }
+});
+
+// PUT: Marcar todas las notificaciones de un usuario como leídas
+app.put('/api/notificaciones/usuario/:id/marcar-todas-leidas', async (req, res) => {
+  try {
+    const result = await Notificacion.updateMany(
+      { usuario: req.params.id, leida: false },
+      { leida: true }
+    );
+
+    res.json({
+      mensaje: "Todas las notificaciones marcadas como leídas",
+      actualizadas: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error al marcar notificaciones como leídas:', error);
+    res.status(500).json({ error: "Error al actualizar las notificaciones" });
+  }
+});
+
+// DELETE: Eliminar una notificación
+app.delete('/api/notificaciones/:id', async (req, res) => {
+  try {
+    const notificacion = await Notificacion.findByIdAndDelete(req.params.id);
+
+    if (!notificacion) {
+      return res.status(404).json({ error: "Notificación no encontrada" });
+    }
+
+    res.json({ mensaje: "Notificación eliminada exitosamente" });
+  } catch (error) {
+    console.error('Error al eliminar notificación:', error);
+    res.status(500).json({ error: "Error al eliminar la notificación" });
+  }
+});
+
+// DELETE: Eliminar todas las notificaciones de un usuario
+app.delete('/api/notificaciones/usuario/:id', async (req, res) => {
+  try {
+    const result = await Notificacion.deleteMany({ usuario: req.params.id });
+
+    res.json({
+      mensaje: "Notificaciones eliminadas exitosamente",
+      eliminadas: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error al eliminar notificaciones:', error);
+    res.status(500).json({ error: "Error al eliminar las notificaciones" });
+  }
+});
+
+// ============= FIN ENDPOINTS NOTIFICACIONES =============
 
 
 app.listen(3001, () => console.log("API en http://localhost:3001"));
