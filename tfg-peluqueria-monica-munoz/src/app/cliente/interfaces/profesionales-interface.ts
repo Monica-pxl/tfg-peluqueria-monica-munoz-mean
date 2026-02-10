@@ -2,10 +2,12 @@ export type Profesionales = ProfesionalesInterface[];
 
 export interface ProfesionalesInterface {
   _id?: string;  // MongoDB ObjectId
-  id_profesional: number;  // Mantener como requerido por compatibilidad
-  id_usuario?: number;
+  usuario?: string | { _id: string; nombre: string; email: string; };  // Referencia a Usuario (puede estar poblado)
   nombre: string;
   apellidos: string;
-  id_centro: number;  // Mantener como requerido por compatibilidad
-  centro?: string | { _id: string; nombre: string; };  // MongoDB: puede ser ObjectId o centro poblado
+  centro?: string | { _id: string; nombre: string; };  // Referencia a Centro (puede estar poblado)
+  // Compatibilidad temporal con código admin
+  id_profesional?: number;
+  id_usuario?: number;
+  id_centro?: number;
 }

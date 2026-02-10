@@ -34,10 +34,6 @@ const citaSchema = new mongoose.Schema({
     enum: ['pendiente', 'confirmada', 'realizada', 'cancelada'],
     default: 'pendiente'
   },
-  notas: {
-    type: String,
-    default: ''
-  },
   precio: {
     type: Number,
     required: true

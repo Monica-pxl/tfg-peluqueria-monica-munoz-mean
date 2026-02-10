@@ -64,7 +64,7 @@ export class CitasComponent implements OnInit {
   }
 
   cargarCitas(): void {
-    this.citasService.getAllCitas(this.usuarios).subscribe({
+    this.citasService.getAllCitasFromDB().subscribe({
       next: (citas: CitasInterface[]) => {
         this.citas = citas.map(c => ({
           ...c,
@@ -79,10 +79,10 @@ export class CitasComponent implements OnInit {
   aplicarFiltros(): void {
     this.citasFiltradas = this.citas.filter(cita => {
       const cumpleBusqueda = this.busquedaTexto === '' ||
-        this.nombreUsuario(cita.id_usuario).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreServicio(cita.id_servicio).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreProfesional(cita.id_profesional).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreCentro(cita.id_centro).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreUsuario(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreServicio(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreProfesional(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreCentro(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         cita.fecha.includes(this.busquedaTexto) ||
         cita.hora.includes(this.busquedaTexto);
       return cumpleBusqueda;
@@ -92,16 +92,16 @@ export class CitasComponent implements OnInit {
   cambiarEstado(cita: CitasInterface, nuevoEstado: string): void {
     const estadoAnterior = cita.estado;
 
+    // TODO: Adaptar validaciones para MongoDB
     // Validar si la cita fue cancelada por el cliente
-    if (cita.canceladaPor === 'cliente') {
-      this.alertService.warning('No puedes cambiar el estado de una cita cancelada por el cliente');
-      // Revertir el cambio en el select
-      setTimeout(() => {
-        cita.estado = estadoAnterior;
-        this.cargarCitas(); // Recargar para forzar la actualización del select
-      }, 0);
-      return;
-    }
+    // if (cita.canceladaPor === 'cliente') {
+    //   this.alertService.warning('No puedes cambiar el estado de una cita cancelada por el cliente');
+    //   setTimeout(() => {
+    //     cita.estado = estadoAnterior;
+    //     this.cargarCitas();
+    //   }, 0);
+    //   return;
+    // }
 
     // Validar que no se pueda marcar como realizada una cita ya realizada (usar estadoAnterior)
     if (nuevoEstado === 'realizada' && estadoAnterior === 'realizada') {
@@ -124,53 +124,22 @@ export class CitasComponent implements OnInit {
       return;
     }
 
-    // Si se marca como realizada, sumar puntos al cliente
+    // Si se marca como realizada, actualizar estado
     if (nuevoEstado === 'realizada' && estadoAnterior !== 'realizada') {
       // Cambiar el estado temporalmente para actualizar el UI
       cita.estado = 'realizada';
-      cita.canceladaPor = null;
 
-      this.citasService.marcarCitaRealizada(cita.id_usuario).subscribe({
-        next: (response) => {
-          // Actualizar el estado en localStorage
-          this.citasService.actualizarCitaEstado(cita).subscribe({
-            next: () => {
-              console.log('Estado actualizado correctamente en localStorage');
-            },
-            error: () => {
-              console.error('Error al actualizar estado en localStorage');
-            }
-          });
+      // TODO: Implementar lógica de puntos con MongoDB
+      // Por ahora solo actualizar el estado
+      if (!cita._id) {
+        this.alertService.error('Error: La cita no tiene ID');
+        cita.estado = estadoAnterior;
+        return;
+      }
 
-          // Notificar sobre los puntos y el cambio de estado
-          let mensajeCliente = `Tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora} ha sido marcada como <strong class="notif-status">realizada</strong>. ¡Has ganado ${response.puntosSumados} puntos!`;
-
-          // Si subió de nivel, añadir información del nivel
-          if (response.subeNivel) {
-            mensajeCliente += ` <br><strong>¡Felicidades! Has alcanzado el nivel ${response.nivelActual}.</strong>`;
-          }
-
-          this.notificacionesService.crearNotificacion({
-            idUsuario: cita.id_usuario,
-            mensaje: mensajeCliente,
-            fecha: new Date().toISOString()
-          });
-
-          // Notificación al profesional
-          const profesional = this.profesionales.find(p => p.id_profesional === cita.id_profesional);
-          if (profesional) {
-            this.notificacionesService.crearNotificacion({
-              idUsuario: profesional.id_usuario,
-              mensaje: `El administrador ha marcado como <strong class="notif-status">realizada</strong> una cita tuya del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-              fecha: new Date().toISOString()
-            });
-          }
-
-          let mensajeExito = `Cita realizada. ${response.puntosSumados} puntos sumados al cliente.`;
-          if (response.subeNivel) {
-            mensajeExito += ` \u00a1El cliente ha alcanzado el nivel ${response.nivelActual}!`;
-          }
-          this.alertService.success(mensajeExito);
+      this.citasService.actualizarCita(cita._id, { estado: 'realizada' }).subscribe({
+        next: () => {
+          this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
         },
         error: () => {
@@ -182,38 +151,21 @@ export class CitasComponent implements OnInit {
     }
 
     // Para otros estados (pendiente, confirmada, cancelada)
-    // Cambiar el estado temporalmente en la UI
     cita.estado = nuevoEstado as 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
 
-    // Marcar quién canceló si el nuevo estado es cancelada
-    if (nuevoEstado === 'cancelada') {
-      cita.canceladaPor = 'admin';
-    } else {
-      cita.canceladaPor = null;
+    if (!cita._id) {
+      this.alertService.error('Error: La cita no tiene ID');
+      cita.estado = estadoAnterior;
+      return;
     }
 
-    // Actualizar el estado (incluyendo cancelada) sin borrar la cita
-    this.citasService.actualizarCitaEstado(cita).subscribe({
+    // Actualizar el estado en la base de datos
+    this.citasService.actualizarCita(cita._id, { estado: nuevoEstado as any }).subscribe({
       next: () => {
-        // Notificación al cliente
-        this.notificacionesService.crearNotificacion({
-          idUsuario: cita.id_usuario,
-          mensaje: `Tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora} ha sido <strong class="notif-status">${nuevoEstado}</strong>${nuevoEstado === 'cancelada' ? ' por el centro' : ''}.`,
-          fecha: new Date().toISOString()
-        });
-
-        // Notificación al profesional
-        const profesional = this.profesionales.find(p => p.id_profesional === cita.id_profesional);
-        if (profesional) {
-          this.notificacionesService.crearNotificacion({
-            idUsuario: profesional.id_usuario,
-            mensaje: `El administrador ha <strong class="notif-status">${nuevoEstado === 'confirmada' ? 'confirmado' : nuevoEstado === 'cancelada' ? 'cancelado' : 'actualizado'}</strong> una cita tuya del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-            fecha: new Date().toISOString()
-          });
-        }
-
+        // TODO: Agregar notificaciones cuando se implemente completamente
         console.log('Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
+        this.cargarCitas();
       },
       error: () => {
         this.alertService.error('Error al actualizar el estado');
@@ -222,23 +174,32 @@ export class CitasComponent implements OnInit {
     });
   }
 
-  nombreUsuario(id_usuario: number): string {
-    return this.usuarios.find(u => u.id_usuario === id_usuario)?.nombre || 'Desconocido';
+  nombreUsuario(cita: CitasInterface): string {
+    if (typeof cita.usuario === 'object' && cita.usuario !== null) {
+      return cita.usuario.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
-  nombreServicio(id_servicio: number): string {
-    const s = this.servicios.find(s => s.id_servicio === id_servicio);
-    return s ? s.nombre : 'Desconocido';
+  nombreServicio(cita: CitasInterface): string {
+    if (typeof cita.servicio === 'object' && cita.servicio !== null) {
+      return cita.servicio.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
-  nombreCentro(id_centro: number): string {
-    const c = this.centros.find(c => c.id_centro === id_centro);
-    return c ? c.nombre : 'Desconocido';
+  nombreCentro(cita: CitasInterface): string {
+    if (typeof cita.centro === 'object' && cita.centro !== null) {
+      return cita.centro.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
-  nombreProfesional(id_profesional: number): string {
-    const prof = this.profesionales.find(p => p.id_profesional === id_profesional);
-    return prof ? `${prof.nombre} ${prof.apellidos || ''}`.trim() : 'Desconocido';
+  nombreProfesional(cita: CitasInterface): string {
+    if (typeof cita.profesional === 'object' && cita.profesional !== null) {
+      return `${cita.profesional.nombre} ${cita.profesional.apellidos || ''}`.trim();
+    }
+    return 'Desconocido';
   }
 
   formatearFechaLocal(fechaIso: string): string {
@@ -301,17 +262,21 @@ export class CitasComponent implements OnInit {
 
     if (!confirmed) return;
 
-    // NO notificar al cliente cuando se elimina la cita
+    if (!cita._id) {
+      this.alertService.error('Error: La cita no tiene ID');
+      return;
+    }
 
-    // Borrar la cita del localStorage
-    this.citasService.borrarCita(cita);
-
-    // Recargar la lista
-    this.cargarCitas();
-
-    this.alertService.success('Cita eliminada exitosamente');
+    // Eliminar la cita de MongoDB
+    this.citasService.eliminarCita(cita._id).subscribe({
+      next: () => {
+        this.alertService.success('Cita eliminada exitosamente');
+        this.cargarCitas();
+      },
+      error: () => {
+        this.alertService.error('Error al eliminar la cita');
+      }
+    });
   }
-
-
 
 }

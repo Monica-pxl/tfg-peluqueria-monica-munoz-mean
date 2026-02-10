@@ -31,7 +31,7 @@ export class MisCitasComponent implements OnInit {
   estados = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
   busquedaTexto: string = '';
   idUsuario: number = 0;
-  idProfesional: number = 0;
+  idProfesional: string | undefined = undefined;
 
   constructor(
     private citasService: CitasService,
@@ -56,7 +56,7 @@ export class MisCitasComponent implements OnInit {
         console.log('Profesionales disponibles:', profesionales);
         const profesional = profesionales.find(p => p.id_usuario === this.idUsuario);
         if (profesional) {
-          this.idProfesional = profesional.id_profesional;
+          this.idProfesional = profesional._id; // Usar _id en lugar de id_profesional
           console.log('Profesional encontrado:', profesional);
           this.cargarDatos();
         } else {
@@ -84,11 +84,18 @@ export class MisCitasComponent implements OnInit {
   }
 
   cargarCitas(): void {
-    this.citasService.getAllCitas(this.usuarios).subscribe({
+    this.citasService.getAllCitasFromDB().subscribe({
       next: (citas: CitasInterface[]) => {
         // Filtrar solo las citas del profesional logueado
         this.citas = citas
-          .filter(c => c.id_profesional === this.idProfesional)
+          .filter(c => {
+            // Si profesional está poblado
+            if (typeof c.profesional === 'object' && c.profesional !== null) {
+              return c.profesional._id === this.idProfesional;
+            }
+            // Si profesional es string (ObjectId)
+            return c.profesional === this.idProfesional;
+          })
           .map(c => ({
             ...c,
             estado: c.estado || 'pendiente'
@@ -102,9 +109,9 @@ export class MisCitasComponent implements OnInit {
   aplicarFiltros(): void {
     this.citasFiltradas = this.citas.filter(cita => {
       const cumpleBusqueda = this.busquedaTexto === '' ||
-        this.nombreUsuario(cita.id_usuario).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreServicio(cita.id_servicio).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreCentro(cita.id_centro).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreUsuario(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreServicio(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
+        this.nombreCentro(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         cita.fecha.includes(this.busquedaTexto) ||
         cita.hora.includes(this.busquedaTexto);
       return cumpleBusqueda;
@@ -113,17 +120,10 @@ export class MisCitasComponent implements OnInit {
 
   cambiarEstado(cita: CitasInterface, nuevoEstado: string): void {
     const estadoAnterior = cita.estado;
-    
+
+    // TODO: Adaptar validaciones para MongoDB
     // Validar si la cita fue cancelada por el cliente
-    if (cita.canceladaPor === 'cliente') {
-      this.alertService.warning('No puedes cambiar el estado de una cita cancelada por el cliente');
-      // Revertir el cambio en el select
-      setTimeout(() => {
-        cita.estado = estadoAnterior;
-        this.cargarCitas(); // Recargar para forzar la actualización del select
-      }, 0);
-      return;
-    }
+    // (Esta lógica necesita adaptarse para MongoDB)
 
     // Validar que no se pueda marcar como realizada una cita ya realizada (usar estadoAnterior)
     if (nuevoEstado === 'realizada' && estadoAnterior === 'realizada') {
@@ -145,58 +145,21 @@ export class MisCitasComponent implements OnInit {
       }, 0);
       return;
     }
-    
+
     // Si se marca como realizada, sumar puntos al cliente
     if (nuevoEstado === 'realizada' && estadoAnterior !== 'realizada') {
-      // Cambiar el estado temporalmente para actualizar el UI
       cita.estado = 'realizada';
-      cita.canceladaPor = null;
-      
-      this.citasService.marcarCitaRealizada(cita.id_usuario).subscribe({
-        next: (response) => {
-          // Actualizar el estado en localStorage
-          this.citasService.actualizarCitaEstado(cita).subscribe({
-            next: () => {
-              console.log('Estado actualizado correctamente en localStorage');
-            },
-            error: () => {
-              console.error('Error al actualizar estado en localStorage');
-            }
-          });
-          
-          // Obtener el nombre del profesional
-          const profesional = this.usuarios.find(u => u.id_usuario === this.idUsuario);
-          const nombreProfesional = profesional ? profesional.nombre : 'tu profesional';
-          
-          // Notificar sobre los puntos y el cambio de estado
-          let mensajeCliente = `${nombreProfesional} ha marcado tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora} como <strong class="notif-status">realizada</strong>. ¡Has ganado ${response.puntosSumados} puntos!`;
-          
-          // Si subió de nivel, añadir información del nivel
-          if (response.subeNivel) {
-            mensajeCliente += ` <br><strong>¡Felicidades! Has alcanzado el nivel ${response.nivelActual}.</strong>`;
-          }
-          
-          this.notificacionesService.crearNotificacion({
-            idUsuario: cita.id_usuario,
-            mensaje: mensajeCliente,
-            fecha: new Date().toISOString()
-          });
 
-          // Notificación al admin
-          const admins = this.usuarios.filter(u => u.rol === 'administrador');
-          admins.forEach(admin => {
-            this.notificacionesService.crearNotificacion({
-              idUsuario: admin.id_usuario,
-              mensaje: `<strong class="notif-user">${nombreProfesional}</strong> ha marcado como <strong class="notif-status">realizada</strong> una cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-              fecha: new Date().toISOString()
-            });
-          });
+      if (!cita._id) {
+        this.alertService.error('Error: La cita no tiene ID');
+        cita.estado = estadoAnterior;
+        return;
+      }
 
-          let mensajeExito = `Cita realizada. ${response.puntosSumados} puntos sumados al cliente.`;
-          if (response.subeNivel) {
-            mensajeExito += ` ¡El cliente ha alcanzado el nivel ${response.nivelActual}!`;
-          }
-          this.alertService.success(mensajeExito);
+      // TODO: Implementar lógica de puntos con MongoDB
+      this.citasService.actualizarCita(cita._id, { estado: 'realizada' }).subscribe({
+        next: () => {
+          this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
         },
         error: () => {
@@ -206,43 +169,21 @@ export class MisCitasComponent implements OnInit {
       });
       return;
     }
-    
+
     // Para otros estados (pendiente, confirmada, cancelada)
-    // Cambiar el estado temporalmente en la UI
     cita.estado = nuevoEstado as 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
-    
-    // Marcar quién canceló si el nuevo estado es cancelada
-    if (nuevoEstado === 'cancelada') {
-      cita.canceladaPor = 'profesional';
-    } else {
-      cita.canceladaPor = null;
+
+    if (!cita._id) {
+      this.alertService.error('Error: La cita no tiene ID');
+      cita.estado = estadoAnterior;
+      return;
     }
-    
-    this.citasService.actualizarCitaEstado(cita).subscribe({
+
+    this.citasService.actualizarCita(cita._id, { estado: nuevoEstado as any }).subscribe({
       next: () => {
-        // Obtener el nombre del profesional para la notificación
-        const profesional = this.usuarios.find(u => u.id_usuario === this.idUsuario);
-        const nombreProfesional = profesional ? profesional.nombre : 'tu profesional';
-        
-        // Notificación al cliente
-        this.notificacionesService.crearNotificacion({
-          idUsuario: cita.id_usuario,
-          mensaje: `${nombreProfesional} ha <strong class="notif-status">${nuevoEstado === 'confirmada' ? 'confirmado' : nuevoEstado === 'cancelada' ? 'cancelado' : 'actualizado'}</strong> tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-          fecha: new Date().toISOString()
-        });
-
-        // Notificación al admin
-        const admins = this.usuarios.filter(u => u.rol === 'administrador');
-        admins.forEach(admin => {
-          this.notificacionesService.crearNotificacion({
-            idUsuario: admin.id_usuario,
-            mensaje: `<strong class="notif-user">${nombreProfesional}</strong> ha <strong class="notif-status">${nuevoEstado === 'confirmada' ? 'confirmado' : nuevoEstado === 'cancelada' ? 'cancelado' : 'actualizado'}</strong> una cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-            fecha: new Date().toISOString()
-          });
-        });
-
         console.log('Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
+        this.cargarCitas();
       },
       error: () => {
         this.alertService.error('Error al actualizar el estado');
@@ -251,18 +192,25 @@ export class MisCitasComponent implements OnInit {
     });
   }
 
-  nombreUsuario(id_usuario: number): string {
-    return this.usuarios.find(u => u.id_usuario === id_usuario)?.nombre || 'Desconocido';
+  nombreUsuario(cita: CitasInterface): string {
+    if (typeof cita.usuario === 'object' && cita.usuario !== null) {
+      return cita.usuario.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
-  nombreServicio(id_servicio: number): string {
-    const s = this.servicios.find(s => s.id_servicio === id_servicio);
-    return s ? s.nombre : 'Desconocido';
+  nombreServicio(cita: CitasInterface): string {
+    if (typeof cita.servicio === 'object' && cita.servicio !== null) {
+      return cita.servicio.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
-  nombreCentro(id_centro: number): string {
-    const c = this.centros.find(c => c.id_centro === id_centro);
-    return c ? c.nombre : 'Desconocido';
+  nombreCentro(cita: CitasInterface): string {
+    if (typeof cita.centro === 'object' && cita.centro !== null) {
+      return cita.centro.nombre || 'Desconocido';
+    }
+    return 'Desconocido';
   }
 
   formatearFechaLocal(fechaIso: string): string {
@@ -285,7 +233,7 @@ export class MisCitasComponent implements OnInit {
     if (cita.estado === 'realizada') {
       return ['realizada'];
     }
-    
+
     // Si la cita ya está cancelada, solo puede marcar como realizada o mantener cancelada
     if (cita.estado === 'cancelada') {
       if (this.citaYaPaso(cita)) {
@@ -294,7 +242,7 @@ export class MisCitasComponent implements OnInit {
         return ['cancelada'];
       }
     }
-    
+
     // Si la cita está confirmada
     if (cita.estado === 'confirmada') {
       if (this.citaYaPaso(cita)) {
@@ -305,7 +253,7 @@ export class MisCitasComponent implements OnInit {
         return ['confirmada', 'cancelada'];
       }
     }
-    
+
     // Si la cita está pendiente
     if (this.citaYaPaso(cita)) {
       return ['pendiente', 'confirmada', 'cancelada', 'realizada'];

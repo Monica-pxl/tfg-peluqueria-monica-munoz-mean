@@ -8,8 +8,8 @@ import { ProfesionalesInterface } from '../interfaces/profesionales-interface';
   providedIn: 'root'
 })
 export class ProfesionalesService {
-  borrarProfesional(id_profesional: number): Observable<any> {
-    return this.http.delete(`${this.url}/${id_profesional}`);
+  borrarProfesional(id_profesional: number | undefined): Observable<any> {
+    return this.http.delete(`${this.url}/${id_profesional || 0}`);
   }
 
   private url = 'http://localhost:3001/api/profesionales';

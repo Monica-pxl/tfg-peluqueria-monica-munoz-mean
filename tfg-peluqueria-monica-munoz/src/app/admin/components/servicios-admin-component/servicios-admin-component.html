@@ -77,10 +77,10 @@
             <td>{{ servicio.descripcion }}</td>
             <td><span class="badge-hora">{{ servicio.duracion }} min</span></td>
             <td class="text-success fw-bold">{{ servicio.precio }}€</td>
-            <td>{{ nombreCentro(servicio.id_centro) }}</td>
-            <td>{{ profesionalesDelServicio(servicio.id_servicio) }}</td>
+            <td>{{ nombreCentro(servicio) }}</td>
+            <td>{{ profesionalesDelServicio(servicio) }}</td>
             <td>
-              <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/servicios/editar', servicio.id_servicio]">
+              <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/servicios/editar', servicio._id]">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-sm btn-danger" (click)="borrarServicio(servicio)">

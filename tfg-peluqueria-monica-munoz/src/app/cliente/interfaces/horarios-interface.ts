@@ -8,13 +8,12 @@ export interface ProfesionalPoblado {
 
 export interface HorariosInterface {
   _id?: string;  // MongoDB ObjectId
-  id_horario?: number;  // Deprecated: mantener por compatibilidad
   profesional?: string | ProfesionalPoblado;  // Puede ser ObjectId (string) o profesional poblado
-  id_profesional?: number;  // Deprecated: mantener por compatibilidad
   dias: string[];
   hora_inicio: string;
   hora_fin: string;
-  festivo?: boolean; // Deprecated: mantener por compatibilidad
-  dias_festivos?: string[]; // Deprecated: días de semana festivos
-  fechas_festivas?: string[]; // Nuevo: fechas específicas festivas (formato YYYY-MM-DD)
+  fechas_festivas?: string[]; // Fechas específicas festivas (formato YYYY-MM-DD)
+  // Compatibilidad temporal con código admin
+  id_horario?: number;
+  id_profesional?: number;
 }

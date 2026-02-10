@@ -7,14 +7,14 @@ import { UsuariosInterface } from '../interfaces/usuarios-interface';
   providedIn: 'root'
 })
 export class UsuariosService {
-  
-  private apiUrl = 'http://localhost:3001/api/usuarios'; 
+
+  private apiUrl = 'http://localhost:3001/api/usuarios';
   private loginUrl = 'http://localhost:3001/api/login';
   private registroUrl = 'http://localhost:3001/api/registro';
-  usuarioLogueado: UsuariosInterface | null = null; 
-  
+  usuarioLogueado: UsuariosInterface | null = null;
+
   constructor(private http: HttpClient) {}
-  
+
   getAllUsuarios(): Observable<UsuariosInterface[]> {
     return this.http.get<UsuariosInterface[]>(this.apiUrl);
   }
@@ -62,7 +62,12 @@ export class UsuariosService {
   }
 
   // Actualizar usuario (solo rol y estado)
-  actualizarUsuario(id: number, datos: { rol?: string; estado?: string }): Observable<any> {
+  actualizarUsuario(id: number | undefined, datos: { rol?: string; estado?: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id || 0}`, datos);
+  }
+
+  // Actualizar usuario por _id de MongoDB
+  actualizarUsuarioPorId(id: string, datos: { rol?: string; estado?: string }): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, datos);
   }
 

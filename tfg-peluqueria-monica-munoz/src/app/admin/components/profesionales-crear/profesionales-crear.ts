@@ -21,11 +21,11 @@ import { AlertService } from '../../../shared/services/alert-service';
   styleUrls: ['./profesionales-crear.css'],
 })
 export class ProfesionalesCrear implements OnInit {
-  
+
   id_usuario: number = 0;
   id_centro: number = 0;
   id_servicios: number[] = [];
-  
+
   usuariosProfesionales: UsuariosInterface[] = [];
   centros: CentrosInterface[] = [];
   servicios: ServiciosInterface[] = [];
@@ -54,41 +54,41 @@ export class ProfesionalesCrear implements OnInit {
           next: (profesionales) => {
             console.log('Profesionales existentes:', profesionales);
             console.log('Todos los usuarios:', usuarios);
-            
+
             // Filtrar usuarios con rol profesional que no tengan un profesional asociado
             // 1. Por id_usuario (si el profesional tiene id_usuario)
-            const idsUsuariosConProfesional = profesionales
+            const idsUsuariosConProfesional: number[] = profesionales
               .map(p => p.id_usuario)
-              .filter(id => id !== undefined && id !== null);
-            
+              .filter((id): id is number => id !== undefined && id !== null);
+
             console.log('IDs de usuarios con profesional:', idsUsuariosConProfesional);
-            
+
             // 2. Por coincidencia de nombre completo
-            const nombresCompletosConProfesional = profesionales.map(p => 
+            const nombresCompletosConProfesional = profesionales.map(p =>
               `${p.nombre} ${p.apellidos}`.toLowerCase().trim()
             );
-            
+
             this.usuariosProfesionales = usuarios.filter(u => {
               if (u.rol !== 'profesional') return false;
-              
+
               // Excluir si el id_usuario ya está en profesionales
-              if (idsUsuariosConProfesional.includes(u.id_usuario)) {
+              if (u.id_usuario && idsUsuariosConProfesional.includes(u.id_usuario)) {
                 console.log(`Excluyendo usuario ${u.nombre} (id: ${u.id_usuario}) - ya tiene profesional por ID`);
                 return false;
               }
-              
+
               // Excluir si el nombre completo coincide con algún profesional
               const nombreUsuario = u.nombre.toLowerCase().trim();
               if (nombresCompletosConProfesional.includes(nombreUsuario)) {
                 console.log(`Excluyendo usuario ${u.nombre} (id: ${u.id_usuario}) - ya existe profesional con ese nombre`);
                 return false;
               }
-              
+
               return true;
             });
-            
+
             console.log('Usuarios profesionales disponibles:', this.usuariosProfesionales);
-            
+
             forkJoin({
               centros: this.centrosService.getAllCentros(),
               servicios: this.serviciosService.getAllServices()
@@ -120,7 +120,7 @@ export class ProfesionalesCrear implements OnInit {
   onCentroChange(): void {
     // Resetear servicios seleccionados al cambiar de centro
     this.id_servicios = [];
-    
+
     // Filtrar servicios por el centro seleccionado
     if (this.id_centro) {
       this.serviciosFiltrados = this.servicios.filter(s => Number(s.id_centro) === Number(this.id_centro));
@@ -161,7 +161,7 @@ export class ProfesionalesCrear implements OnInit {
       next: (response) => {
         console.log('Respuesta del servidor:', response);
         const idProfesional = response.profesional.id_profesional;
-        
+
         // Si hay servicios seleccionados, crear las relaciones
         if (this.id_servicios.length > 0) {
           const observables = this.id_servicios.map(id_serv => {

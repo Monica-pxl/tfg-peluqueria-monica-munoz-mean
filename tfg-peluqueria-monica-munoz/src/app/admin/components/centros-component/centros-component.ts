@@ -12,6 +12,7 @@ import { ConfirmService } from '../../../shared/services/confirm-service';
 
 @Component({
   selector: 'app-centros-component',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './centros-component.html',
   styleUrl: './centros-component.css',
@@ -62,35 +63,49 @@ export class CentrosComponent implements OnInit {
 
   aplicarFiltros() {
     this.centrosFiltrados = this.centros.filter(centro => {
-      const cumpleBusqueda = this.busquedaTexto === '' || 
+      const cumpleBusqueda = this.busquedaTexto === '' ||
         centro.nombre.toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         centro.direccion.toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         centro.email.toLowerCase().includes(this.busquedaTexto.toLowerCase());
-      
+
       return cumpleBusqueda;
     });
   }
 
-  profesionalesDelCentro(id_centro: number): string {
-    const profs = this.profesionales.filter(p => Number(p.id_centro) === Number(id_centro));
+  profesionalesDelCentro(id_centro: string): string {
+    const profs = this.profesionales.filter(p => {
+      // Si centro está poblado
+      if (typeof p.centro === 'object' && p.centro !== null) {
+        return p.centro._id === id_centro;
+      }
+      // Si centro es string (ObjectId)
+      return p.centro === id_centro;
+    });
     const nombres = profs.map(p => `${p.nombre} ${p.apellidos}`);
     return nombres.length > 0 ? nombres.join(', ') : 'Sin profesionales';
   }
 
-  cantidadProfesionales(id_centro: number): number {
-    return this.profesionales.filter(p => Number(p.id_centro) === Number(id_centro)).length;
+  cantidadProfesionales(id_centro: string): number {
+    return this.profesionales.filter(p => {
+      // Si centro está poblado
+      if (typeof p.centro === 'object' && p.centro !== null) {
+        return p.centro._id === id_centro;
+      }
+      // Si centro es string (ObjectId)
+      return p.centro === id_centro;
+    }).length;
   }
 
   crearCentro(): void {
     this.router.navigate(['/admin/centros/crear']);
   }
 
-  editarCentro(id_centro: number): void {
+  editarCentro(id_centro: string): void {
     this.router.navigate(['/admin/centros/editar', id_centro]);
   }
 
   async borrarCentro(centro: CentrosInterface): Promise<void> {
-    const cantidad = this.cantidadProfesionales(centro.id_centro);
+    const cantidad = this.cantidadProfesionales(centro._id!);
 
     if (cantidad > 0) {
       this.alertService.warning(`No se puede eliminar el centro "${centro.nombre}" porque tiene ${cantidad} profesional(es) asignado(s).\n\nPrimero debes reasignar o eliminar los profesionales.`);
@@ -103,10 +118,10 @@ export class CentrosComponent implements OnInit {
       'Sí, eliminar',
       'Cancelar'
     );
-    
+
     if (!confirmed) return;
 
-    this.centrosService.borrarCentro(centro.id_centro).subscribe({
+    this.centrosService.borrarCentro(centro._id!).subscribe({
       next: () => {
         this.alertService.success('Centro eliminado exitosamente');
         this.cargarDatos();

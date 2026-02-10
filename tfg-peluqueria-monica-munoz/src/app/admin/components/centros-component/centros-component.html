@@ -80,21 +80,21 @@
               <span class="badge-hora">{{ centro.horario_apertura }} - {{ centro.horario_cierre }}</span>
             </td>
             <td>
-              @if(cantidadProfesionales(centro.id_centro) > 0) {
-                <span class="badge bg-info">{{ cantidadProfesionales(centro.id_centro) }} profesional(es)</span>
+              @if(cantidadProfesionales(centro._id!) > 0) {
+                <span class="badge bg-info">{{ cantidadProfesionales(centro._id!) }} profesional(es)</span>
               } @else {
                 <span class="text-muted">Sin profesionales</span>
               }
             </td>
             <td>
-              <button class="btn btn-sm btn-primary me-1" (click)="editarCentro(centro.id_centro)" title="Editar centro">
+              <button class="btn btn-sm btn-primary me-1" (click)="editarCentro(centro._id!)" title="Editar centro">
                 <i class="bi bi-pencil"></i>
               </button>
               <button
                 class="btn btn-sm btn-danger"
                 (click)="borrarCentro(centro)"
-                [disabled]="cantidadProfesionales(centro.id_centro) > 0"
-                [title]="cantidadProfesionales(centro.id_centro) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : 'Eliminar centro'">
+                [disabled]="cantidadProfesionales(centro._id!) > 0"
+                [title]="cantidadProfesionales(centro._id!) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : 'Eliminar centro'">
                 <i class="bi bi-trash3"></i>
               </button>
             </td>

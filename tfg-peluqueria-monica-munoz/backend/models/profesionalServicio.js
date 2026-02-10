@@ -13,5 +13,10 @@ const profesionalServicioSchema = new mongoose.Schema({
   }
 }, { timestamps: true, collection: 'profesionalservicios' });
 
+profesionalServicioSchema.index(
+  { profesional: 1, servicio: 1 },
+  { unique: true }
+);
+
 module.exports = mongoose.model('ProfesionalServicio', profesionalServicioSchema);
 

@@ -49,7 +49,15 @@ export class HorariosEditar implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.error = true;
+      this.cargando = false;
+      this.alertService.error('ID de horario no válido');
+      this.router.navigate(['/admin/horarios']);
+      return;
+    }
 
     // Cargar profesionales
     this.profesionalesService.getAllProfesionales().subscribe({
@@ -66,10 +74,10 @@ export class HorariosEditar implements OnInit {
       next: u => this.usuarios = u
     });
 
-    // Cargar horario
+    // Cargar horario usando _id
     this.horariosService.getAllHorarios().subscribe({
       next: horarios => {
-        const horarioEncontrado = horarios.find(h => h.id_horario === id);
+        const horarioEncontrado = horarios.find(h => h._id === id);
 
         if (!horarioEncontrado) {
           this.error = true;

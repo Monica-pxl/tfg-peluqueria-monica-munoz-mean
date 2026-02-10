@@ -85,18 +85,46 @@ export class ServiciosAdminComponent implements OnInit {
     });
   }
 
-  nombreCentro(id_centro: number): string {
-    const centro = this.centros.find(c => Number(c.id_centro) === Number(id_centro));
-    return centro ? centro.nombre : 'Desconocido';
+  nombreCentro(servicio: ServiciosInterface): string {
+    // Si el centro está poblado (es un objeto)
+    if (typeof servicio.centro === 'object' && servicio.centro !== null) {
+      return servicio.centro.nombre || 'Sin centro';
+    }
+    // Si centro es un string (_id), buscar en el array de centros
+    if (typeof servicio.centro === 'string') {
+      const centro = this.centros.find(c => c._id === servicio.centro);
+      return centro ? centro.nombre : 'Sin centro';
+    }
+    return 'Sin centro';
   }
 
-  profesionalesDelServicio(id_servicio: number): string {
-    const rels = this.profesionalesServicios.filter(ps => Number(ps.id_servicio) === Number(id_servicio));
+  profesionalesDelServicio(servicio: ServiciosInterface): string {
+    if (!servicio._id) return 'Sin profesionales';
+
+    // Filtrar relaciones por el _id del servicio
+    const rels = this.profesionalesServicios.filter(ps => {
+      // Si servicio está poblado
+      if (typeof ps.servicio === 'object' && ps.servicio !== null) {
+        return ps.servicio._id === servicio._id;
+      }
+      // Si servicio es string (_id)
+      return ps.servicio === servicio._id;
+    });
+
     const nombres = rels.map(r => {
-      const prof = this.profesionales.find(p => Number(p.id_profesional) === Number((r as any).id_profesional));
-      return prof ? `${prof.nombre} ${prof.apellidos}` : '';
+      // Si profesional está poblado
+      if (typeof r.profesional === 'object' && r.profesional !== null) {
+        return `${r.profesional.nombre} ${r.profesional.apellidos}`;
+      }
+      // Si profesional es string (_id), buscar en el array
+      if (typeof r.profesional === 'string') {
+        const prof = this.profesionales.find(p => p._id === r.profesional);
+        return prof ? `${prof.nombre} ${prof.apellidos}` : '';
+      }
+      return '';
     }).filter(n => n !== '');
-    return nombres.join(', ');
+
+    return nombres.length > 0 ? nombres.join(', ') : 'Sin profesionales';
   }
 
   crearServicio(): void {
@@ -108,7 +136,7 @@ export class ServiciosAdminComponent implements OnInit {
     const descripcion = prompt('Descripción', servicio.descripcion);
     const duracion = Number(prompt('Duración en minutos', servicio.duracion.toString()));
     const precio = Number(prompt('Precio', servicio.precio.toString()));
-    const id_centro = Number(prompt('ID del centro', servicio.id_centro.toString()));
+    const id_centro = Number(prompt('ID del centro', (servicio.id_centro || 0).toString()));
     const imagen = prompt('URL de imagen', servicio.imagen);
 
     if (!nombre || !descripcion || !duracion || !precio || !id_centro) return;
@@ -137,7 +165,13 @@ export class ServiciosAdminComponent implements OnInit {
 
     if (!confirmed) return;
 
-    this.serviciosService.borrarServicio(servicio.id_servicio).subscribe({
+    const idServicio = servicio.id_servicio || servicio._id;
+    if (!idServicio) {
+      this.alertService.error('Error: El servicio no tiene ID válido');
+      return;
+    }
+
+    this.serviciosService.borrarServicio(idServicio).subscribe({
       next: () => {
         this.alertService.success('Servicio eliminado exitosamente');
         this.cargarDatos();

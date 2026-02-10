@@ -19,14 +19,14 @@
             <span class="ms-2">Cargando profesionales...</span>
           </div>
         } @else {
-          <select 
-            class="form-select form-control-custom" 
-            [(ngModel)]="id_profesional" 
-            name="id_profesional" 
+          <select
+            class="form-select form-control-custom"
+            [(ngModel)]="id_profesional"
+            name="id_profesional"
             required>
             <option [value]="null">Selecciona un profesional</option>
-            @for (prof of profesionales; track prof.id_profesional) {
-              <option [value]="prof.id_profesional">
+            @for (prof of profesionales; track prof._id) {
+              <option [value]="prof._id">
                 {{ prof.nombre }} {{ prof.apellidos }}
               </option>
             }
@@ -40,7 +40,7 @@
         </label>
         <div class="dias-container">
           @for (dia of diasSemana; track dia) {
-            <button 
+            <button
               type="button"
               class="btn-dia"
               [class.selected]="isDiaSeleccionado(dia)"
@@ -59,31 +59,31 @@
           </label>
           <div class="row g-2 align-items-end mb-3">
             <div class="col-md-8">
-              <input 
-                type="date" 
-                class="form-control form-control-custom" 
-                [(ngModel)]="nuevaFechaFestiva" 
+              <input
+                type="date"
+                class="form-control form-control-custom"
+                [(ngModel)]="nuevaFechaFestiva"
                 [min]="fechaMinima"
                 name="nuevaFechaFestiva">
             </div>
             <div class="col-md-4">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 class="btn btn-warning w-100"
                 (click)="agregarFechaFestiva()">
                 <i class="bi bi-plus-circle me-1"></i>Añadir Fecha
               </button>
             </div>
           </div>
-          
+
           @if(fechasFestivas.length > 0) {
             <div class="fechas-festivas-lista">
               @for (fecha of fechasFestivas; track fecha) {
                 <div class="fecha-festiva-item">
                   <i class="bi bi-star-fill me-2"></i>
                   <span>{{ formatearFecha(fecha) }}</span>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     class="btn-eliminar-fecha"
                     (click)="eliminarFechaFestiva(fecha)"
                     title="Eliminar fecha">
@@ -103,22 +103,22 @@
           <label class="form-label">
             <i class="bi bi-clock-fill me-2"></i>Hora Inicio
           </label>
-          <input 
-            type="time" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="hora_inicio" 
-            name="hora_inicio" 
+          <input
+            type="time"
+            class="form-control form-control-custom"
+            [(ngModel)]="hora_inicio"
+            name="hora_inicio"
             required>
         </div>
         <div class="col-md-6">
           <label class="form-label">
             <i class="bi bi-clock me-2"></i>Hora Fin
           </label>
-          <input 
-            type="time" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="hora_fin" 
-            name="hora_fin" 
+          <input
+            type="time"
+            class="form-control form-control-custom"
+            [(ngModel)]="hora_fin"
+            name="hora_fin"
             required>
         </div>
       </div>

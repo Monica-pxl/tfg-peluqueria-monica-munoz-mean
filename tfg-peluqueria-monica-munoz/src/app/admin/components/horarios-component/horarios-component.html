@@ -70,7 +70,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (horario of horariosFiltrados; track horario._id || horario.id_horario) {
+          @for (horario of horariosFiltrados; track horario._id) {
             <tr>
               <td class="fw-bold">{{ getNombreProfesional(horario) }}</td>
             <td>

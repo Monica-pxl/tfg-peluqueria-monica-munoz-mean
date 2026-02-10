@@ -68,13 +68,13 @@
           </tr>
         </thead>
         <tbody>
-          @for (p of profesionalesFiltrados; track p.id_profesional) {
+          @for (p of profesionalesFiltrados; track p._id) {
             <tr>
               <td class="fw-bold">{{ p.nombre }} {{ p.apellidos }}</td>
-              <td>{{ nombreCentro(p.id_centro) }}</td>
-              <td>{{ serviciosDelProfesional(p.id_profesional) }}</td>
+              <td>{{ nombreCentro(p) }}</td>
+              <td>{{ serviciosDelProfesional(p) }}</td>
               <td>
-                <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/profesionales/editar', p.id_profesional]">
+                <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/profesionales/editar', p._id]">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-sm btn-danger" (click)="borrarProfesional(p)">

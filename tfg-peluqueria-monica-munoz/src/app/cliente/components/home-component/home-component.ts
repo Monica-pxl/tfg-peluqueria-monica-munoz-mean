@@ -38,8 +38,8 @@ export class HomeComponent implements OnInit {
     loadServicios(): void {
       this.APIservicios.getAllServices().subscribe({
         next: (data) => {
-          // Ordenar servicios por id_servicio de forma ascendente
-          this.servicios = data.sort((a, b) => a.id_servicio - b.id_servicio);
+          // Ordenar servicios por id_servicio o _id
+          this.servicios = data.sort((a, b) => (a.id_servicio || 0) - (b.id_servicio || 0));
           console.log('Servicios cargados en home:', this.servicios);
         },
         error: (err) => {

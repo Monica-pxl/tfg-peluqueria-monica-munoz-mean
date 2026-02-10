@@ -51,12 +51,12 @@
           </tr>
         </thead>
         <tbody>
-          @for (cita of citasFiltradas; track cita.id_cita) {
+          @for (cita of citasFiltradas; track cita._id) {
             <tr>
-              <td>{{ nombreUsuario(cita.id_usuario) }}</td>
-              <td>{{ nombreServicio(cita.id_servicio) }}</td>
-              <td>{{ nombreProfesional(cita.id_profesional) }}</td>
-              <td>{{ nombreCentro(cita.id_centro) }}</td>
+              <td>{{ nombreUsuario(cita) }}</td>
+              <td>{{ nombreServicio(cita) }}</td>
+              <td>{{ nombreProfesional(cita) }}</td>
+              <td>{{ nombreCentro(cita) }}</td>
               <td>{{ cita.fecha }}</td>
               <td><span class="badge-hora">{{ cita.hora }}</span></td>
               <td>

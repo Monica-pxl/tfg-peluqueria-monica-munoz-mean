@@ -40,36 +40,78 @@ export class ServiciosEditar implements OnInit{
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.error = true;
+      this.cargando = false;
+      this.alertService.error('ID de servicio no válido');
+      return;
+    }
 
     // cargar centros y profesionales
     this.centrosService.getAllCentros().subscribe({ next: c => this.centros = c });
-    this.profesionalesService.getAllProfesionales().subscribe({ 
+    this.profesionalesService.getAllProfesionales().subscribe({
       next: p => {
         this.profesionales = p;
       }
     });
 
-    // cargar servicio
+    // cargar servicio usando _id
     this.serviciosService.getAllServices().subscribe({
       next: servicios => {
-        this.servicio = servicios.find(s => s.id_servicio === id)!;
+        this.servicio = servicios.find(s => s._id === id)!;
 
-        // cargar relaciones actuales
+        if (!this.servicio) {
+          this.error = true;
+          this.cargando = false;
+          this.alertService.error('Servicio no encontrado');
+          return;
+        }
+
+        // cargar relaciones actuales usando _id del servicio
         this.profesionalServicioService.getAllProfesionalServicio().subscribe(relaciones => {
-          this.id_profesionales = relaciones
-            .filter(r => r.id_servicio === id)
-            .map(r => r.id_profesional);
-          
+          // Filtrar relaciones para este servicio
+          const relsFiltradas = relaciones.filter(r => {
+            // Si servicio está poblado
+            if (typeof r.servicio === 'object' && r.servicio !== null) {
+              return r.servicio._id === this.servicio._id;
+            }
+            // Si servicio es string (_id)
+            return r.servicio === this.servicio._id;
+          });
+
+          // Extraer IDs de profesionales (como strings)
+          this.id_profesionales = relsFiltradas
+            .map(r => {
+              if (typeof r.profesional === 'object' && r.profesional !== null) {
+                return r.profesional._id;
+              }
+              return r.profesional as string;
+            })
+            .filter((id): id is string => !!id)
+            .map(id => Number(id)); // Convertir a número temporalmente
+
           // Filtrar profesionales por el centro del servicio
-          this.profesionalesFiltrados = this.profesionales.filter(
-            p => p.id_centro === this.servicio.id_centro
-          );
-          
+          const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
+            ? this.servicio.centro._id
+            : this.servicio.centro;
+
+          this.profesionalesFiltrados = this.profesionales.filter(p => {
+            const pCentroId = typeof p.centro === 'object' && p.centro !== null
+              ? p.centro._id
+              : p.centro;
+            return pCentroId === centroId;
+          });
+
           this.cargando = false;
         });
       },
-      error: () => { this.error = true; this.cargando = false; }
+      error: () => {
+        this.error = true;
+        this.cargando = false;
+        this.alertService.error('Error al cargar el servicio');
+      }
     });
   }
 
@@ -115,10 +157,17 @@ export class ServiciosEditar implements OnInit{
 
   onCentroChange(): void {
     // Filtrar profesionales por el centro seleccionado
-    if (this.servicio.id_centro) {
-      this.profesionalesFiltrados = this.profesionales.filter(
-        p => p.id_centro === Number(this.servicio.id_centro)
-      );
+    const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
+      ? this.servicio.centro._id
+      : this.servicio.centro;
+
+    if (centroId) {
+      this.profesionalesFiltrados = this.profesionales.filter(p => {
+        const pCentroId = typeof p.centro === 'object' && p.centro !== null
+          ? p.centro._id
+          : p.centro;
+        return pCentroId === centroId;
+      });
     } else {
       this.profesionalesFiltrados = [];
     }

@@ -921,10 +921,10 @@ app.get('/api/citas/:id', async (req, res) => {
 // POST: Crear nueva cita
 app.post('/api/citas', async (req, res) => {
   try {
-    const { usuario, profesional, servicio, centro, fecha, hora, notas, precio } = req.body;
+    const { usuario, profesional, servicio, centro, fecha, hora } = req.body;
 
     // Validar campos requeridos
-    if (!usuario || !profesional || !servicio || !centro || !fecha || !hora || !precio) {
+    if (!usuario || !profesional || !servicio || !centro || !fecha || !hora) {
       return res.status(400).json({ error: "Faltan campos requeridos" });
     }
 
@@ -934,6 +934,12 @@ app.post('/api/citas', async (req, res) => {
       return res.status(400).json({ error: "Ya existe una cita para ese profesional en ese horario" });
     }
 
+    // Obtener el precio del servicio
+    const servicioDB = await Servicio.findById(servicio);
+    if (!servicioDB) {
+      return res.status(404).json({ error: "Servicio no encontrado" });
+    }
+
     const nuevaCita = new Cita({
       usuario,
       profesional,
@@ -941,8 +947,7 @@ app.post('/api/citas', async (req, res) => {
       centro,
       fecha,
       hora,
-      notas: notas || '',
-      precio,
+      precio: servicioDB.precio,
       estado: 'pendiente'
     });
 
@@ -965,10 +970,10 @@ app.post('/api/citas', async (req, res) => {
   }
 });
 
-// PUT: Actualizar cita (cambiar estado, notas, fecha, hora, etc.)
+// PUT: Actualizar cita (cambiar estado, fecha, hora, etc.)
 app.put('/api/citas/:id', async (req, res) => {
   try {
-    const { estado, fecha, hora, notas } = req.body;
+    const { estado, fecha, hora } = req.body;
 
     const cita = await Cita.findById(req.params.id);
     if (!cita) {
@@ -996,7 +1001,6 @@ app.put('/api/citas/:id', async (req, res) => {
     if (estado) cita.estado = estado;
     if (fecha) cita.fecha = fecha;
     if (hora) cita.hora = hora;
-    if (notas !== undefined) cita.notas = notas;
 
     await cita.save();
 

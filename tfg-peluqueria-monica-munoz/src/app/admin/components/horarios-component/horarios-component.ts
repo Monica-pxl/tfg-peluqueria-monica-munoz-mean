@@ -13,6 +13,7 @@ import { ConfirmService } from '../../../shared/services/confirm-service';
 
 @Component({
   selector: 'app-horarios-component',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './horarios-component.html',
   styleUrl: './horarios-component.css',
@@ -79,9 +80,9 @@ export class HorariosComponent implements OnInit {
       return `${prof.nombre} ${prof.apellidos}`;
     }
 
-    // Fallback: buscar por id_profesional (compatibilidad con datos antiguos)
-    if (horario.id_profesional) {
-      const profesional = this.profesionales.find(p => p.id_profesional === horario.id_profesional);
+    // Si profesional es un string (ObjectId), buscar en la lista
+    if (typeof horario.profesional === 'string') {
+      const profesional = this.profesionales.find(p => p._id === horario.profesional);
       return profesional ? `${profesional.nombre} ${profesional.apellidos}` : 'Desconocido';
     }
 
@@ -116,7 +117,7 @@ export class HorariosComponent implements OnInit {
 
     if (!confirmed) return;
 
-    const id = horario._id || horario.id_horario;
+    const id = horario._id;
     if (!id) {
       this.alertService.error('Error: ID de horario no válido');
       return;
@@ -127,30 +128,8 @@ export class HorariosComponent implements OnInit {
         this.alertService.success('Horario eliminado exitosamente');
 
         // Crear notificación para el profesional
-        let idUsuario: number | undefined;
-
-        // Intentar obtener id_usuario del profesional poblado
-        if (horario.profesional && typeof horario.profesional === 'object' && 'nombre' in horario.profesional) {
-          const prof = horario.profesional as ProfesionalPoblado;
-          const profesional = this.profesionales.find(p => p._id === prof._id);
-          if (profesional) {
-            idUsuario = profesional.id_usuario;
-          }
-        } else if (horario.id_profesional) {
-          const profesional = this.profesionales.find(p => p.id_profesional === horario.id_profesional);
-          if (profesional) {
-            idUsuario = profesional.id_usuario;
-          }
-        }
-
-        if (idUsuario) {
-          this.notificacionesService.crearNotificacion({
-            idUsuario,
-            titulo: 'Horario eliminado',
-            mensaje: 'El administrador ha eliminado parte de tu horario de trabajo.'
-          });
-        }
-
+        // TODO: Implementar notificaciones para MongoDB
+        // Por ahora solo eliminar el horario
         this.cargarDatos();
       },
       error: (err) => {
@@ -160,7 +139,7 @@ export class HorariosComponent implements OnInit {
   }
 
   editarHorario(horario: HorariosInterface): void {
-    const id = horario._id || horario.id_horario;
+    const id = horario._id;
     if (!id) {
       this.alertService.error('Error: ID de horario no válido');
       return;

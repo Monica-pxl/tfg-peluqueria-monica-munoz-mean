@@ -15,7 +15,7 @@ import { UsuariosInterface } from '../../../cliente/interfaces/usuarios-interfac
 })
 export class HorariosProfesionalComponent implements OnInit {
   usuarioLogueado: UsuariosInterface | null = null;
-  idProfesional: number = 0;
+  idProfesional: string | undefined = undefined;
   horariosDelProfesional: HorariosInterface[] = [];
   cargando: boolean = true;
 
@@ -27,14 +27,14 @@ export class HorariosProfesionalComponent implements OnInit {
 
   ngOnInit(): void {
     this.usuarioLogueado = this.usuariosService.getUsuarioLogueado();
-    
+
     if (this.usuarioLogueado) {
       // Obtener el id_profesional a partir del id_usuario
       this.profesionalesService.getAllProfesionales().subscribe({
         next: profesionales => {
           const profesional = profesionales.find(p => p.id_usuario === Number(this.usuarioLogueado?.id_usuario));
           if (profesional) {
-            this.idProfesional = profesional.id_profesional;
+            this.idProfesional = profesional._id; // Usar _id
             this.cargarHorarios();
           } else {
             console.error('No se encontró el profesional');

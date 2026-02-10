@@ -6,6 +6,7 @@ import { NotificacionesService } from '../../services/notificaciones-service';
   imports: [],
   templateUrl: './cuenta-usuario-notificaciones-component.html',
   styleUrl: './cuenta-usuario-notificaciones-component.css',
+  standalone: true
 })
 export class CuentaUsuarioNotificacionesComponent {
 

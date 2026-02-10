@@ -57,27 +57,17 @@ export class ProfesionalesComponent implements OnInit {
       rels: this.relService.getAllProfesionalServicio()
     }).subscribe({
       next: (res) => {
-        this.profesionales = res.profesionales.map(p => ({
-          ...p,
-          id_profesional: Number(p.id_profesional),
-          id_centro: Number(p.id_centro)
-        }));
-        this.centros = res.centros.map(c => ({
-          ...c,
-          id_centro: Number(c.id_centro)
-        }));
-        this.servicios = res.servicios.map(s => ({
-          ...s,
-          id_servicio: Number(s.id_servicio)
-        }));
-        this.rels = res.rels.map(r => ({
-          id_profesional: Number(r.id_profesional),
-          id_servicio: Number(r.id_servicio)
-        }));
+        this.profesionales = res.profesionales;
+        this.centros = res.centros;
+        this.servicios = res.servicios;
+        this.rels = res.rels;
         this.profesionalesFiltrados = this.profesionales;
         this.cargando = false;
       },
-      error: () => this.error = true
+      error: () => {
+        this.error = true;
+        this.cargando = false;
+      }
     });
   }
 
@@ -86,26 +76,54 @@ export class ProfesionalesComponent implements OnInit {
       const cumpleBusqueda = this.busquedaTexto === '' ||
         prof.nombre.toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         prof.apellidos.toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
-        this.nombreCentro(prof.id_centro).toLowerCase().includes(this.busquedaTexto.toLowerCase());
+        this.nombreCentro(prof).toLowerCase().includes(this.busquedaTexto.toLowerCase());
       return cumpleBusqueda;
     });
   }
 
 
-  nombreCentro(id_centro: number): string {
-    const centro = this.centros.find(c => c.id_centro === id_centro);
-    return centro ? centro.nombre : 'Desconocido';
+  nombreCentro(profesional: ProfesionalesInterface): string {
+    // Si centro está poblado (es un objeto)
+    if (typeof profesional.centro === 'object' && profesional.centro !== null) {
+      return profesional.centro.nombre || 'Sin centro';
+    }
+    // Si centro es string (_id), buscar en el array
+    if (typeof profesional.centro === 'string') {
+      const centro = this.centros.find(c => c._id === profesional.centro);
+      return centro ? centro.nombre : 'Sin centro';
+    }
+    return 'Sin centro';
   }
 
 
 
-  serviciosDelProfesional(id_prof: number): string {
-    const relaciones = this.rels.filter(r => r.id_profesional === id_prof);
+  serviciosDelProfesional(profesional: ProfesionalesInterface): string {
+    if (!profesional._id) return 'Sin servicios';
+
+    // Filtrar relaciones por el _id del profesional
+    const relaciones = this.rels.filter(r => {
+      // Si profesional está poblado
+      if (typeof r.profesional === 'object' && r.profesional !== null) {
+        return r.profesional._id === profesional._id;
+      }
+      // Si profesional es string (_id)
+      return r.profesional === profesional._id;
+    });
+
     const nombres = relaciones.map(rel => {
-      const s = this.servicios.find(serv => serv.id_servicio === rel.id_servicio);
-      return s ? s.nombre : "";
-    }).filter(n => n !== "");
-    return nombres.join(", ");
+      // Si servicio está poblado
+      if (typeof rel.servicio === 'object' && rel.servicio !== null) {
+        return rel.servicio.nombre;
+      }
+      // Si servicio es string (_id), buscar en el array
+      if (typeof rel.servicio === 'string') {
+        const s = this.servicios.find(serv => serv._id === rel.servicio);
+        return s ? s.nombre : '';
+      }
+      return '';
+    }).filter(n => n !== '');
+
+    return nombres.length > 0 ? nombres.join(', ') : 'Sin servicios';
   }
 
 

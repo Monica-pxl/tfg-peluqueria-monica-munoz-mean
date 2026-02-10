@@ -69,7 +69,7 @@
           </div>
         } @else {
           <div class="row g-4">
-            @for(item of profesionalesConServicios; track item.profesional.id_profesional) {
+            @for(item of profesionalesConServicios; track item.profesional._id) {
               <div class="col-lg-6">
                 <div class="profesional-card">
                   <div class="profesional-header">
@@ -91,7 +91,7 @@
                       <p class="text-muted small">Sin servicios asignados</p>
                     } @else {
                       <div class="servicios-list">
-                        @for(servicio of item.servicios; track servicio.id_servicio) {
+                        @for(servicio of item.servicios; track servicio._id) {
                           <div class="servicio-item">
                             <div class="servicio-info">
                               <span class="servicio-nombre">{{ servicio.nombre }}</span>

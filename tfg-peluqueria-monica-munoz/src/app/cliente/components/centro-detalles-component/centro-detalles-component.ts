@@ -42,11 +42,13 @@ export class CentroDetallesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const idCentro = Number(this.route.snapshot.paramMap.get('id'));
-    this.cargarDetallesCentro(idCentro);
+    const idCentro = this.route.snapshot.paramMap.get('id');
+    if (idCentro) {
+      this.cargarDetallesCentro(idCentro);
+    }
   }
 
-  cargarDetallesCentro(idCentro: number): void {
+  cargarDetallesCentro(idCentro: string): void {
     forkJoin({
       centros: this.centrosService.getAllCentros(),
       profesionales: this.profesionalesService.getAllProfesionales(),
@@ -56,23 +58,50 @@ export class CentroDetallesComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         // Encontrar el centro
-        this.centro = data.centros.find(c => c.id_centro === idCentro) || null;
+        this.centro = data.centros.find(c => c._id === idCentro) || null;
 
         // Filtrar profesionales del centro
-        const profesionalesCentro = data.profesionales.filter(p => p.id_centro === idCentro);
+        const profesionalesCentro = data.profesionales.filter(p => {
+          // Si centro está poblado, comparar _id
+          if (typeof p.centro === 'object' && p.centro !== null) {
+            return p.centro._id === idCentro;
+          }
+          // Si centro es string (ObjectId), comparar directamente
+          return p.centro === idCentro;
+        });
 
         // Para cada profesional, obtener sus servicios y horarios
         this.profesionalesConServicios = profesionalesCentro.map(profesional => {
           // Obtener IDs de servicios del profesional
           const idsServicios = data.relaciones
-            .filter(r => r.id_profesional === profesional.id_profesional)
-            .map(r => r.id_servicio);
+            .filter(r => {
+              // Si profesional está poblado, comparar _id
+              if (typeof r.profesional === 'object' && r.profesional !== null) {
+                return r.profesional._id === profesional._id;
+              }
+              // Si profesional es string (ObjectId), comparar directamente
+              return r.profesional === profesional._id;
+            })
+            .map(r => {
+              // Obtener el _id del servicio
+              if (typeof r.servicio === 'object' && r.servicio !== null) {
+                return r.servicio._id;
+              }
+              return r.servicio;
+            });
 
           // Obtener los servicios completos
-          const servicios = data.servicios.filter(s => idsServicios.includes(s.id_servicio));
+          const servicios = data.servicios.filter(s => idsServicios.includes(s._id || ''));
 
           // Obtener los horarios del profesional
-          const horarios = data.horarios.filter(h => h.id_profesional === profesional.id_profesional);
+          const horarios = data.horarios.filter(h => {
+            // Si profesional está poblado, comparar _id
+            if (typeof h.profesional === 'object' && h.profesional !== null) {
+              return h.profesional._id === profesional._id;
+            }
+            // Si profesional es string (ObjectId), comparar directamente
+            return h.profesional === profesional._id;
+          });
 
           return {
             profesional,

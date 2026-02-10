@@ -15,19 +15,19 @@ export class CentrosService {
     return this.http.get<CentrosInterface[]>(this.url);
   }
 
-  getCentroById(id: number): Observable<CentrosInterface> {
+  getCentroById(id: string): Observable<CentrosInterface> {
     return this.http.get<CentrosInterface>(`${this.url}/${id}`);
   }
 
-  crearCentro(centro: Omit<CentrosInterface, 'id_centro'>): Observable<any> {
+  crearCentro(centro: Omit<CentrosInterface, '_id'>): Observable<any> {
     return this.http.post(this.url, centro);
   }
 
   actualizarCentro(centro: CentrosInterface): Observable<any> {
-    return this.http.put(`${this.url}/${centro.id_centro}`, centro);
+    return this.http.put(`${this.url}/${centro._id}`, centro);
   }
 
-  borrarCentro(id: number): Observable<any> {
+  borrarCentro(id: string): Observable<any> {
     return this.http.delete(`${this.url}/${id}`);
   }
 }

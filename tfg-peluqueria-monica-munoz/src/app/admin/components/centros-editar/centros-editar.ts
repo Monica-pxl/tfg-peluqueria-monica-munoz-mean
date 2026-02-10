@@ -13,7 +13,7 @@ import { AlertService } from '../../../shared/services/alert-service';
   styleUrl: './centros-editar.css',
 })
 export class CentrosEditar implements OnInit {
-  
+
   centro!: CentrosInterface;
   cargando = true;
   error = false;
@@ -26,7 +26,15 @@ export class CentrosEditar implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.error = true;
+      this.cargando = false;
+      this.alertService.error('ID de centro inválido');
+      this.router.navigate(['/admin/centros']);
+      return;
+    }
 
     this.centrosService.getCentroById(id).subscribe({
       next: (centro) => {
@@ -43,7 +51,7 @@ export class CentrosEditar implements OnInit {
   }
 
   actualizarCentro(): void {
-    if (!this.centro.nombre || !this.centro.direccion || !this.centro.telefono || 
+    if (!this.centro.nombre || !this.centro.direccion || !this.centro.telefono ||
         !this.centro.email || !this.centro.horario_apertura || !this.centro.horario_cierre) {
       this.alertService.warning('Por favor completa todos los campos');
       return;

@@ -6,10 +6,10 @@
     <div class="filtros-container mb-4">
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
-        <input 
-          type="text" 
-          id="busqueda" 
-          [(ngModel)]="busquedaTexto" 
+        <input
+          type="text"
+          id="busqueda"
+          [(ngModel)]="busquedaTexto"
           (input)="aplicarFiltros()"
           placeholder="Usuario, servicio, centro, fecha u hora..."
           class="form-control">
@@ -40,7 +40,6 @@
       <table class="table-custom">
         <thead>
           <tr>
-            <th><i class="bi bi-hash"></i> ID</th>
             <th><i class="bi bi-person-fill"></i> Cliente</th>
             <th><i class="bi bi-scissors"></i> Servicio</th>
             <th><i class="bi bi-geo-alt-fill"></i> Centro</th>
@@ -50,22 +49,21 @@
           </tr>
         </thead>
         <tbody>
-          @for (cita of citasFiltradas; track cita.id_cita) {
+          @for (cita of citasFiltradas; track cita._id) {
             <tr>
-              <td>{{ cita.id_cita }}</td>
-              <td>{{ nombreUsuario(cita.id_usuario) }}</td>
-              <td>{{ nombreServicio(cita.id_servicio) }}</td>
-              <td>{{ nombreCentro(cita.id_centro) }}</td>
+              <td>{{ nombreUsuario(cita) }}</td>
+              <td>{{ nombreServicio(cita) }}</td>
+              <td>{{ nombreCentro(cita) }}</td>
               <td>{{ cita.fecha }}</td>
               <td><span class="badge-hora">{{ cita.hora }}</span></td>
               <td>
-                <select 
-                  [ngModel]="cita.estado" 
-                  (ngModelChange)="cambiarEstado(cita, $event)" 
-                  class="status-select" 
-                  [class.status-pendiente]="cita.estado === 'pendiente'" 
-                  [class.status-confirmada]="cita.estado === 'confirmada'" 
-                  [class.status-cancelada]="cita.estado === 'cancelada'" 
+                <select
+                  [ngModel]="cita.estado"
+                  (ngModelChange)="cambiarEstado(cita, $event)"
+                  class="status-select"
+                  [class.status-pendiente]="cita.estado === 'pendiente'"
+                  [class.status-confirmada]="cita.estado === 'confirmada'"
+                  [class.status-cancelada]="cita.estado === 'cancelada'"
                   [class.status-realizada]="cita.estado === 'realizada'"
                   [disabled]="cita.estado === 'realizada'">
                   @for (estado of getEstadosDisponibles(cita); track estado) {

@@ -44,29 +44,67 @@ export class ProfesionalesEditar implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (!id) {
+      this.error = true;
+      this.cargando = false;
+      this.alertService.error('ID de profesional no válido');
+      return;
+    }
 
     forkJoin({
-      profesional: this.profesionalesService.getProfesionalById(id),
+      profesionales: this.profesionalesService.getAllProfesionales(),
       centros: this.centrosService.getAllCentros(),
       servicios: this.serviciosService.getAllServices(),
       relaciones: this.relService.getAllProfesionalServicio()
     }).subscribe({
 
-      next: ({ profesional, centros, servicios, relaciones }) => {
+      next: ({ profesionales, centros, servicios, relaciones }) => {
 
-        this.profesional = profesional;
+        this.profesional = profesionales.find(p => p._id === id)!;
+
+        if (!this.profesional) {
+          this.error = true;
+          this.cargando = false;
+          this.alertService.error('Profesional no encontrado');
+          return;
+        }
+
         this.centros = centros;
         this.servicios = servicios;
-        
+
+        // Obtener el ID del centro (puede ser string _id o objeto)
+        const centroId = typeof this.profesional.centro === 'object' && this.profesional.centro !== null
+          ? this.profesional.centro._id
+          : this.profesional.centro;
+
         // Filtrar servicios solo del centro del profesional
-        this.serviciosFiltrados = servicios.filter(
-          s => s.id_centro === profesional.id_centro
-        );
-        
-        this.id_servicios = relaciones
-          .filter(r => r.id_profesional === profesional.id_profesional)
-          .map(r => r.id_servicio);
+        this.serviciosFiltrados = servicios.filter(s => {
+          const sCentroId = typeof s.centro === 'object' && s.centro !== null
+            ? s.centro._id
+            : s.centro;
+          return sCentroId === centroId;
+        });
+
+        // Filtrar relaciones para este profesional
+        const relsFiltradas = relaciones.filter(r => {
+          if (typeof r.profesional === 'object' && r.profesional !== null) {
+            return r.profesional._id === this.profesional._id;
+          }
+          return r.profesional === this.profesional._id;
+        });
+
+        // Extraer IDs de servicios (como números temporalmente)
+        this.id_servicios = relsFiltradas
+          .map(r => {
+            if (typeof r.servicio === 'object' && r.servicio !== null) {
+              return r.servicio._id;
+            }
+            return r.servicio as string;
+          })
+          .filter((id): id is string => !!id)
+          .map(id => Number(id)); // Convertir temporalmente a número
 
         this.cargando = false;
       },
@@ -74,6 +112,7 @@ export class ProfesionalesEditar implements OnInit {
       error: () => {
         this.error = true;
         this.cargando = false;
+        this.alertService.error('Error al cargar los datos');
       }
     });
   }

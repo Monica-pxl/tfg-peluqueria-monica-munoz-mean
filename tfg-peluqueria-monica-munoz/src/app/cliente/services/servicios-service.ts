@@ -22,10 +22,11 @@ export class ServiciosService {
   }
 
   actualizarServicio(servicio: ServiciosInterface): Observable<ServiciosInterface> {
-    return this.http.put<ServiciosInterface>(`${this.urlServicios}/${servicio.id_servicio}`, servicio);
+    const id = servicio._id || servicio.id_servicio;
+    return this.http.put<ServiciosInterface>(`${this.urlServicios}/${id}`, servicio);
   }
 
-  borrarServicio(id: number): Observable<any> {
+  borrarServicio(id: number | string): Observable<any> {
     return this.http.delete(`${this.urlServicios}/${id}`);
   }
 

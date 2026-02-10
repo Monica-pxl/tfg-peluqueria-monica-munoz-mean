@@ -17,14 +17,14 @@ import { CentrosService } from '../../../cliente/services/centros-service';
 })
 export class DashboardComponent implements OnInit {
   usuarioLogueado: UsuariosInterface | null = null;
-  idProfesional: number = 0;
+  idProfesional: string | undefined = undefined;
   citasHoy: number = 0;
   citasPendientes: number = 0;
   citasCompletadas: number = 0;
   citasTotales: number = 0;
   proximaCita: any = null;
   usuarios: UsuariosInterface[] = [];
-  
+
   constructor(
     private usuariosService: UsuariosService,
     private profesionalesService: ProfesionalesService,
@@ -35,14 +35,14 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.usuarioLogueado = this.usuariosService.getUsuarioLogueado();
-    
+
     if (this.usuarioLogueado) {
       // Primero obtener el id_profesional a partir del id_usuario
       this.profesionalesService.getAllProfesionales().subscribe({
         next: profesionales => {
           const profesional = profesionales.find(p => p.id_usuario === Number(this.usuarioLogueado?.id_usuario));
           if (profesional) {
-            this.idProfesional = profesional.id_profesional;
+            this.idProfesional = profesional._id; // Usar _id
             console.log('ID Profesional encontrado:', this.idProfesional);
             this.cargarDatos();
           } else {
@@ -77,24 +77,24 @@ export class DashboardComponent implements OnInit {
         // Filtrar citas del profesional actual
         const misCitas = todasLasCitas.filter(c => c.id_profesional === this.idProfesional);
         console.log('Mis citas (profesional ' + this.idProfesional + '):', misCitas);
-        
+
         // Fecha de hoy
         const hoy = new Date().toISOString().split('T')[0];
-        
+
         // Total de citas
         this.citasTotales = misCitas.length;
-        
+
         // Citas de hoy
         this.citasHoy = misCitas.filter(c => c.fecha === hoy).length;
-        
+
         // Citas pendientes (solo estado "pendiente")
-        this.citasPendientes = misCitas.filter(c => 
+        this.citasPendientes = misCitas.filter(c =>
           c.estado === 'pendiente'
         ).length;
-        
+
         // Citas completadas
         this.citasCompletadas = misCitas.filter(c => c.estado === 'realizada').length;
-        
+
         // Próxima cita (la más cercana en el futuro)
         const citasFuturas = misCitas
           .filter(c => {
@@ -107,7 +107,7 @@ export class DashboardComponent implements OnInit {
             const fechaB = new Date(b.fecha + 'T' + b.hora);
             return fechaA.getTime() - fechaB.getTime();
           });
-        
+
         if (citasFuturas.length > 0) {
           const cita = citasFuturas[0];
           const cliente = this.usuarios.find(u => u.id_usuario === cita.id_usuario);

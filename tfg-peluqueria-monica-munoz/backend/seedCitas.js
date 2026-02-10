@@ -37,8 +37,7 @@ mongoose.connect(uri)
         fecha: '2026-02-15',
         hora: '10:00',
         estado: 'pendiente',
-        notas: 'Primera cita del cliente',
-        precio: servicios[0].precio || 25
+        precio: servicios[0].precio
       },
       {
         usuario: usuarios[0]._id,
@@ -48,8 +47,7 @@ mongoose.connect(uri)
         fecha: '2026-02-20',
         hora: '11:30',
         estado: 'confirmada',
-        notas: '',
-        precio: servicios[1].precio || 30
+        precio: servicios[1].precio
       },
       {
         usuario: usuarios[1]._id,
@@ -59,8 +57,7 @@ mongoose.connect(uri)
         fecha: '2026-02-18',
         hora: '15:00',
         estado: 'realizada',
-        notas: 'Cliente satisfecho',
-        precio: servicios[2].precio || 40
+        precio: servicios[2].precio
       },
       {
         usuario: usuarios[2]._id,
@@ -70,8 +67,7 @@ mongoose.connect(uri)
         fecha: '2026-02-12',
         hora: '09:30',
         estado: 'cancelada',
-        notas: 'Cliente canceló por motivos personales',
-        precio: servicios[3].precio || 35
+        precio: servicios[3].precio
       },
       {
         usuario: usuarios[1]._id,
@@ -81,8 +77,7 @@ mongoose.connect(uri)
         fecha: '2026-02-25',
         hora: '16:00',
         estado: 'pendiente',
-        notas: '',
-        precio: servicios[4].precio || 50
+        precio: servicios[4].precio
       }
     ];
 
