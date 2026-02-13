@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const ProfesionalServicio = require('./models/profesionalServicio');
 const Profesional = require('./models/profesional');
 const Servicio = require('./models/servicio');
-const relaciones = require('./serviciosyprofesionales.json');
+const relaciones = require('./data/serviciosyprofesionales.json');
 
-const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const uri= "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
 
 mongoose.connect(uri)
   .then(async () => {
