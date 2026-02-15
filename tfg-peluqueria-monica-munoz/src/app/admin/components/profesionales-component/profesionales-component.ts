@@ -137,9 +137,16 @@ export class ProfesionalesComponent implements OnInit {
 
     if (!confirmed) return;
 
-    this.relService.borrarRelacionesPorProfesional(p.id_profesional).subscribe({
+    if (!p._id) {
+      this.alertService.error('Error: El profesional no tiene ID válido');
+      return;
+    }
+
+    // Primero eliminar las relaciones profesional-servicio usando el _id
+    this.relService.borrarRelacionesPorProfesional(p._id).subscribe({
       next: () => {
-        this.profesionalesService.borrarProfesional(p.id_profesional).subscribe({
+        // Luego eliminar el profesional usando el _id
+        this.profesionalesService.borrarProfesional(p._id).subscribe({
           next: () => {
             this.alertService.success('Profesional eliminado exitosamente');
             this.cargarDatos();
@@ -147,7 +154,10 @@ export class ProfesionalesComponent implements OnInit {
           error: () => this.alertService.error('Error al eliminar el profesional')
         });
       },
-      error: () => this.alertService.error('Error al eliminar las relaciones del profesional')
+      error: (err) => {
+        console.error('Error al eliminar las relaciones:', err);
+        this.alertService.error('Error al eliminar las relaciones del profesional');
+      }
     });
   }
 

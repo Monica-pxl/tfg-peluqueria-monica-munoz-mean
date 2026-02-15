@@ -6,8 +6,4 @@ export interface ProfesionalesInterface {
   nombre: string;
   apellidos: string;
   centro?: string | { _id: string; nombre: string; };  // Referencia a Centro (puede estar poblado)
-  // Compatibilidad temporal con código admin
-  id_profesional?: number;
-  id_usuario?: number;
-  id_centro?: number;
 }

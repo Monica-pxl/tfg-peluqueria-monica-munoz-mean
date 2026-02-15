@@ -8,8 +8,9 @@ import { ProfesionalServicioInterface } from '../interfaces/profesional-servicio
 })
 export class ProfesionalServicioService {
 
-  borrarRelacionesPorProfesional(id_profesional: number | undefined): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/profesional/${id_profesional || 0}`);
+  borrarRelacionesPorProfesional(id_profesional: string | number | undefined): Observable<any> {
+    const id = id_profesional || '';
+    return this.http.delete(`${this.apiUrl}/profesional/${id}`);
   }
 
   private apiUrl = 'http://localhost:3001/api/profesional_servicio';
@@ -24,8 +25,9 @@ export class ProfesionalServicioService {
     return this.http.post<ProfesionalServicioInterface>(this.apiUrl, relacion);
   }
 
-  eliminarPorServicio(id_servicio: number | undefined): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/servicio/${id_servicio || 0}`);
+  eliminarPorServicio(id_servicio: string | number | undefined): Observable<any> {
+    const id = id_servicio || '';
+    return this.http.delete(`${this.apiUrl}/servicio/${id}`);
   }
 
 }

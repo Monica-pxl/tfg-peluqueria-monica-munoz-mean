@@ -25,7 +25,7 @@
 
     <div class="row g-4" style="margin-bottom: 70px;">
 
-      @for(servicio of serviciosFiltrados; track servicio.id_servicio) {
+      @for(servicio of serviciosFiltrados; track servicio._id) {
 
         @if($index >= (paginaActual - 1) * cantidadPorPagina &&
              $index < paginaActual * cantidadPorPagina) {

@@ -27,7 +27,7 @@ export class CuentaClienteComponent implements OnInit {
 
   ngOnInit(): void {
     this.usuario = this.usuariosService.getUsuarioLogueado();
-    
+
     if (!this.usuario || this.usuario.rol !== 'cliente') {
       this.router.navigate(['/']);
       return;
@@ -36,7 +36,7 @@ export class CuentaClienteComponent implements OnInit {
     // Cargar datos actualizados del usuario desde el backend
     this.usuariosService.getAllUsuarios().subscribe({
       next: usuarios => {
-        const usuarioActualizado = usuarios.find(u => u.id_usuario === this.usuario?.id_usuario);
+        const usuarioActualizado = usuarios.find(u => u._id === this.usuario?._id);
         if (usuarioActualizado) {
           this.usuario = usuarioActualizado;
           this.usuariosService.setUsuarioLogueado(usuarioActualizado);

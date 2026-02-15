@@ -11,11 +11,11 @@
         <label class="form-label">
           <i class="bi bi-scissors me-2"></i>Nombre del Servicio
         </label>
-        <input 
-          type="text" 
-          class="form-control form-control-custom" 
-          [(ngModel)]="nombre" 
-          name="nombre" 
+        <input
+          type="text"
+          class="form-control form-control-custom"
+          [(ngModel)]="nombre"
+          name="nombre"
           placeholder="Ej: Corte de pelo, Tinte, Manicura..."
           required>
       </div>
@@ -24,10 +24,10 @@
         <label class="form-label">
           <i class="bi bi-card-text me-2"></i>Descripción
         </label>
-        <textarea 
-          class="form-control form-control-custom" 
-          [(ngModel)]="descripcion" 
-          name="descripcion" 
+        <textarea
+          class="form-control form-control-custom"
+          [(ngModel)]="descripcion"
+          name="descripcion"
           rows="3"
           placeholder="Describe brevemente el servicio..."
           required></textarea>
@@ -38,11 +38,11 @@
           <label class="form-label">
             <i class="bi bi-clock-fill me-2"></i>Duración (min)
           </label>
-          <input 
-            type="number" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="duracion" 
-            name="duracion" 
+          <input
+            type="number"
+            class="form-control form-control-custom"
+            [(ngModel)]="duracion"
+            name="duracion"
             placeholder="30"
             min="1"
             required>
@@ -51,11 +51,11 @@
           <label class="form-label">
             <i class="bi bi-currency-euro me-2"></i>Precio (€)
           </label>
-          <input 
-            type="number" 
-            class="form-control form-control-custom" 
-            [(ngModel)]="precio" 
-            name="precio" 
+          <input
+            type="number"
+            class="form-control form-control-custom"
+            [(ngModel)]="precio"
+            name="precio"
             placeholder="25.00"
             min="0.01"
             step="0.01"
@@ -67,7 +67,7 @@
           </label>
           <select class="form-select form-control-custom" [(ngModel)]="id_centro" name="id_centro" (change)="onCentroChange()" required>
             <option value="" disabled selected>Selecciona centro</option>
-            <option [value]="c.id_centro" *ngFor="let c of centros">{{ c.nombre }}</option>
+            <option [value]="c._id" *ngFor="let c of centros">{{ c.nombre }}</option>
           </select>
         </div>
       </div>
@@ -76,15 +76,15 @@
         <label class="form-label">
           <i class="bi bi-people-fill me-2"></i>Profesionales Asignados
         </label>
-        <select 
+        <select
           #selectProfesionales
-          class="form-select form-control-custom multi-select" 
-          (change)="onProfesionalesChange($event)" 
-          name="id_profesionales" 
-          multiple 
+          class="form-select form-control-custom multi-select"
+          (change)="onProfesionalesChange($event)"
+          name="id_profesionales"
+          multiple
           size="4"
           [disabled]="!id_centro">
-          <option *ngFor="let p of profesionalesFiltrados" [value]="p.id_profesional">
+          <option *ngFor="let p of profesionalesFiltrados" [value]="p._id">
             {{ p.nombre }} {{ p.apellidos }}
           </option>
         </select>
@@ -97,25 +97,25 @@
         <label class="form-label">
           <i class="bi bi-image-fill me-2"></i>URL de la Imagen
         </label>
-        <input 
-          type="url" 
-          class="form-control form-control-custom" 
-          [(ngModel)]="imagen" 
+        <input
+          type="url"
+          class="form-control form-control-custom"
+          [(ngModel)]="imagen"
           name="imagen"
           placeholder="https://ejemplo.com/imagen.jpg"
           pattern="https?://.+">
       </div>
 
       <div class="form-actions">
-        <button 
-          type="button" 
-          class="btn btn-cancel" 
+        <button
+          type="button"
+          class="btn btn-cancel"
           (click)="cancelar()"
           [disabled]="guardando">
           <i class="bi bi-x-circle me-2"></i>Cancelar
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           class="btn btn-create"
           [disabled]="guardando">
           <i class="bi bi-check-circle me-2"></i>

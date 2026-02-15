@@ -8,10 +8,6 @@ import { ProfesionalesInterface } from '../interfaces/profesionales-interface';
   providedIn: 'root'
 })
 export class ProfesionalesService {
-  borrarProfesional(id_profesional: number | undefined): Observable<any> {
-    return this.http.delete(`${this.url}/${id_profesional || 0}`);
-  }
-
   private url = 'http://localhost:3001/api/profesionales';
 
   constructor(private http: HttpClient) {}
@@ -24,11 +20,17 @@ export class ProfesionalesService {
     return this.http.get<ProfesionalesInterface>(`${this.url}/${id}`);
   }
 
-  actualizarProfesional(p: ProfesionalesInterface): Observable<any> {
-    return this.http.put(`${this.url}/${p.id_profesional}`, p);
-  }
-
   crearProfesional(profesional: any): Observable<any> {
     return this.http.post(this.url, profesional);
+  }
+
+  actualizarProfesional(id: string | number | undefined, datos: Partial<ProfesionalesInterface>): Observable<any> {
+    return this.http.put(`${this.url}/${id}`, datos);
+  }
+
+
+  borrarProfesional(id_profesional: string | number | undefined): Observable<any> {
+    const id = id_profesional || '';
+    return this.http.delete(`${this.url}/${id}`);
   }
 }

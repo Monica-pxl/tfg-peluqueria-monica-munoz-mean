@@ -67,7 +67,7 @@
     </div>
 
     <div class="row g-4">
-      @for(servicio of servicios; track servicio.id_servicio; let idx = $index) {
+      @for(servicio of servicios; track servicio._id; let idx = $index) {
         @if(idx < 6){
           <div class="col-12 col-sm-6 col-lg-4">
             <div class="card h-100 shadow-sm servicio-hover position-relative">
@@ -121,7 +121,7 @@
 
         <div class="centros-carousel">
           <div class="row g-4">
-            @for(centro of centrosVisibles; track centro.id_centro) {
+            @for(centro of centrosVisibles; track centro._id) {
               <div class="col-lg-4 col-md-6">
                 <div class="centro-card" [ngClass]="{'centro-card-featured': $index === 1 && currentPage === 0}">
                   <div class="centro-icon">🏢</div>
@@ -132,7 +132,7 @@
                   <p class="text-muted mb-3">
                     <i class="bi bi-telephone"></i> {{ centro.telefono }}
                   </p>
-                  <a [routerLink]="['/centro-detalles', centro.id_centro]" class="btn btn-outline-primary btn-sm w-100">Ver detalles</a>
+                  <a [routerLink]="['/centro-detalles', centro._id]" class="btn btn-outline-primary btn-sm w-100">Ver detalles</a>
                 </div>
               </div>
             }

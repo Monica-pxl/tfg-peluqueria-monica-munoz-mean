@@ -8,6 +8,4 @@ export interface CentrosInterface {
   email: string;
   horario_apertura: string;
   horario_cierre: string;
-  // Compatibilidad temporal con código admin
-  id_centro?: number;
 }

@@ -25,16 +25,17 @@ export class ServiciosCrear implements OnInit{
   descripcion = '';
   duracion!: number;
   precio!: number;
-  id_centro!: number;
+  id_centro: string = '';  // Cambiar a string para usar _id de MongoDB
   imagen = '';
-  id_profesionales: number[] = [];
+  id_profesionales: string[] = [];  // Cambiar a string[] para usar _id de MongoDB
 
   centros: CentrosInterface[] = [];
   profesionales: ProfesionalesInterface[] = [];
   profesionalesFiltrados: ProfesionalesInterface[] = [];
 
   cargando = true;
-  error = false;  guardando = false; // Protección contra doble clic
+  error = false;
+  guardando = false; // Protección contra doble clic
   constructor(
     private serviciosService: ServiciosService,
     private centrosService: CentrosService,
@@ -47,7 +48,7 @@ export class ServiciosCrear implements OnInit{
   ngOnInit(): void {
     // Forzar limpieza de profesionales al iniciar
     this.id_profesionales = [];
-    
+
     this.cargando = true;
     forkJoin({
       centros: this.centrosService.getAllCentros(),
@@ -97,27 +98,24 @@ export class ServiciosCrear implements OnInit{
   this.guardando = true; // Bloquear botón
   console.log('=== CREAR SERVICIO ===');
   console.log('Profesionales seleccionados (raw):', this.id_profesionales);
-  
+
   // Eliminar duplicados del array de profesionales
-  const profesionalesUnicos = [...new Set(this.id_profesionales.map(id => Number(id)))];
+  const profesionalesUnicos = [...new Set(this.id_profesionales)];
   console.log('Profesionales únicos después de filtrar:', profesionalesUnicos);
-  console.log('Tipo de id_profesionales:', typeof this.id_profesionales);
-  console.log('Es array?', Array.isArray(this.id_profesionales));
 
   const nuevo: ServiciosInterface = {
-    id_servicio: 0, // El backend asignará el ID consecutivo
     nombre: this.nombre,
     descripcion: this.descripcion,
     duracion: this.duracion,
     precio: this.precio,
-    id_centro: Number(this.id_centro),
+    centro: this.id_centro, // Usar centro en lugar de id_centro
     imagen: this.imagen
   };
 
   this.serviciosService.crearServicio(nuevo).subscribe({
     next: (servicioCreado) => {
-      console.log('Servicio creado con ID:', servicioCreado.id_servicio);
-      
+      console.log('Servicio creado con _id:', servicioCreado._id);
+
       if (profesionalesUnicos.length === 0) {
         console.log('No hay profesionales seleccionados, redirigiendo...');
         this.alertService.success('Servicio creado exitosamente');
@@ -130,8 +128,8 @@ export class ServiciosCrear implements OnInit{
 
       const observables = profesionalesUnicos.map(id_prof => {
         const relacion: ProfesionalServicioInterface = {
-          id_profesional: Number(id_prof),
-          id_servicio: servicioCreado.id_servicio
+          profesional: id_prof,
+          servicio: servicioCreado._id
         };
         console.log('Creando relación:', relacion);
         return this.profesionalServicioService.crearRelacion(relacion);
@@ -165,15 +163,18 @@ export class ServiciosCrear implements OnInit{
   onCentroChange(): void {
     console.log('=== CAMBIO DE CENTRO ===');
     console.log('Centro seleccionado:', this.id_centro);
-    
+
     // Limpiar selección de profesionales
     this.id_profesionales = [];
-    
+
     // Filtrar profesionales por el centro seleccionado
     if (this.id_centro) {
-      this.profesionalesFiltrados = this.profesionales.filter(
-        p => p.id_centro === Number(this.id_centro)
-      );
+      this.profesionalesFiltrados = this.profesionales.filter(p => {
+        const pCentroId = typeof p.centro === 'object' && p.centro !== null
+          ? p.centro._id
+          : p.centro;
+        return pCentroId === this.id_centro;
+      });
       console.log('Profesionales filtrados:', this.profesionalesFiltrados);
     } else {
       this.profesionalesFiltrados = [];
@@ -183,12 +184,12 @@ export class ServiciosCrear implements OnInit{
   onProfesionalesChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     const selectedOptions = Array.from(select.selectedOptions);
-    
-    // Extraer valores seleccionados y eliminar duplicados
+
+    // Extraer valores seleccionados (mantener como strings) y eliminar duplicados
     this.id_profesionales = [...new Set(
-      selectedOptions.map(option => Number(option.value))
+      selectedOptions.map(option => option.value)
     )];
-    
+
     console.log('✅ Profesionales seleccionados:', this.id_profesionales);
   }
 

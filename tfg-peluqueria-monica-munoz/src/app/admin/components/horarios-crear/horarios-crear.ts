@@ -96,14 +96,19 @@ export class HorariosCrear implements OnInit {
   getJornadaCentro(): string {
     if (!this.id_profesional) return '';
 
-    const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
+    const profesional = this.profesionales.find(p => p._id === this.id_profesional);
     if (!profesional) {
       console.warn('Profesional no encontrado con ID:', this.id_profesional);
       console.log('Profesionales disponibles:', this.profesionales);
       return '';
     }
 
-    const centro = this.centros.find(c => c.id_centro === profesional.id_centro);
+    // Obtener el _id del centro
+    const centroId = typeof profesional.centro === 'object' && profesional.centro !== null
+      ? profesional.centro._id
+      : profesional.centro;
+
+    const centro = this.centros.find(c => c._id === centroId);
     if (!centro) return '';
 
     return `${centro.horario_apertura} - ${centro.horario_cierre}`;
@@ -146,11 +151,13 @@ export class HorariosCrear implements OnInit {
     // VALIDAR CITAS ANTES DE MARCAR COMO FESTIVO
     this.citasService.getAllCitas(this.usuarios).subscribe({
       next: (todasCitas: CitasInterface[]) => {
-        // Filtrar citas del profesional en esa fecha
-        const citasEnFecha = todasCitas.filter(cita =>
-          cita.id_profesional === Number(this.id_profesional) &&
-          cita.fecha === this.nuevaFechaFestiva
-        );
+        // Filtrar citas del profesional en esa fecha (comparar _id)
+        const citasEnFecha = todasCitas.filter(cita => {
+          const citaProfesionalId = typeof cita.profesional === 'object' && cita.profesional !== null
+            ? cita.profesional._id
+            : cita.profesional;
+          return citaProfesionalId === this.id_profesional && cita.fecha === this.nuevaFechaFestiva;
+        });
 
         // Verificar si hay citas confirmadas
         const citasConfirmadas = citasEnFecha.filter(c => c.estado === 'confirmada');
@@ -170,16 +177,25 @@ export class HorariosCrear implements OnInit {
         if (citasPendientes.length > 0) {
           // Cancelar cada cita pendiente
           citasPendientes.forEach(cita => {
-            cita.estado = 'cancelada';
-            cita.canceladaPor = 'admin';
-            this.citasService.actualizarCitaEstado(cita).subscribe();
+            if (!cita._id) return;
+
+            // Actualizar cita
+            this.citasService.actualizarCita(cita._id, {
+              estado: 'cancelada',
+              canceladaPor: 'admin'
+            }).subscribe();
 
             // Notificar al cliente
-            const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
+            const profesional = this.profesionales.find(p => p._id === this.id_profesional);
             const nombreProfesional = profesional ? `${profesional.nombre} ${profesional.apellidos}` : 'el profesional';
 
+            // Obtener el _id del usuario
+            const usuarioId = typeof cita.usuario === 'object' && cita.usuario !== null
+              ? cita.usuario._id
+              : cita.usuario;
+
             this.notificacionesService.crearNotificacion({
-              idUsuario: cita.id_usuario,
+              idUsuario: usuarioId,
               mensaje: `Tu cita con <strong class="notif-entity">${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong class="notif-status">cancelada</strong> porque ese día se marcó como festivo.`,
               fecha: new Date().toISOString()
             });
@@ -255,7 +271,7 @@ export class HorariosCrear implements OnInit {
     }
 
     // Buscar el profesional para obtener su _id de MongoDB
-    const profesional = this.profesionales.find(p => p.id_profesional === Number(this.id_profesional));
+    const profesional = this.profesionales.find(p => p._id === this.id_profesional);
 
     if (!profesional || !profesional._id) {
       this.alertService.error('Profesional no encontrado');
@@ -275,9 +291,13 @@ export class HorariosCrear implements OnInit {
         this.alertService.success('Horario creado exitosamente');
 
         // Crear notificación para el profesional
-        if (profesional.id_usuario) {
+        const usuarioId = typeof profesional.usuario === 'object' && profesional.usuario !== null
+          ? profesional.usuario._id
+          : profesional.usuario;
+
+        if (usuarioId) {
           this.notificacionesService.crearNotificacion({
-            idUsuario: profesional.id_usuario,
+            idUsuario: usuarioId,
             titulo: 'Nuevo horario asignado',
             mensaje: 'El administrador ha añadido un nuevo horario a tu agenda.'
           });

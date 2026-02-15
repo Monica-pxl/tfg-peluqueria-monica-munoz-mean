@@ -22,7 +22,10 @@ export class ServiciosService {
   }
 
   actualizarServicio(servicio: ServiciosInterface): Observable<ServiciosInterface> {
-    const id = servicio._id || servicio.id_servicio;
+    const id = servicio._id;
+    if (!id) {
+      throw new Error('El servicio debe tener un _id para actualizar');
+    }
     return this.http.put<ServiciosInterface>(`${this.urlServicios}/${id}`, servicio);
   }
 

@@ -13,7 +13,4 @@ export interface HorariosInterface {
   hora_inicio: string;
   hora_fin: string;
   fechas_festivas?: string[]; // Fechas específicas festivas (formato YYYY-MM-DD)
-  // Compatibilidad temporal con código admin
-  id_horario?: number;
-  id_profesional?: number;
 }

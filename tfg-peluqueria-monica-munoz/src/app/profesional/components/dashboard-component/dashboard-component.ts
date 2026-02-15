@@ -37,17 +37,32 @@ export class DashboardComponent implements OnInit {
     this.usuarioLogueado = this.usuariosService.getUsuarioLogueado();
 
     if (this.usuarioLogueado) {
-      // Primero obtener el id_profesional a partir del id_usuario
+      // Primero obtener el id_profesional a partir del _id del usuario
       this.profesionalesService.getAllProfesionales().subscribe({
         next: profesionales => {
-          const profesional = profesionales.find(p => p.id_usuario === Number(this.usuarioLogueado?.id_usuario));
+          console.log('Todos los profesionales:', profesionales);
+          console.log('Usuario logueado:', this.usuarioLogueado);
+
+          // Buscar profesional por el campo 'usuario' que debe coincidir con el _id del usuario logueado
+          const profesional = profesionales.find(p => {
+            // Si 'usuario' es un objeto poblado, comparar con usuario._id
+            if (typeof p.usuario === 'object' && p.usuario !== null) {
+              return p.usuario._id === this.usuarioLogueado?._id;
+            }
+            // Si 'usuario' es un string (ObjectId), compararlo directamente
+            return p.usuario === this.usuarioLogueado?._id;
+          });
+
           if (profesional) {
             this.idProfesional = profesional._id; // Usar _id
             console.log('ID Profesional encontrado:', this.idProfesional);
             this.cargarDatos();
           } else {
-            console.error('No se encontró el profesional');
+            console.error('No se encontró profesional asociado a este usuario');
           }
+        },
+        error: (error) => {
+          console.error('Error al cargar profesionales:', error);
         }
       });
     }
@@ -70,12 +85,21 @@ export class DashboardComponent implements OnInit {
   cargarEstadisticas() {
     if (!this.idProfesional) return;
 
-    // Cargar citas del profesional usando el servicio (igual que en mis-citas)
-    this.citasService.getAllCitas(this.usuarios).subscribe({
+    // Cargar citas del profesional usando el servicio adaptado a MongoDB
+    this.citasService.getAllCitasFromDB().subscribe({
       next: (todasLasCitas) => {
         console.log('Todas las citas:', todasLasCitas);
+
         // Filtrar citas del profesional actual
-        const misCitas = todasLasCitas.filter(c => c.id_profesional === this.idProfesional);
+        const misCitas = todasLasCitas.filter(c => {
+          // Si profesional está poblado
+          if (typeof c.profesional === 'object' && c.profesional !== null) {
+            return c.profesional._id === this.idProfesional;
+          }
+          // Si profesional es string (ObjectId)
+          return c.profesional === this.idProfesional;
+        });
+
         console.log('Mis citas (profesional ' + this.idProfesional + '):', misCitas);
 
         // Fecha de hoy
@@ -110,10 +134,19 @@ export class DashboardComponent implements OnInit {
 
         if (citasFuturas.length > 0) {
           const cita = citasFuturas[0];
-          const cliente = this.usuarios.find(u => u.id_usuario === cita.id_usuario);
+
+          // Obtener el nombre del cliente
+          let nombreCliente = 'Cliente';
+          if (typeof cita.usuario === 'object' && cita.usuario !== null) {
+            nombreCliente = cita.usuario.nombre;
+          } else if (typeof cita.usuario === 'string') {
+            const cliente = this.usuarios.find(u => u._id === cita.usuario);
+            if (cliente) nombreCliente = cliente.nombre;
+          }
+
           this.proximaCita = {
             ...cita,
-            nombreCliente: cliente ? cliente.nombre : 'Cliente'
+            nombreCliente: nombreCliente
           };
         } else {
           this.proximaCita = null;

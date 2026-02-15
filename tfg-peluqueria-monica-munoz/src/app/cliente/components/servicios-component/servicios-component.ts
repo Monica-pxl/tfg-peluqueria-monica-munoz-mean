@@ -34,8 +34,8 @@ export class ServiciosComponent implements OnInit {
   loadServicios(): void {
     this.APIservicios.getAllServices().subscribe({
       next: (data) => {
-        // Ordenar servicios por id_servicio o _id
-        this.servicios = data.sort((a, b) => (a.id_servicio || 0) - (b.id_servicio || 0));
+        // Los servicios ya vienen ordenados del backend
+        this.servicios = data;
         this.serviciosFiltrados = this.servicios;
         this.actualizarPagina();
         console.log('Servicios cargados:', this.servicios);

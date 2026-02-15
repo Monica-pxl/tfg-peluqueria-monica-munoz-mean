@@ -145,17 +145,25 @@ export class UsuariosComponent implements OnInit {
       return;
     }
 
+    if (!this.usuarioLogueado?._id) {
+      this.alertService.error('Error: No se pudo obtener información del administrador');
+      return;
+    }
+
     const confirmacion = await this.confirmService.confirm(
       'Eliminar Usuario',
-      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\nEsta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\n${usuario.rol === 'profesional' ? 'ATENCIÓN: Si es profesional, también se eliminarán sus horarios, relaciones con servicios y su perfil de profesional.\n\n' : ''}Esta acción no se puede deshacer.`,
       'Sí, eliminar',
       'Cancelar'
     );
 
     if (!confirmacion) return;
 
-    // Eliminar directamente desde MongoDB - las validaciones de citas activas se hacen en el backend
-    this.http.delete(`http://localhost:3001/api/usuarios/${usuario._id}`).subscribe({
+    console.log('Eliminando usuario:', usuario._id);
+    console.log('ID del admin:', this.usuarioLogueado._id);
+
+    // Eliminar desde MongoDB enviando id_admin como query parameter
+    this.http.delete(`http://localhost:3001/api/usuarios/${usuario._id}?id_admin=${this.usuarioLogueado._id}`).subscribe({
       next: () => {
         this.alertService.success('Usuario eliminado correctamente');
         this.cargarUsuarios();

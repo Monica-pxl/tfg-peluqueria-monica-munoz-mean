@@ -28,7 +28,7 @@ export class ProfesionalesEditar implements OnInit {
   centros: CentrosInterface[] = [];
   servicios: ServiciosInterface[] = [];
   serviciosFiltrados: ServiciosInterface[] = [];
-  id_servicios: number[] = [];
+  id_servicios: string[] = [];  // Cambiar a string[] para usar _id de MongoDB
 
   cargando = true;
   error = false;
@@ -95,7 +95,7 @@ export class ProfesionalesEditar implements OnInit {
           return r.profesional === this.profesional._id;
         });
 
-        // Extraer IDs de servicios (como números temporalmente)
+        // Extraer IDs de servicios como strings (_id de MongoDB)
         this.id_servicios = relsFiltradas
           .map(r => {
             if (typeof r.servicio === 'object' && r.servicio !== null) {
@@ -103,8 +103,9 @@ export class ProfesionalesEditar implements OnInit {
             }
             return r.servicio as string;
           })
-          .filter((id): id is string => !!id)
-          .map(id => Number(id)); // Convertir temporalmente a número
+          .filter((id): id is string => !!id);
+
+        console.log('Servicios del profesional:', this.id_servicios);
 
         this.cargando = false;
       },
@@ -118,40 +119,71 @@ export class ProfesionalesEditar implements OnInit {
   }
 
   actualizarProfesional(): void {
-    this.profesional.id_centro = Number(this.profesional.id_centro);
+    if (!this.profesional._id) {
+      this.alertService.error('Error: El profesional no tiene ID válido');
+      return;
+    }
 
-    this.profesionalesService.actualizarProfesional(this.profesional).subscribe({
+    // Preparar datos para actualizar (solo campos editables)
+    const datosActualizar = {
+      nombre: this.profesional.nombre,
+      apellidos: this.profesional.apellidos,
+      centro: typeof this.profesional.centro === 'object' && this.profesional.centro !== null
+        ? this.profesional.centro._id
+        : this.profesional.centro
+    };
+
+    console.log('Actualizando profesional con datos:', datosActualizar);
+
+    this.profesionalesService.actualizarProfesional(this.profesional._id, datosActualizar).subscribe({
       next: () => {
-        // Borrar relaciones existentes
-        this.relService.borrarRelacionesPorProfesional(this.profesional.id_profesional).subscribe(() => {
+        console.log('Profesional actualizado, borrando relaciones anteriores...');
 
-          // Si hay servicios seleccionados, crear las relaciones
-          if (this.id_servicios.length > 0) {
-            const observables = this.id_servicios.map(id_serv => {
-              return this.relService.crearRelacion({
-                id_profesional: this.profesional.id_profesional,
-                id_servicio: id_serv
+        // Borrar relaciones existentes usando el _id
+        this.relService.borrarRelacionesPorProfesional(this.profesional._id).subscribe({
+          next: () => {
+            console.log('Relaciones anteriores eliminadas');
+
+            // Si hay servicios seleccionados, crear las relaciones
+            if (this.id_servicios.length > 0) {
+              console.log('Creando nuevas relaciones para servicios:', this.id_servicios);
+
+              const observables = this.id_servicios.map(id_serv => {
+                const relacion = {
+                  profesional: this.profesional._id,
+                  servicio: id_serv
+                };
+                console.log('Creando relación:', relacion);
+                return this.relService.crearRelacion(relacion);
               });
-            });
 
-            forkJoin(observables).subscribe({
-              next: () => {
-                this.alertService.success('Profesional actualizado exitosamente');
-                this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
-              },
-              error: () => {
-                this.alertService.warning('Profesional actualizado, pero hubo un error al asignar los servicios');
-                this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
-              }
-            });
-          } else {
-            // Si no hay servicios, simplemente confirmar la actualización
-            this.alertService.success('Profesional actualizado exitosamente');
-            this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
+              forkJoin(observables).subscribe({
+                next: () => {
+                  this.alertService.success('Profesional actualizado exitosamente');
+                  this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
+                },
+                error: (err) => {
+                  console.error('Error al asignar servicios:', err);
+                  this.alertService.warning('Profesional actualizado, pero hubo un error al asignar los servicios');
+                  this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
+                }
+              });
+            } else {
+              // Si no hay servicios, simplemente confirmar la actualización
+              this.alertService.success('Profesional actualizado exitosamente');
+              this.router.navigate(['/admin/profesionales'], { queryParams: { recargar: '1' } });
+            }
+          },
+          error: (err) => {
+            console.error('Error al eliminar relaciones anteriores:', err);
+            this.alertService.error('Error al actualizar las relaciones del profesional');
           }
         });
       },
-      error: () => this.alertService.error('Error al actualizar profesional')
+      error: (err) => {
+        console.error('Error al actualizar profesional:', err);
+        this.alertService.error('Error al actualizar profesional');
+      }
     });
   }
 

@@ -12,11 +12,5 @@ export interface CitasInterface {
   estado: 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
   createdAt?: string;
   updatedAt?: string;
-  // Compatibilidad temporal con código admin
-  id_cita?: number;
-  id_usuario?: number;
-  id_profesional?: number;
-  id_servicio?: number;
-  id_centro?: number;
   canceladaPor?: 'cliente' | 'admin' | 'profesional' | null;
 }

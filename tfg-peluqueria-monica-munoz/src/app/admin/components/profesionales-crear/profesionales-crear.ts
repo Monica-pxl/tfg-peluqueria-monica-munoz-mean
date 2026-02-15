@@ -22,9 +22,9 @@ import { AlertService } from '../../../shared/services/alert-service';
 })
 export class ProfesionalesCrear implements OnInit {
 
-  id_usuario: number = 0;
-  id_centro: number = 0;
-  id_servicios: number[] = [];
+  id_usuario: string = '';  // Cambio a string para usar _id de MongoDB
+  id_centro: string = '';   // Cambio a string para usar _id de MongoDB
+  id_servicios: string[] = [];  // Cambio a string[] para usar _id de MongoDB
 
   usuariosProfesionales: UsuariosInterface[] = [];
   centros: CentrosInterface[] = [];
@@ -56,31 +56,26 @@ export class ProfesionalesCrear implements OnInit {
             console.log('Todos los usuarios:', usuarios);
 
             // Filtrar usuarios con rol profesional que no tengan un profesional asociado
-            // 1. Por id_usuario (si el profesional tiene id_usuario)
-            const idsUsuariosConProfesional: number[] = profesionales
-              .map(p => p.id_usuario)
-              .filter((id): id is number => id !== undefined && id !== null);
+            // Crear array de IDs de usuarios que ya tienen profesional
+            const idsUsuariosConProfesional: string[] = profesionales
+              .map(p => {
+                // Si 'usuario' es un objeto poblado
+                if (typeof p.usuario === 'object' && p.usuario !== null) {
+                  return p.usuario._id;
+                }
+                // Si 'usuario' es un string (ObjectId)
+                return p.usuario;
+              })
+              .filter((id): id is string => id !== undefined && id !== null);
 
             console.log('IDs de usuarios con profesional:', idsUsuariosConProfesional);
-
-            // 2. Por coincidencia de nombre completo
-            const nombresCompletosConProfesional = profesionales.map(p =>
-              `${p.nombre} ${p.apellidos}`.toLowerCase().trim()
-            );
 
             this.usuariosProfesionales = usuarios.filter(u => {
               if (u.rol !== 'profesional') return false;
 
-              // Excluir si el id_usuario ya está en profesionales
-              if (u.id_usuario && idsUsuariosConProfesional.includes(u.id_usuario)) {
-                console.log(`Excluyendo usuario ${u.nombre} (id: ${u.id_usuario}) - ya tiene profesional por ID`);
-                return false;
-              }
-
-              // Excluir si el nombre completo coincide con algún profesional
-              const nombreUsuario = u.nombre.toLowerCase().trim();
-              if (nombresCompletosConProfesional.includes(nombreUsuario)) {
-                console.log(`Excluyendo usuario ${u.nombre} (id: ${u.id_usuario}) - ya existe profesional con ese nombre`);
+              // Excluir si el _id del usuario ya está en profesionales
+              if (u._id && idsUsuariosConProfesional.includes(u._id)) {
+                console.log(`Excluyendo usuario ${u.nombre} (_id: ${u._id}) - ya tiene profesional`);
                 return false;
               }
 
@@ -123,7 +118,14 @@ export class ProfesionalesCrear implements OnInit {
 
     // Filtrar servicios por el centro seleccionado
     if (this.id_centro) {
-      this.serviciosFiltrados = this.servicios.filter(s => Number(s.id_centro) === Number(this.id_centro));
+      this.serviciosFiltrados = this.servicios.filter(s => {
+        // Si 'centro' es un objeto poblado
+        if (typeof s.centro === 'object' && s.centro !== null) {
+          return s.centro._id === this.id_centro;
+        }
+        // Si 'centro' es un string (ObjectId)
+        return s.centro === this.id_centro;
+      });
       console.log('Servicios filtrados para centro', this.id_centro, ':', this.serviciosFiltrados);
     } else {
       this.serviciosFiltrados = [];
@@ -137,38 +139,48 @@ export class ProfesionalesCrear implements OnInit {
     }
 
     // Obtener el usuario seleccionado para extraer nombre y apellidos
-    const usuario = this.usuariosProfesionales.find(u => u.id_usuario === Number(this.id_usuario));
+    const usuario = this.usuariosProfesionales.find(u => u._id === this.id_usuario);
     if (!usuario) {
       this.alertService.error('Usuario no encontrado');
+      console.error('No se encontró usuario con _id:', this.id_usuario);
+      console.log('Usuarios disponibles:', this.usuariosProfesionales);
       return;
     }
 
     // Separar el nombre completo en nombre y apellidos
-    const nombreCompleto = usuario.nombre.split(' ');
-    const nombre = nombreCompleto[0];
-    const apellidos = nombreCompleto.slice(1).join(' ') || '';
+    const nombreCompleto = usuario.nombre.trim().split(' ');
+    const nombre = nombreCompleto[0] || 'Sin nombre';
+    const apellidos = nombreCompleto.slice(1).join(' ') || 'Sin apellidos';
 
     const nuevoProfesional = {
-      id_usuario: Number(this.id_usuario),
+      id_usuario: this.id_usuario,  // Enviar como id_usuario pero con valor de _id (string)
       nombre: nombre,
       apellidos: apellidos,
-      id_centro: Number(this.id_centro)
+      centro: this.id_centro  // Cambiar de id_centro a centro
     };
 
-    console.log('Creando profesional:', nuevoProfesional);
+    console.log('Datos del profesional a crear:');
+    console.log('- id_usuario:', nuevoProfesional.id_usuario);
+    console.log('- nombre:', nuevoProfesional.nombre);
+    console.log('- apellidos:', nuevoProfesional.apellidos);
+    console.log('- centro:', nuevoProfesional.centro);
+    console.log('Objeto completo:', nuevoProfesional);
 
     this.profesionalesService.crearProfesional(nuevoProfesional).subscribe({
       next: (response) => {
         console.log('Respuesta del servidor:', response);
-        const idProfesional = response.profesional.id_profesional;
+        const idProfesional = response.profesional._id; // Usar _id en lugar de id_profesional
 
         // Si hay servicios seleccionados, crear las relaciones
         if (this.id_servicios.length > 0) {
+          console.log('Servicios a asignar:', this.id_servicios);
           const observables = this.id_servicios.map(id_serv => {
-            return this.profesionalServicioService.crearRelacion({
-              id_profesional: idProfesional,
-              id_servicio: Number(id_serv)
-            });
+            const relacion = {
+              profesional: idProfesional,  // Cambiar de id_profesional a profesional
+              servicio: id_serv  // Cambiar de id_servicio a servicio
+            };
+            console.log('Creando relación profesional-servicio:', relacion);
+            return this.profesionalServicioService.crearRelacion(relacion);
           });
 
           forkJoin(observables).subscribe({

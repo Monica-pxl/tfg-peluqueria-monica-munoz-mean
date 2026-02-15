@@ -24,7 +24,7 @@ export class ServiciosEditar implements OnInit{
   centros: CentrosInterface[] = [];
   profesionales: ProfesionalesInterface[] = [];
   profesionalesFiltrados: ProfesionalesInterface[] = [];
-  id_profesionales: number[] = [];
+  id_profesionales: string[] = [];  // Cambiar a string[] para usar _id de MongoDB
 
   cargando = true;
   error = false;
@@ -81,7 +81,7 @@ export class ServiciosEditar implements OnInit{
             return r.servicio === this.servicio._id;
           });
 
-          // Extraer IDs de profesionales (como strings)
+          // Extraer IDs de profesionales (como strings para MongoDB)
           this.id_profesionales = relsFiltradas
             .map(r => {
               if (typeof r.profesional === 'object' && r.profesional !== null) {
@@ -89,8 +89,9 @@ export class ServiciosEditar implements OnInit{
               }
               return r.profesional as string;
             })
-            .filter((id): id is string => !!id)
-            .map(id => Number(id)); // Convertir a número temporalmente
+            .filter((id): id is string => !!id);
+
+          console.log('Profesionales del servicio:', this.id_profesionales);
 
           // Filtrar profesionales por el centro del servicio
           const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
@@ -133,17 +134,24 @@ export class ServiciosEditar implements OnInit{
       return;
     }
 
+    if (!this.servicio._id) {
+      this.alertService.error('Error: El servicio no tiene ID válido');
+      return;
+    }
+
     this.serviciosService.actualizarServicio(this.servicio).subscribe({
       next: () => {
-        // eliminar relaciones antiguas
-        this.profesionalServicioService.eliminarPorServicio(this.servicio.id_servicio).subscribe(() => {
+        // eliminar relaciones antiguas usando el _id
+        this.profesionalServicioService.eliminarPorServicio(this.servicio._id).subscribe(() => {
           // crear nuevas relaciones
-          this.id_profesionales.forEach(id_prof => {
-            this.profesionalServicioService.crearRelacion({
-              id_profesional: id_prof,
-              id_servicio: this.servicio.id_servicio
-            }).subscribe();
-          });
+          if (this.id_profesionales.length > 0) {
+            this.id_profesionales.forEach(id_prof => {
+              this.profesionalServicioService.crearRelacion({
+                profesional: id_prof,
+                servicio: this.servicio._id
+              }).subscribe();
+            });
+          }
           this.router.navigate(['/admin/servicios']);
         });
       },

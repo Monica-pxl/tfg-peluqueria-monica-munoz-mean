@@ -649,30 +649,48 @@ app.post('/api/profesionales', async (req, res) => {
   try {
     const { id_usuario, nombre, apellidos, centro } = req.body;
 
-    if (!id_usuario || !nombre || !apellidos || !centro) {
+    console.log('Datos recibidos para crear profesional:');
+    console.log('- id_usuario:', id_usuario);
+    console.log('- nombre:', nombre);
+    console.log('- apellidos:', apellidos);
+    console.log('- centro:', centro);
+
+    // Validar campos obligatorios (apellidos puede ser cadena vacía)
+    if (!id_usuario || !nombre || apellidos === undefined || apellidos === null || !centro) {
+      console.error('Validación fallida - Faltan datos requeridos');
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
     // Validar que el usuario existe y es profesional
     const usuario = await Usuario.findById(id_usuario);
-    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
-    if (usuario.rol !== 'profesional') return res.status(400).json({ error: "El usuario debe tener rol 'profesional'" });
+    if (!usuario) {
+      console.error('Usuario no encontrado:', id_usuario);
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    if (usuario.rol !== 'profesional') {
+      console.error('Usuario no es profesional:', usuario.rol);
+      return res.status(400).json({ error: "El usuario debe tener rol 'profesional'" });
+    }
 
     // Validar que no exista ya un profesional para ese usuario
     const profesionalExistente = await Profesional.findOne({ usuario: id_usuario });
-    if (profesionalExistente) return res.status(400).json({ error: "Ya existe un profesional asociado a este usuario" });
+    if (profesionalExistente) {
+      console.error('Ya existe profesional para este usuario');
+      return res.status(400).json({ error: "Ya existe un profesional asociado a este usuario" });
+    }
 
     // Crear el profesional
     const nuevoProfesional = await Profesional.create({
       usuario: id_usuario,
       nombre,
-      apellidos,
+      apellidos: apellidos || 'Sin apellidos',  // Valor por defecto si está vacío
       centro
     });
 
+    console.log('Profesional creado exitosamente:', nuevoProfesional);
     res.status(201).json({ mensaje: "Profesional creado exitosamente", profesional: nuevoProfesional });
   } catch (error) {
-    console.error(error);
+    console.error('Error al crear profesional:', error);
     res.status(500).json({ error: "Error al crear el profesional" });
   }
 });
@@ -771,7 +789,6 @@ app.put('/api/usuarios/:id', async (req, res) => {
 });
 
 
-
 // Eliminar usuario con validaciones - MongoDB
 app.delete('/api/usuarios/:id', async (req, res) => {
   try {
@@ -779,10 +796,17 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     const id_admin = req.query.id_admin;   // _id del admin que intenta eliminar (desde query param)
 
     console.log(`\n=== ELIMINANDO USUARIO _id: ${id} ===`);
+    console.log(`ID Admin: ${id_admin}`);
 
     // Validar que los IDs sean ObjectId válidos
-    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(id_admin)) {
-      return res.status(400).json({ error: "ID de usuario o admin no válido" });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error('❌ ID de usuario no válido:', id);
+      return res.status(400).json({ error: "ID de usuario no válido" });
+    }
+
+    if (!id_admin || !mongoose.Types.ObjectId.isValid(id_admin)) {
+      console.error('❌ ID de admin no válido:', id_admin);
+      return res.status(400).json({ error: "ID de admin no válido" });
     }
 
     // 1️⃣ Buscar usuario a eliminar
@@ -804,33 +828,74 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     // 3️⃣ Borrado en cascada si es profesional
     if (usuario.rol === 'profesional') {
       console.log('🔍 Es profesional, eliminando registros relacionados...');
+      console.log('🔍 Buscando profesional con usuario._id:', id);
 
-      // 3.1 Eliminar horarios
-      try {
-        const result = await Horario.deleteMany({ id_profesional: usuario._id });
-        console.log(`✓ Horarios eliminados: ${result.deletedCount}`);
-      } catch (e) {
-        console.error('Error eliminando horarios:', e.message);
-      }
+      // Buscar el profesional por el campo 'usuario' - Mongoose convierte automáticamente el string a ObjectId
+      const profesional = await Profesional.findOne({ usuario: id });
 
-      // 3.2 Eliminar relaciones profesional-servicio
-      try {
-        const result = await ProfesionalServicio.deleteMany({ id_profesional: usuario._id });
-        console.log(`✓ Relaciones con servicios eliminadas: ${result.deletedCount}`);
-      } catch (e) {
-        console.error('Error eliminando relaciones profesional-servicio:', e.message);
-      }
+      if (profesional) {
+        console.log(`✓ Profesional encontrado: ${profesional.nombre} ${profesional.apellidos} (_id: ${profesional._id})`);
 
-      // 3.3 Eliminar profesional
-      try {
-        const result = await Profesional.deleteOne({ id_usuario: usuario._id });
-        if (result.deletedCount) console.log('✓ Profesional eliminado de la colección profesional');
-      } catch (e) {
-        console.error('Error eliminando profesional:', e.message);
+        // 3.1.1 Eliminar horarios del profesional (usando el campo 'profesional' que es el _id del profesional)
+        try {
+          const result = await Horario.deleteMany({ profesional: profesional._id });
+          console.log(`✓ Horarios eliminados: ${result.deletedCount}`);
+        } catch (e) {
+          console.error('Error eliminando horarios:', e.message);
+        }
+
+        // 3.1.2 Eliminar relaciones profesional-servicio (usando el campo 'profesional')
+        try {
+          const result = await ProfesionalServicio.deleteMany({ profesional: profesional._id });
+          console.log(`✓ Relaciones con servicios eliminadas: ${result.deletedCount}`);
+        } catch (e) {
+          console.error('Error eliminando relaciones profesional-servicio:', e.message);
+        }
+
+        // 3.1.3 Eliminar citas del profesional (usando el campo 'profesional')
+        try {
+          const result = await Cita.deleteMany({ profesional: profesional._id });
+          console.log(`✓ Citas del profesional eliminadas: ${result.deletedCount}`);
+        } catch (e) {
+          console.error('Error eliminando citas:', e.message);
+        }
+
+        // 3.1.4 Eliminar el profesional
+        try {
+          const deleteResult = await Profesional.findByIdAndDelete(profesional._id);
+          if (deleteResult) {
+            console.log('✓ Profesional eliminado de la colección profesionales');
+          } else {
+            console.error('❌ No se pudo eliminar el profesional - findByIdAndDelete retornó null');
+          }
+        } catch (e) {
+          console.error('❌ ERROR CRÍTICO eliminando profesional:', e);
+          console.error('Stack:', e.stack);
+        }
+      } else {
+        console.error('⚠️⚠️⚠️ PROBLEMA: No se encontró profesional asociado a este usuario');
+        console.error('⚠️ Usuario a eliminar tiene rol "profesional" pero no existe en la colección Profesional');
+        console.error('⚠️ Esto indica que el usuario fue creado sin crear su registro de profesional');
       }
     }
 
-    // 4️⃣ Eliminar usuario
+    // 4️⃣ Eliminar notificaciones del usuario
+    try {
+      const result = await Notificacion.deleteMany({ usuario: id });
+      console.log(`✓ Notificaciones eliminadas: ${result.deletedCount}`);
+    } catch (e) {
+      console.error('Error eliminando notificaciones:', e.message);
+    }
+
+    // 5️⃣ Eliminar citas del usuario como cliente
+    try {
+      const result = await Cita.deleteMany({ usuario: id });
+      console.log(`✓ Citas como cliente eliminadas: ${result.deletedCount}`);
+    } catch (e) {
+      console.error('Error eliminando citas como cliente:', e.message);
+    }
+
+    // 6️⃣ Eliminar usuario
     await Usuario.findByIdAndDelete(id);
     console.log(`✓ Usuario eliminado: ${usuario.nombre}`);
     console.log('=== ELIMINACIÓN COMPLETADA ===\n');

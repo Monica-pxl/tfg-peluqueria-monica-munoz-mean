@@ -42,26 +42,26 @@ export class NotificacionesService {
     console.log('=== getNotificaciones llamada ===');
     const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
     console.log('Total de notificaciones en localStorage:', todas.length);
-    
+
     // Debug: mostrar todas las notificaciones con sus tipos
     todas.forEach((n, i) => {
       console.log(`Notificación ${i}: idUsuario = ${n.idUsuario} (tipo: ${typeof n.idUsuario})`);
     });
-    
+
     const usuario = this.usuariosService.getUsuarioLogueado();
     console.log('Usuario logueado:', usuario);
-    console.log('Usuario logueado id_usuario:', usuario?.id_usuario, '(tipo:', typeof usuario?.id_usuario, ')');
+    console.log('Usuario logueado _id:', usuario?._id, '(tipo:', typeof usuario?._id, ')');
 
     if (!usuario) {
       console.log('No hay usuario logueado');
       return [];
     }
 
-    // IMPORTANTE: Convertir ambos a Number para evitar problemas de tipo
-    const notificacionesUsuario = todas.filter((n: any) => Number(n.idUsuario) === Number(usuario.id_usuario));
-    console.log('Notificaciones del usuario (id ' + usuario.id_usuario + '):', notificacionesUsuario.length);
+    // Filtrar notificaciones por el _id del usuario
+    const notificacionesUsuario = todas.filter((n: any) => n.idUsuario === usuario._id);
+    console.log('Notificaciones del usuario (id ' + usuario._id + '):', notificacionesUsuario.length);
     console.log('Notificaciones filtradas:', notificacionesUsuario);
-    
+
     // Ordenar de más reciente a más antigua (invertir el orden)
     return notificacionesUsuario.reverse();
   }
@@ -72,7 +72,7 @@ export class NotificacionesService {
     if (!usuario) return;
 
     const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    const restantes = todas.filter((n: any) => Number(n.idUsuario) !== Number(usuario.id_usuario));
+    const restantes = todas.filter((n: any) => n.idUsuario !== usuario._id);
 
     localStorage.setItem(this.storageKey, JSON.stringify(restantes));
   }
@@ -82,7 +82,7 @@ export class NotificacionesService {
     if (!usuario) return;
 
     const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    const deOtros = todas.filter((n: any) => Number(n.idUsuario) !== Number(usuario.id_usuario));
+    const deOtros = todas.filter((n: any) => n.idUsuario !== usuario._id);
     const actualizadas = [...deOtros, ...notificaciones];
 
     localStorage.setItem(this.storageKey, JSON.stringify(actualizadas));
@@ -100,7 +100,7 @@ export class NotificacionesService {
     const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
     let modificado = false;
     for (const n of todas) {
-      if (Number(n.idUsuario) === Number(usuario.id_usuario) && !n.leida) {
+      if (n.idUsuario === usuario._id && !n.leida) {
         n.leida = true;
         modificado = true;
       }

@@ -45,21 +45,36 @@ export class MisCitasComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtener el id del usuario del localStorage
-    const usuario = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
-    this.idUsuario = Number(usuario.id_usuario) || 0;
+    // Obtener el usuario logueado
+    const usuarioLogueado = this.usuariosService.getUsuarioLogueado();
 
-    // Primero obtener el id_profesional a partir del id_usuario
+    if (!usuarioLogueado || !usuarioLogueado._id) {
+      this.alertService.error('No se pudo obtener la información del usuario');
+      return;
+    }
+
+    // Primero obtener el id_profesional a partir del _id del usuario
     this.profesionalesService.getAllProfesionales().subscribe({
       next: profesionales => {
-        console.log('Buscando profesional para id_usuario:', this.idUsuario);
+        console.log('Buscando profesional para usuario:', usuarioLogueado);
         console.log('Profesionales disponibles:', profesionales);
-        const profesional = profesionales.find(p => p.id_usuario === this.idUsuario);
+
+        // Buscar profesional por el campo 'usuario' que debe coincidir con el _id del usuario logueado
+        const profesional = profesionales.find(p => {
+          // Si 'usuario' es un objeto poblado, comparar con usuario._id
+          if (typeof p.usuario === 'object' && p.usuario !== null) {
+            return p.usuario._id === usuarioLogueado._id;
+          }
+          // Si 'usuario' es un string (ObjectId), compararlo directamente
+          return p.usuario === usuarioLogueado._id;
+        });
+
         if (profesional) {
           this.idProfesional = profesional._id; // Usar _id en lugar de id_profesional
           console.log('Profesional encontrado:', profesional);
           this.cargarDatos();
         } else {
+          console.error('No se encontró profesional asociado a este usuario');
           this.alertService.error('No se encontró el profesional asociado a tu usuario');
         }
       },

@@ -47,7 +47,7 @@ export class MisCitasComponent implements OnInit{
       // Actualizar datos del usuario desde el backend para reflejar los puntos actualizados
       this.usuariosService.getAllUsuarios().subscribe({
         next: usuarios => {
-          const usuarioActualizado = usuarios.find(u => u.id_usuario === this.usuarioLogueado?.id_usuario);
+          const usuarioActualizado = usuarios.find(u => u._id === this.usuarioLogueado?._id);
           if (usuarioActualizado) {
             this.usuariosService.setUsuarioLogueado(usuarioActualizado);
           }
@@ -118,9 +118,9 @@ export class MisCitasComponent implements OnInit{
     }).subscribe({
       next: () => {
         // Crear notificación para el cliente
-        if (this.usuarioLogueado?.id_usuario) {
+        if (this.usuarioLogueado?._id) {
           this.notificacionesService.crearNotificacion({
-            idUsuario: Number(this.usuarioLogueado.id_usuario),
+            idUsuario: this.usuarioLogueado._id,
             mensaje: `Has cancelado tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
             fecha: new Date().toISOString()
           });
@@ -130,9 +130,9 @@ export class MisCitasComponent implements OnInit{
         this.usuariosService.getAllUsuarios().subscribe({
           next: usuarios => {
             usuarios.forEach(u => {
-              if (u.rol === 'administrador' && u.id_usuario) {
+              if (u.rol === 'administrador' && u._id) {
                 this.notificacionesService.crearNotificacion({
-                  idUsuario: Number(u.id_usuario),
+                  idUsuario: u._id,
                   mensaje: `<strong class="notif-user">${this.usuarioLogueado?.nombre}</strong> (${this.usuarioLogueado?.email}) ha cancelado su cita de <strong class="notif-entity">${cita.servicio}</strong> con <strong class="notif-entity">${cita.profesional}</strong> el ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
                   fecha: new Date().toISOString()
                 });

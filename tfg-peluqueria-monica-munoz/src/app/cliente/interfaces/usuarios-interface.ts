@@ -9,6 +9,4 @@ export interface UsuariosInterface {
   estado?: 'activo' | 'inactivo';
   fecha_alta?: string;
   puntos?: number;
-  // Compatibilidad temporal con código admin
-  id_usuario?: number;
 }

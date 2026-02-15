@@ -52,9 +52,9 @@
         <label class="form-label">
           <i class="bi bi-geo-alt-fill me-2"></i>Centro Asignado
         </label>
-        <select class="form-select form-control-custom" [(ngModel)]="profesional.id_centro" name="id_centro" required>
+        <select class="form-select form-control-custom" [(ngModel)]="profesional.centro" name="centro" required>
           <option value="" disabled>Selecciona un centro</option>
-          <option [ngValue]="c.id_centro" *ngFor="let c of centros">{{ c.nombre }}</option>
+          <option [ngValue]="c._id" *ngFor="let c of centros">{{ c.nombre }}</option>
         </select>
       </div>
 
@@ -68,7 +68,7 @@
           name="id_servicios"
           multiple
           size="5">
-          <option *ngFor="let s of serviciosFiltrados" [value]="s.id_servicio">
+          <option *ngFor="let s of serviciosFiltrados" [value]="s._id">
             {{ s.nombre }}
           </option>
         </select>

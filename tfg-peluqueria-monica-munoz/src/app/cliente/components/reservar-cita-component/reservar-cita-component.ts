@@ -272,7 +272,7 @@ export class ReservarCitaComponent implements OnInit {
     const inicio = new Date(fechaISO); inicio.setHours(hiH, hiM, 0, 0);
     const fin = new Date(fechaISO); fin.setHours(hfH, hfM, 0, 0);
 
-    const intervalo = 10;
+    const intervalo = 30;
     const cursor = new Date(inicio);
 
     while (cursor.getTime() + duracionServicio * 60000 <= fin.getTime()) {
@@ -411,7 +411,7 @@ export class ReservarCitaComponent implements OnInit {
     const fin = new Date(fechaISO); fin.setHours(hfH, hfM, 0, 0);
 
     const duracionServicio = 30;
-    const intervalo = 10;
+    const intervalo = 30;
     const cursor = new Date(inicio);
 
     const ahora = new Date();

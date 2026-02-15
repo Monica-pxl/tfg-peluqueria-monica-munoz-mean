@@ -132,27 +132,8 @@ export class ServiciosAdminComponent implements OnInit {
   }
 
   editarServicio(servicio: ServiciosInterface): void {
-    const nombre = prompt('Nombre del servicio', servicio.nombre);
-    const descripcion = prompt('Descripción', servicio.descripcion);
-    const duracion = Number(prompt('Duración en minutos', servicio.duracion.toString()));
-    const precio = Number(prompt('Precio', servicio.precio.toString()));
-    const id_centro = Number(prompt('ID del centro', (servicio.id_centro || 0).toString()));
-    const imagen = prompt('URL de imagen', servicio.imagen);
-
-    if (!nombre || !descripcion || !duracion || !precio || !id_centro) return;
-
-    const actualizado: ServiciosInterface = {
-      ...servicio,
-      nombre,
-      descripcion,
-      duracion,
-      precio,
-      id_centro,
-      imagen: imagen || ''
-    };
-
-    this.serviciosService.actualizarServicio(actualizado)
-      .subscribe(() => this.cargarDatos());
+    // Navegar a la página de edición en lugar de usar prompts
+    this.router.navigate(['/admin/servicios/editar', servicio._id]);
   }
 
   async borrarServicio(servicio: ServiciosInterface): Promise<void> {
@@ -165,7 +146,7 @@ export class ServiciosAdminComponent implements OnInit {
 
     if (!confirmed) return;
 
-    const idServicio = servicio.id_servicio || servicio._id;
+    const idServicio = servicio._id;
     if (!idServicio) {
       this.alertService.error('Error: El servicio no tiene ID válido');
       return;

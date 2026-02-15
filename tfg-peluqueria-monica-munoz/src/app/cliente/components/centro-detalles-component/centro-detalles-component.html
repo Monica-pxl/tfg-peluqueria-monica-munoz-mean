@@ -115,7 +115,7 @@
                       <p class="text-muted small">Sin horarios asignados</p>
                     } @else {
                       <div class="horarios-list">
-                        @for(horario of item.horarios; track horario.id_horario) {
+                        @for(horario of item.horarios; track horario._id) {
                           <div class="horario-item">
                             <div class="horario-dias">
                               @for(dia of horario.dias; track $index) {

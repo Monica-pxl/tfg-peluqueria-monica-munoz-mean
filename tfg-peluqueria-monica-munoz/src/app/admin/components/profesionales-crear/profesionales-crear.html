@@ -44,9 +44,9 @@
             name="id_usuario"
             class="form-select form-control-custom"
             required>
-            <option value="0" disabled selected>Selecciona un usuario...</option>
-            @for(usuario of usuariosProfesionales; track usuario.id_usuario) {
-              <option [value]="usuario.id_usuario">{{ usuario.nombre }} ({{ usuario.email }})</option>
+            <option value="" disabled selected>Selecciona un usuario...</option>
+            @for(usuario of usuariosProfesionales; track usuario._id) {
+              <option [value]="usuario._id">{{ usuario.nombre }} ({{ usuario.email }})</option>
             }
           </select>
           <small class="text-muted d-block mt-2">
@@ -65,9 +65,9 @@
             class="form-select form-control-custom"
             (change)="onCentroChange()"
             required>
-            <option value="0" disabled selected>Selecciona un centro...</option>
-            @for(centro of centros; track centro.id_centro) {
-              <option [value]="centro.id_centro">{{ centro.nombre }} - {{ centro.direccion }}</option>
+            <option value="" disabled selected>Selecciona un centro...</option>
+            @for(centro of centros; track centro._id) {
+              <option [value]="centro._id">{{ centro.nombre }} - {{ centro.direccion }}</option>
             }
           </select>
         </div>
@@ -93,8 +93,8 @@
               class="form-select form-control-custom multi-select"
               multiple
               size="6">
-              @for(servicio of serviciosFiltrados; track servicio.id_servicio) {
-                <option [value]="servicio.id_servicio">{{ servicio.nombre }}</option>
+              @for(servicio of serviciosFiltrados; track servicio._id) {
+                <option [value]="servicio._id">{{ servicio.nombre }}</option>
               }
             </select>
             <small class="text-muted d-block mt-2">

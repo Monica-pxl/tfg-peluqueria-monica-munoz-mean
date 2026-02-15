@@ -22,7 +22,7 @@
 
     @if(!cargando && horariosDelProfesional.length > 0) {
       <div class="horarios-container">
-        @for(horario of horariosDelProfesional; track horario.id_horario) {
+        @for(horario of horariosDelProfesional; track horario._id) {
           <div class="horario-wrapper">
             <div class="horario-card">
               <div class="horario-header">
@@ -31,7 +31,7 @@
                 </div>
                 <h5 class="horario-title">Horario de Trabajo</h5>
               </div>
-              
+
               <div class="horario-body">
                 <div class="horario-detail">
                   <div class="detail-label">
