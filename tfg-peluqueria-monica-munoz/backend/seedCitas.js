@@ -1,92 +1,26 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Cita = require('./models/cita');
-const Usuario = require('./models/usuario');
-const Profesional = require('./models/profesional');
-const Servicio = require('./models/servicio');
-const Centro = require('./models/centro');
 
-const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
+if (!uri) throw new Error('❌ Falta MONGO_URI en .env');
 
 mongoose.connect(uri)
   .then(async () => {
     console.log("✅ Conectado a MongoDB Atlas");
 
-    // Obtener datos de las colecciones
-    const usuarios = await Usuario.find({ rol: 'cliente' }).limit(3);
-    const profesionales = await Profesional.find().limit(3);
-    const servicios = await Servicio.find().limit(5);
-    const centros = await Centro.find().limit(2);
-
-    if (usuarios.length === 0 || profesionales.length === 0 || servicios.length === 0 || centros.length === 0) {
-      console.error("❌ Asegúrate de tener datos en usuarios, profesionales, servicios y centros antes de ejecutar este seed");
-      mongoose.disconnect();
-      return;
-    }
-
-    // Limpiar colección
     await Cita.deleteMany({});
-    console.log("🗑️ Citas antiguas eliminadas");
+    console.log("🧹 Colección citas limpiada");
 
-    // Crear citas de ejemplo
-    const citasEjemplo = [
-      {
-        usuario: usuarios[0]._id,
-        profesional: profesionales[0]._id,
-        servicio: servicios[0]._id,
-        centro: centros[0]._id,
-        fecha: '2026-02-15',
-        hora: '10:00',
-        estado: 'pendiente',
-        precio: servicios[0].precio
-      },
-      {
-        usuario: usuarios[0]._id,
-        profesional: profesionales[1]._id,
-        servicio: servicios[1]._id,
-        centro: centros[0]._id,
-        fecha: '2026-02-20',
-        hora: '11:30',
-        estado: 'confirmada',
-        precio: servicios[1].precio
-      },
-      {
-        usuario: usuarios[1]._id,
-        profesional: profesionales[0]._id,
-        servicio: servicios[2]._id,
-        centro: centros[1]._id,
-        fecha: '2026-02-18',
-        hora: '15:00',
-        estado: 'realizada',
-        precio: servicios[2].precio
-      },
-      {
-        usuario: usuarios[2]._id,
-        profesional: profesionales[2]._id,
-        servicio: servicios[3]._id,
-        centro: centros[0]._id,
-        fecha: '2026-02-12',
-        hora: '09:30',
-        estado: 'cancelada',
-        precio: servicios[3].precio
-      },
-      {
-        usuario: usuarios[1]._id,
-        profesional: profesionales[1]._id,
-        servicio: servicios[4]._id,
-        centro: centros[1]._id,
-        fecha: '2026-02-25',
-        hora: '16:00',
-        estado: 'pendiente',
-        precio: servicios[4].precio
-      }
-    ];
+    // Por ahora no hay citas iniciales, solo limpiamos la colección
+    // Las citas se crearán cuando los clientes reserven
 
-    await Cita.insertMany(citasEjemplo);
-    console.log(`📦 ${citasEjemplo.length} Citas insertadas en MongoDB Atlas`);
-
+    console.log("📦 Colección citas lista (sin datos iniciales)");
     mongoose.disconnect();
   })
   .catch(err => {
     console.error("❌ Error:", err);
     mongoose.disconnect();
   });
+
+

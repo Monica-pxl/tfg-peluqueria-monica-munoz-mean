@@ -1,56 +1,58 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
+const Profesional = require('./models/profesional');
 const fs = require('fs');
 const path = require('path');
-const Profesional = require('./models/profesional');
-const Usuario = require('./models/usuario');
-const Centro = require('./models/centro');
 
-const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
+if (!uri) throw new Error('❌ Falta MONGO_URI en .env');
+
+// Leer datos originales
+const profesionalesOriginales = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'data_originales/profesionalesOriginal.json'), 'utf8')
+);
+
+// Cargar mapeos
+const usuarioMap = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'mapeo_usuarios.json'), 'utf8')
+);
+const centroMap = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'mapeo_centros.json'), 'utf8')
+);
 
 mongoose.connect(uri)
   .then(async () => {
     console.log("✅ Conectado a MongoDB Atlas");
 
-    // Leer datos del JSON
-    const profesionalesData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'profesionales.json'), 'utf8'));
-
-    // Obtener usuarios profesionales de MongoDB ordenados por createdAt
-    const usuarios = await Usuario.find({ rol: 'profesional' }).sort({ createdAt: 1 });
-    const centros = await Centro.find({}).sort({ createdAt: 1 });
-
-    if (usuarios.length === 0) {
-      console.error("❌ No hay usuarios profesionales en la base de datos. Ejecuta seedUsuarios.js primero.");
-      mongoose.disconnect();
-      return;
-    }
-
-    if (centros.length === 0) {
-      console.error("❌ No hay centros en la base de datos. Ejecuta seedCentros.js primero.");
-      mongoose.disconnect();
-      return;
-    }
-
-    // Limpiar colección
     await Profesional.deleteMany({});
+    console.log("🧹 Colección profesionales limpiada");
 
-    // Preparar profesionales mapeando usuarios y centros
-    const profesionalesPreparados = profesionalesData.map((profesional, index) => {
-      // Asignar usuario de forma secuencial
-      const usuarioIndex = index % usuarios.length;
-      // Asignar centro de forma cíclica
-      const centroIndex = index % centros.length;
+    // Ordenar por id_profesional para mantener el orden original
+    profesionalesOriginales.sort((a, b) => a.id_profesional - b.id_profesional);
 
-      return {
-        nombre: profesional.nombre,
-        apellidos: profesional.apellidos,
-        usuario: usuarios[usuarioIndex]._id,
-        centro: centros[centroIndex]._id
-      };
-    });
+    // Mapeo de id_profesional original → _id de MongoDB
+    const profesionalMap = {};
 
-    await Profesional.insertMany(profesionalesPreparados);
+    for (const p of profesionalesOriginales) {
+      const profesional = await Profesional.create({
+        nombre: p.nombre,
+        apellidos: p.apellidos,
+        usuario: usuarioMap[p.id_usuario],
+        centro: centroMap[p.id_centro]
+      });
 
-    console.log(`📦 ${profesionalesPreparados.length} Profesionales insertados en MongoDB Atlas`);
+      profesionalMap[p.id_profesional] = profesional._id.toString();
+    }
+
+    // Guardar mapeo para otros seeds
+    fs.writeFileSync(
+      path.join(__dirname, 'mapeo_profesionales.json'),
+      JSON.stringify(profesionalMap, null, 2)
+    );
+
+    console.log(`📦 ${profesionalesOriginales.length} Profesionales insertados en MongoDB Atlas`);
+    console.log("💾 Mapeo guardado en mapeo_profesionales.json");
+
     mongoose.disconnect();
   })
   .catch(err => {

@@ -1,10 +1,24 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const ProfesionalServicio = require('./models/profesionalServicio');
-const Profesional = require('./models/profesional');
-const Servicio = require('./models/servicio');
-const relaciones = require('./data/serviciosyprofesionales.json');
+const fs = require('fs');
+const path = require('path');
 
-const uri= "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
+if (!uri) throw new Error('❌ Falta MONGO_URI en .env');
+
+// Leer datos originales
+const relacionesOriginales = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'data_originales/serviciosyprofesionalesOriginal.json'), 'utf8')
+);
+
+// Cargar mapeos
+const profesionalMap = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'mapeo_profesionales.json'), 'utf8')
+);
+const servicioMap = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'mapeo_servicios.json'), 'utf8')
+);
 
 mongoose.connect(uri)
   .then(async () => {
@@ -13,25 +27,26 @@ mongoose.connect(uri)
     await ProfesionalServicio.deleteMany({});
     console.log("🧹 Colección profesionalservicios limpiada");
 
-    const profesionales = await Profesional.find({}).sort({ createdAt: 1 });
-    const servicios = await Servicio.find({}).sort({ createdAt: 1 });
+    let insertados = 0;
 
-    for (const rel of relaciones) {
-      const profesional = profesionales[rel.id_profesional - 1];
-      const servicio = servicios[rel.id_servicio - 1];
+    for (const rel of relacionesOriginales) {
+      const profesionalId = profesionalMap[rel.id_profesional];
+      const servicioId = servicioMap[rel.id_servicio];
 
-      if (!profesional || !servicio) {
+      if (!profesionalId || !servicioId) {
         console.warn(`⚠️ Relación omitida: profesional ${rel.id_profesional}, servicio ${rel.id_servicio}`);
         continue;
       }
 
       await ProfesionalServicio.create({
-        profesional: profesional._id,
-        servicio: servicio._id
+        profesional: profesionalId,
+        servicio: servicioId
       });
+
+      insertados++;
     }
 
-    console.log("🎉 Seed profesional_servicio ejecutado correctamente");
+    console.log(`📦 ${insertados} relaciones profesional-servicio insertadas`);
     mongoose.disconnect();
   })
   .catch(err => {

@@ -1,48 +1,57 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
+const Servicio = require('./models/servicio');
 const fs = require('fs');
 const path = require('path');
-const Servicio = require('./models/servicio');
-const Centro = require('./models/centro');
 
-const uri = "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const uri = process.env.MONGO_URI;
+if (!uri) throw new Error('❌ Falta MONGO_URI en .env');
+
+// Leer datos originales
+const serviciosOriginales = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'data_originales/serviciosOriginal.json'), 'utf8')
+);
+
+// Cargar mapeo de centros
+const centroMap = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'mapeo_centros.json'), 'utf8')
+);
 
 mongoose.connect(uri)
   .then(async () => {
     console.log("✅ Conectado a MongoDB Atlas");
 
-    // Leer datos del JSON
-    const serviciosData = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'servicios.json'), 'utf8'));
+    await Servicio.deleteMany({});
+    console.log("🧹 Colección servicios limpiada");
 
-    // Obtener todos los centros de MongoDB ordenados por su orden de creación
-    const centros = await Centro.find({}).sort({ createdAt: 1 });
+    // Ordenar por id_servicio para mantener el orden original
+    serviciosOriginales.sort((a, b) => a.id_servicio - b.id_servicio);
 
-    if (centros.length === 0) {
-      console.error("❌ No hay centros en la base de datos. Ejecuta seedCentros.js primero.");
-      mongoose.disconnect();
-      return;
+    // Mapeo de id_servicio original → _id de MongoDB
+    const servicioMap = {};
+
+    for (const s of serviciosOriginales) {
+      const servicio = await Servicio.create({
+        nombre: s.nombre,
+        descripcion: s.descripcion,
+        duracion: s.duracion,
+        precio: s.precio,
+        centro: centroMap[s.id_centro],
+        imagen: s.imagen
+      });
+
+      servicioMap[s.id_servicio] = servicio._id.toString();
     }
 
-    // Limpiar colección
-    await Servicio.deleteMany({});
+    // Guardar mapeo para otros seeds
+    fs.writeFileSync(
+      path.join(__dirname, 'mapeo_servicios.json'),
+      JSON.stringify(servicioMap, null, 2)
+    );
 
-    // Preparar servicios mapeando cada servicio a un centro de forma cíclica
-    const serviciosPreparados = serviciosData.map((servicio, index) => {
-      // Asignar centros de forma cíclica (1->centro[0], 2->centro[1], ..., 13->centro[0], etc.)
-      const centroIndex = index % centros.length;
+    console.log(`📦 ${serviciosOriginales.length} Servicios insertados en MongoDB Atlas`);
+    console.log("💾 Mapeo guardado en mapeo_servicios.json");
 
-      return {
-        nombre: servicio.nombre,
-        descripcion: servicio.descripcion,
-        duracion: servicio.duracion,
-        precio: servicio.precio,
-        imagen: servicio.imagen,
-        centro: centros[centroIndex]._id // Referencia al _id del centro
-      };
-    });
-
-    await Servicio.insertMany(serviciosPreparados);
-
-    console.log(`📦 ${serviciosPreparados.length} Servicios insertados en MongoDB Atlas`);
     mongoose.disconnect();
   })
   .catch(err => {
