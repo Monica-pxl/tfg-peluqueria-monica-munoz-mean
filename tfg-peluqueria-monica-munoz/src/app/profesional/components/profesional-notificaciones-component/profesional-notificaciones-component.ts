@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificacionesService } from '../../../cliente/services/notificaciones-service';
+import { NotificacionesService, NotificacionInterface } from '../../../cliente/services/notificaciones-service';
 
 @Component({
   selector: 'app-profesional-notificaciones-component',
@@ -11,38 +11,60 @@ import { NotificacionesService } from '../../../cliente/services/notificaciones-
 })
 export class ProfesionalNotificacionesComponent {
 
-  notificaciones: any[] = [];
+  notificaciones: NotificacionInterface[] = [];
 
   constructor(private notificacionesService: NotificacionesService) {}
 
   ngOnInit(): void {
-    console.log('=== PROFESIONAL NOTIFICACIONES COMPONENT ngOnInit ===');
-    const todasNotifs = localStorage.getItem('notificaciones');
-    console.log('LocalStorage notificaciones RAW:', todasNotifs);
-    if (todasNotifs) {
-      const parsed = JSON.parse(todasNotifs);
-      console.log('Notificaciones parseadas:', parsed);
-      console.log('Total notificaciones en localStorage:', parsed.length);
-      parsed.forEach((n: any, index: number) => {
-        console.log(`Notificación ${index}:`, n);
-      });
-    }
-    this.notificacionesService.marcarNotificacionesComoLeidas();
-    this.cargarNotificaciones();
+    // Marcar como leídas al entrar a la página
+    this.notificacionesService.marcarTodasComoLeidas().subscribe({
+      next: () => {
+        console.log('✅ Notificaciones marcadas como leídas');
+        this.cargarNotificaciones();
+      },
+      error: (err) => {
+        console.error('Error al marcar como leídas:', err);
+        this.cargarNotificaciones();
+      }
+    });
   }
 
   cargarNotificaciones() {
-    this.notificaciones = this.notificacionesService.getNotificaciones();
-    console.log('Notificaciones cargadas en el componente:', this.notificaciones);
+    this.notificacionesService.getNotificacionesObservable().subscribe({
+      next: (notificaciones) => {
+        this.notificaciones = notificaciones;
+        console.log('✅ Notificaciones cargadas:', this.notificaciones.length);
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar notificaciones:', err);
+        this.notificaciones = [];
+      }
+    });
   }
 
   limpiar() {
-    this.notificacionesService.limpiarNotificaciones();
-    this.cargarNotificaciones();
+    this.notificacionesService.limpiarNotificaciones().subscribe({
+      next: () => {
+        console.log('✅ Notificaciones limpiadas');
+        this.cargarNotificaciones();
+      },
+      error: (err) => {
+        console.error('❌ Error al limpiar notificaciones:', err);
+      }
+    });
   }
 
-  borrarNotificacion(index: number) {
-    this.notificaciones.splice(index, 1);
-    this.notificacionesService.actualizarNotificaciones(this.notificaciones);
+  borrarNotificacion(notificacion: NotificacionInterface) {
+    if (!notificacion._id) return;
+
+    this.notificacionesService.eliminarNotificacion(notificacion._id).subscribe({
+      next: () => {
+        console.log('✅ Notificación eliminada');
+        this.cargarNotificaciones();
+      },
+      error: (err) => {
+        console.error('❌ Error al borrar notificación:', err);
+      }
+    });
   }
 }

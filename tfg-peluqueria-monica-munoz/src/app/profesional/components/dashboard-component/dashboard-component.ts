@@ -144,9 +144,23 @@ export class DashboardComponent implements OnInit {
             if (cliente) nombreCliente = cliente.nombre;
           }
 
+          // Obtener el nombre del servicio
+          let nombreServicio = 'Servicio';
+          if (typeof cita.servicio === 'object' && cita.servicio !== null) {
+            nombreServicio = cita.servicio.nombre;
+          }
+
+          // Obtener el nombre del centro
+          let nombreCentro = 'Centro';
+          if (typeof cita.centro === 'object' && cita.centro !== null) {
+            nombreCentro = cita.centro.nombre;
+          }
+
           this.proximaCita = {
             ...cita,
-            nombreCliente: nombreCliente
+            nombreCliente: nombreCliente,
+            servicio: nombreServicio,
+            centro: nombreCentro
           };
         } else {
           this.proximaCita = null;

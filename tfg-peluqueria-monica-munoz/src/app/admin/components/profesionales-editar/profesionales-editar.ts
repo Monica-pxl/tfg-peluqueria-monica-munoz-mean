@@ -29,6 +29,7 @@ export class ProfesionalesEditar implements OnInit {
   servicios: ServiciosInterface[] = [];
   serviciosFiltrados: ServiciosInterface[] = [];
   id_servicios: string[] = [];  // Cambiar a string[] para usar _id de MongoDB
+  centroSeleccionado: string = '';  // Variable para el centro seleccionado
 
   cargando = true;
   error = false;
@@ -79,13 +80,11 @@ export class ProfesionalesEditar implements OnInit {
           ? this.profesional.centro._id
           : this.profesional.centro;
 
+        // Asignar el centro seleccionado para el select
+        this.centroSeleccionado = centroId || '';
+
         // Filtrar servicios solo del centro del profesional
-        this.serviciosFiltrados = servicios.filter(s => {
-          const sCentroId = typeof s.centro === 'object' && s.centro !== null
-            ? s.centro._id
-            : s.centro;
-          return sCentroId === centroId;
-        });
+        this.actualizarServiciosFiltrados();
 
         // Filtrar relaciones para este profesional
         const relsFiltradas = relaciones.filter(r => {
@@ -124,13 +123,11 @@ export class ProfesionalesEditar implements OnInit {
       return;
     }
 
-    // Preparar datos para actualizar (solo campos editables)
+    // Preparar datos para actualizar (solo campos editables) usando centroSeleccionado
     const datosActualizar = {
       nombre: this.profesional.nombre,
       apellidos: this.profesional.apellidos,
-      centro: typeof this.profesional.centro === 'object' && this.profesional.centro !== null
-        ? this.profesional.centro._id
-        : this.profesional.centro
+      centro: this.centroSeleccionado
     };
 
     console.log('Actualizando profesional con datos:', datosActualizar);
@@ -187,6 +184,27 @@ export class ProfesionalesEditar implements OnInit {
     });
   }
 
+  onCentroChange(): void {
+    console.log('Centro cambiado a:', this.centroSeleccionado);
+
+    // Limpiar servicios seleccionados al cambiar de centro
+    this.id_servicios = [];
+
+    // Actualizar servicios filtrados para el nuevo centro
+    this.actualizarServiciosFiltrados();
+  }
+
+  actualizarServiciosFiltrados(): void {
+    // Filtrar servicios por el centro seleccionado
+    this.serviciosFiltrados = this.servicios.filter(s => {
+      const sCentroId = typeof s.centro === 'object' && s.centro !== null
+        ? s.centro._id
+        : s.centro;
+      return sCentroId === this.centroSeleccionado;
+    });
+
+    console.log('Servicios filtrados para centro', this.centroSeleccionado, ':', this.serviciosFiltrados.length);
+  }
 
   cancelar(): void {
     this.router.navigate(['/admin/profesionales']);

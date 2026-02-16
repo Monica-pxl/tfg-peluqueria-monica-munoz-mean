@@ -195,10 +195,12 @@ export class HorariosCrear implements OnInit {
               : cita.usuario;
 
             this.notificacionesService.crearNotificacion({
-              idUsuario: usuarioId,
-              mensaje: `Tu cita con <strong class="notif-entity">${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong class="notif-status">cancelada</strong> porque ese día se marcó como festivo.`,
-              fecha: new Date().toISOString()
-            });
+              usuario: usuarioId,
+              rolDestino: 'cliente',
+              titulo: 'Cita cancelada por festivo',
+              mensaje: `Tu cita con <strong>${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong>cancelada</strong> porque ese día se marcó como festivo.`,
+              tipo: 'advertencia'
+            }).subscribe();
           });
 
           this.alertService.warning(
@@ -289,20 +291,7 @@ export class HorariosCrear implements OnInit {
     this.horariosService.createHorario(nuevoHorario).subscribe({
       next: () => {
         this.alertService.success('Horario creado exitosamente');
-
-        // Crear notificación para el profesional
-        const usuarioId = typeof profesional.usuario === 'object' && profesional.usuario !== null
-          ? profesional.usuario._id
-          : profesional.usuario;
-
-        if (usuarioId) {
-          this.notificacionesService.crearNotificacion({
-            idUsuario: usuarioId,
-            titulo: 'Nuevo horario asignado',
-            mensaje: 'El administrador ha añadido un nuevo horario a tu agenda.'
-          });
-        }
-
+        // Las notificaciones se crean automáticamente en el backend
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
       error: (err) => {

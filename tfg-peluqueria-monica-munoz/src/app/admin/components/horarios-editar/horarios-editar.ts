@@ -186,10 +186,12 @@ export class HorariosEditar implements OnInit {
               : cita.usuario;
 
             this.notificacionesService.crearNotificacion({
-              idUsuario: usuarioId,
-              mensaje: `Tu cita con <strong class="notif-entity">${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong class="notif-status">cancelada</strong> porque ese día se marcó como festivo.`,
-              fecha: new Date().toISOString()
-            });
+              usuario: usuarioId,
+              rolDestino: 'cliente',
+              titulo: 'Cita cancelada por festivo',
+              mensaje: `Tu cita con <strong>${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong>cancelada</strong> porque ese día se marcó como festivo.`,
+              tipo: 'advertencia'
+            }).subscribe();
           });
 
           this.alertService.warning(
@@ -303,9 +305,7 @@ export class HorariosEditar implements OnInit {
       return;
     }
 
-    // Comparar con el horario original
-    const fechasFestivasAntes = this.horarioOriginal.fechas_festivas?.length || 0;
-    const fechasFestivasDespues = this.horario.fechas_festivas?.length || 0;
+    // Las notificaciones se crean automáticamente en el backend
 
     const id = this.horario._id;
     if (!id) {
@@ -315,38 +315,11 @@ export class HorariosEditar implements OnInit {
 
     this.horariosService.updateHorario(id, this.horario).subscribe({
       next: () => {
+        // Las notificaciones se crean automáticamente en el backend
         this.alertService.success('Horario actualizado exitosamente');
-
-        // Crear notificación para el profesional
-        const horarioProfesionalId = typeof this.horario.profesional === 'object' && this.horario.profesional !== null
-          ? this.horario.profesional._id
-          : this.horario.profesional;
-
-        const profesional = this.profesionales.find(p => p._id === horarioProfesionalId);
-
-        if (profesional) {
-          const usuarioId = typeof profesional.usuario === 'object' && profesional.usuario !== null
-            ? profesional.usuario._id
-            : profesional.usuario;
-
-          if (usuarioId) {
-            let mensaje = 'El administrador ha actualizado tu horario de trabajo.';
-
-            // Si se añadieron fechas festivas
-            if (fechasFestivasDespues > fechasFestivasAntes) {
-              mensaje = 'El administrador ha marcado un día como <strong class="notif-status">no laborable</strong> en tu agenda.';
-            }
-
-            this.notificacionesService.crearNotificacion({
-              idUsuario: usuarioId,
-              mensaje: mensaje
-            });
-          }
-        }
-
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
-      error: (err) => {
+      error: (err: any) => {
         const mensaje = err.error?.error || 'Error al actualizar el horario';
         this.alertService.error(mensaje);
       }

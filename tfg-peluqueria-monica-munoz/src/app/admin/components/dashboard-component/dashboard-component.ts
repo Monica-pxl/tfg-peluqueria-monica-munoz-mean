@@ -11,6 +11,7 @@ import { CentrosService } from '../../../cliente/services/centros-service';
   imports: [RouterLink],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.css',
+  standalone: true
 })
 export class DashboardComponent implements OnInit {
   totalCitas: number = 0;
@@ -45,7 +46,7 @@ export class DashboardComponent implements OnInit {
         this.totalClientes = usuarios.filter(u => u.rol === 'cliente').length;
       }
     );
-    
+
 
     // Total de citas
      this.citasService.getAllCitas([]).subscribe(

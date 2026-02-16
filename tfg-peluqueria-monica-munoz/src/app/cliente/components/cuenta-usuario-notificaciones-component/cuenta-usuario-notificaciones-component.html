@@ -26,14 +26,20 @@
   }
 
   <div class="lista-notificaciones">
-    @for(n of notificaciones; track $index) {
+    @for(n of notificaciones; track n._id) {
       <div class="notificacion-card">
-        <div class="icono-notificacion">💬</div>
-        <div class="contenido-notificacion">
-          <p [innerHTML]="n.mensaje"></p>
-          <span class="fecha">🕒 {{ n.fecha }}</span>
+        <div class="icono-notificacion">
+          @if(n.tipo === 'exito') { ✅ }
+          @else if(n.tipo === 'advertencia') { ⚠️ }
+          @else if(n.tipo === 'error') { ❌ }
+          @else { 💬 }
         </div>
-        <button class="btn-borrar-notif" (click)="borrarNotificacion($index)" title="Eliminar notificación">
+        <div class="contenido-notificacion">
+          <strong>{{ n.titulo }}</strong>
+          <p [innerHTML]="n.mensaje"></p>
+          <span class="fecha">🕒 {{ n.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <button class="btn-borrar-notif" (click)="borrarNotificacion(n)" title="Eliminar notificación">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>

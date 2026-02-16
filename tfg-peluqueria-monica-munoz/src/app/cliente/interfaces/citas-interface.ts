@@ -12,5 +12,9 @@ export interface CitasInterface {
   estado: 'pendiente' | 'confirmada' | 'cancelada' | 'realizada';
   createdAt?: string;
   updatedAt?: string;
-  canceladaPor?: 'cliente' | 'admin' | 'profesional' | null;
+  canceladaPor?: 'cliente' | 'admin' | 'profesional' | 'sistema' | null;
+  rolActualizador?: 'cliente' | 'profesional' | 'administrador';  // Para identificar quien actualiza
+  actualizadoPor?: string;  // ID del usuario que actualiza
+  rolMarcador?: 'profesional' | 'administrador';  // Para marcar como realizada
+  marcadoPor?: string;  // ID del usuario que marca como realizada
 }

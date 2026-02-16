@@ -171,8 +171,11 @@ export class MisCitasComponent implements OnInit {
         return;
       }
 
-      // TODO: Implementar lógica de puntos con MongoDB
-      this.citasService.actualizarCita(cita._id, { estado: 'realizada' }).subscribe({
+      // Usar endpoint de marcar como realizada que suma puntos y crea notificaciones
+      this.citasService.marcarCitaRealizada(cita._id, {
+        rolMarcador: 'profesional',
+        marcadoPor: this.usuariosService.getUsuarioLogueado()?._id
+      }).subscribe({
         next: () => {
           this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
@@ -194,9 +197,13 @@ export class MisCitasComponent implements OnInit {
       return;
     }
 
-    this.citasService.actualizarCita(cita._id, { estado: nuevoEstado as any }).subscribe({
+    this.citasService.actualizarCita(cita._id, {
+      estado: nuevoEstado as any,
+      rolActualizador: 'profesional',
+      actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
+    }).subscribe({
       next: () => {
-        console.log('Estado actualizado correctamente a:', nuevoEstado);
+        console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
         this.cargarCitas();
       },

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
   imports: [CommonModule],
   templateUrl: './cuenta-cliente-component.html',
   styleUrl: './cuenta-cliente-component.css',
+  standalone: true
 })
 export class CuentaClienteComponent implements OnInit {
   usuario: UsuariosInterface | null = null;

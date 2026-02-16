@@ -29,6 +29,11 @@ export class CitasService {
     return this.http.delete<{ mensaje: string }>(`${this.apiUrl}/${id}`);
   }
 
+  // Método para marcar cita como realizada (suma puntos y crea notificaciones)
+  marcarCitaRealizada(id: string, datos: { rolMarcador: 'profesional' | 'administrador', marcadoPor?: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/marcar-realizada`, datos);
+  }
+
   // Métodos de compatibilidad para código admin (redirigen a MongoDB)
   getAllCitas(_usuarios: any[]): Observable<CitasInterface[]> {
     return this.getAllCitasFromDB();

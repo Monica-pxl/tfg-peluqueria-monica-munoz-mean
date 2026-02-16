@@ -114,37 +114,12 @@ export class MisCitasComponent implements OnInit{
 
     // Actualizar el estado de la cita a 'cancelada' en MongoDB
     this.citasService.actualizarCita(cita._id, {
-      estado: 'cancelada'
+      estado: 'cancelada',
+      rolActualizador: 'cliente'
     }).subscribe({
       next: () => {
-        // Crear notificación para el cliente
-        if (this.usuarioLogueado?._id) {
-          this.notificacionesService.crearNotificacion({
-            idUsuario: this.usuarioLogueado._id,
-            mensaje: `Has cancelado tu cita del ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-            fecha: new Date().toISOString()
-          });
-        }
-
-        // Notificar a los administradores
-        this.usuariosService.getAllUsuarios().subscribe({
-          next: usuarios => {
-            usuarios.forEach(u => {
-              if (u.rol === 'administrador' && u._id) {
-                this.notificacionesService.crearNotificacion({
-                  idUsuario: u._id,
-                  mensaje: `<strong class="notif-user">${this.usuarioLogueado?.nombre}</strong> (${this.usuarioLogueado?.email}) ha cancelado su cita de <strong class="notif-entity">${cita.servicio}</strong> con <strong class="notif-entity">${cita.profesional}</strong> el ${this.formatearFechaLocal(cita.fecha)} a las ${cita.hora}.`,
-                  fecha: new Date().toISOString()
-                });
-              }
-            });
-          }
-        });
-
-        // Recargar las citas para reflejar el cambio
+        // Las notificaciones se crean automáticamente en el backend
         this.cargarCitas();
-
-        // Mostrar mensaje de éxito
         this.alertService.success('Cita cancelada exitosamente');
       },
       error: () => {

@@ -124,20 +124,21 @@ export class CitasComponent implements OnInit {
       return;
     }
 
-    // Si se marca como realizada, actualizar estado
+    // Si se marca como realizada, usar endpoint específico con puntos
     if (nuevoEstado === 'realizada' && estadoAnterior !== 'realizada') {
-      // Cambiar el estado temporalmente para actualizar el UI
       cita.estado = 'realizada';
 
-      // TODO: Implementar lógica de puntos con MongoDB
-      // Por ahora solo actualizar el estado
       if (!cita._id) {
         this.alertService.error('Error: La cita no tiene ID');
         cita.estado = estadoAnterior;
         return;
       }
 
-      this.citasService.actualizarCita(cita._id, { estado: 'realizada' }).subscribe({
+      // Usar endpoint de marcar como realizada que suma puntos y crea notificaciones
+      this.citasService.marcarCitaRealizada(cita._id, {
+        rolMarcador: 'administrador',
+        marcadoPor: this.usuariosService.getUsuarioLogueado()?._id
+      }).subscribe({
         next: () => {
           this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
@@ -159,11 +160,14 @@ export class CitasComponent implements OnInit {
       return;
     }
 
-    // Actualizar el estado en la base de datos
-    this.citasService.actualizarCita(cita._id, { estado: nuevoEstado as any }).subscribe({
+    // Actualizar el estado en la base de datos con rolActualizador
+    this.citasService.actualizarCita(cita._id, {
+      estado: nuevoEstado as any,
+      rolActualizador: 'administrador',
+      actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
+    }).subscribe({
       next: () => {
-        // TODO: Agregar notificaciones cuando se implemente completamente
-        console.log('Estado actualizado correctamente a:', nuevoEstado);
+        console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
         this.cargarCitas();
       },

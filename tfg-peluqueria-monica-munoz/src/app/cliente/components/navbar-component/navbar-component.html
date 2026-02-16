@@ -24,7 +24,7 @@
               </a>
             </li>
           }
-          
+
           <!-- Dropdown de Gestión -->
           <li class="nav-item dropdown mx-2 nav-item-animated">
             <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
@@ -57,7 +57,7 @@
           <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
             <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/admin/notificaciones'" style="color: #fff; font-size: 1.3rem;">
               <i class="bi bi-bell bell-icon"></i>
-              @if(notificacionesService.hayNotificacionesSinLeer()){
+              @if(hayNotificacionesSinLeer){
                 <span class="badge-roja"></span>
               }
             </a>
@@ -86,14 +86,14 @@
           <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
             <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/profesional/notificaciones'" style="color: #fff; font-size: 1.3rem;">
               <i class="bi bi-bell bell-icon"></i>
-              @if(notificacionesService.hayNotificacionesSinLeer()){
+              @if(hayNotificacionesSinLeer){
                 <span class="badge-roja"></span>
               }
             </a>
           </li>
         }
 
-  
+
         @if(usuariosService.comprobarLogueado() && usuariosService.getUsuarioLogueado()?.rol === 'cliente'){
           @for(nombreMenu of rutasNavbar; track $index){
             <li class="nav-item mx-2 nav-item-animated">
@@ -123,7 +123,7 @@
           <li class="nav-item mx-2 d-flex align-items-center nav-item-animated">
             <a class="nav-link py-2 px-3 bell-link" [routerLink]="'/notificaciones'" style="color: #fff; font-size: 1.3rem;">
               <i class="bi bi-bell bell-icon"></i>
-              @if(notificacionesService.hayNotificacionesSinLeer()){
+              @if(hayNotificacionesSinLeer){
                 <span class="badge-roja"></span>
               }
             </a>

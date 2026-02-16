@@ -248,7 +248,9 @@ app.delete('/api/servicios/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log('🗑️ Eliminando servicio con _id:', id);
+    console.log('🗑️ ========================================');
+    console.log('🗑️ ELIMINANDO SERVICIO');
+    console.log('🗑️ ID recibido:', id);
 
     // Validar que el ID sea un ObjectId válido de MongoDB
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -256,6 +258,22 @@ app.delete('/api/servicios/:id', async (req, res) => {
       return res.status(400).json({ mensaje: "ID de servicio no válido" });
     }
 
+    // PASO 1: Buscar todas las relaciones antes de eliminar
+    const relacionesExistentes = await ProfesionalServicio.find({ servicio: id });
+    console.log('📋 Relaciones encontradas ANTES de eliminar:', relacionesExistentes.length);
+    relacionesExistentes.forEach((rel, index) => {
+      console.log(`   ${index + 1}. Profesional: ${rel.profesional}, Servicio: ${rel.servicio}`);
+    });
+
+    // PASO 2: Eliminar todas las relaciones profesional_servicio asociadas a este servicio
+    const relacionesEliminadas = await ProfesionalServicio.deleteMany({ servicio: id });
+    console.log(`✅ Relaciones ELIMINADAS: ${relacionesEliminadas.deletedCount}`);
+
+    // PASO 3: Verificar que se eliminaron
+    const relacionesRestantes = await ProfesionalServicio.find({ servicio: id });
+    console.log('📋 Relaciones RESTANTES después de eliminar:', relacionesRestantes.length);
+
+    // PASO 4: Eliminar el servicio
     const eliminado = await Servicio.findByIdAndDelete(id);
 
     if (!eliminado) {
@@ -264,7 +282,13 @@ app.delete('/api/servicios/:id', async (req, res) => {
     }
 
     console.log('✅ Servicio eliminado:', eliminado.nombre);
-    res.json({ mensaje: 'Servicio eliminado' });
+    console.log('🗑️ ========================================');
+
+    res.json({
+      mensaje: 'Servicio eliminado',
+      relacionesEliminadas: relacionesEliminadas.deletedCount,
+      nombreServicio: eliminado.nombre
+    });
   } catch (err) {
     console.error('❌ Error al eliminar servicio:', err);
     res.status(400).json({ mensaje: 'Error al eliminar servicio', error: err.message });
@@ -338,7 +362,6 @@ app.delete('/api/profesional_servicio/profesional/:id', async (req, res) => {
     res.status(500).json({ error: "Error al eliminar relaciones por profesional" });
   }
 });
-
 
 // DELETE: Eliminar una relación específica por _id
 app.delete('/api/profesional_servicio/:id', async (req, res) => {
@@ -497,7 +520,7 @@ app.post('/api/horarios', async (req, res) => {
     }
 
     // Verificar profesional
-    const profesional = await Profesional.findById(profesionalId);
+    const profesional = await Profesional.findById(profesionalId).populate('usuario');
     if (!profesional) return res.status(404).json({ error: "Profesional no encontrado" });
 
     // Verificar centro
@@ -531,6 +554,23 @@ app.post('/api/horarios', async (req, res) => {
       fechas_festivas
     });
 
+    // ========== CREAR NOTIFICACIÓN ==========
+
+    if (profesional.usuario) {
+      const diasTexto = dias.join(', ');
+      await crearNotificacion(
+        profesional.usuario._id,
+        'profesional',
+        'Nuevo horario asignado',
+        `Se ha añadido un nuevo horario a tu agenda: <strong>${diasTexto}</strong> de <strong>${hora_inicio}</strong> a <strong>${hora_fin}</strong>.`,
+        'info'
+      );
+    }
+
+    console.log('✅ Notificación de nuevo horario creada');
+
+    // ==========================================
+
     res.status(201).json({ mensaje: "Horario creado exitosamente", horario: nuevoHorario });
   } catch (error) {
     console.error(error);
@@ -553,12 +593,13 @@ app.put('/api/horarios/:id', async (req, res) => {
     const nuevosDias = dias || horario.dias;
     const nuevaHoraInicio = hora_inicio || horario.hora_inicio;
     const nuevaHoraFin = hora_fin || horario.hora_fin;
+    const nuevasFechasFestivas = fechas_festivas !== undefined ? fechas_festivas : horario.fechas_festivas;
 
     if (nuevaHoraInicio >= nuevaHoraFin) {
       return res.status(400).json({ error: "La hora de inicio debe ser menor que la hora de fin" });
     }
 
-    const profesional = await Profesional.findById(nuevoProfesionalId);
+    const profesional = await Profesional.findById(nuevoProfesionalId).populate('usuario');
     if (!profesional) return res.status(404).json({ error: "Profesional no encontrado" });
 
     const centro = await Centro.findById(profesional.centro);
@@ -583,13 +624,66 @@ app.put('/api/horarios/:id', async (req, res) => {
       }
     }
 
+    // Detectar cambios ANTES de guardar
+    const cambioHoras = (hora_inicio && hora_inicio !== horario.hora_inicio) || (hora_fin && hora_fin !== horario.hora_fin);
+    const cambioDias = dias && JSON.stringify(dias) !== JSON.stringify(horario.dias);
+
+    // Guardar fechas antiguas para comparar después
+    const fechasFestivasAntiguas = horario.fechas_festivas || [];
+    const fechasFestivasNuevas = nuevasFechasFestivas || [];
+
+    console.log('🔍 Comparando fechas festivas:');
+    console.log('   - Antiguas:', fechasFestivasAntiguas);
+    console.log('   - Nuevas:', fechasFestivasNuevas);
+
     horario.profesional = nuevoProfesionalId;
     horario.dias = nuevosDias;
     horario.hora_inicio = nuevaHoraInicio;
     horario.hora_fin = nuevaHoraFin;
-    if (fechas_festivas !== undefined) horario.fechas_festivas = fechas_festivas;
+    horario.fechas_festivas = fechasFestivasNuevas;
 
     await horario.save();
+
+    // ========== CREAR NOTIFICACIONES ==========
+
+    if (profesional.usuario) {
+
+      // Si cambió días o horas
+      if (cambioHoras || cambioDias) {
+        const diasTexto = nuevosDias.join(', ');
+        await crearNotificacion(
+          profesional.usuario._id,
+          'profesional',
+          'Horario actualizado',
+          `Se ha modificado tu horario de trabajo: <strong>${diasTexto}</strong> de <strong>${nuevaHoraInicio}</strong> a <strong>${nuevaHoraFin}</strong>.`,
+          'info'
+        );
+        console.log('✅ Notificación: Horario actualizado');
+      }
+
+      // Si se agregaron fechas festivas
+      if (fechasFestivasNuevas.length > fechasFestivasAntiguas.length) {
+        const nuevasFechas = fechasFestivasNuevas.filter(f => !fechasFestivasAntiguas.includes(f));
+
+        if (nuevasFechas.length > 0) {
+          const fechasTexto = nuevasFechas.map(f => formatearFecha(f)).join(', ');
+
+          await crearNotificacion(
+            profesional.usuario._id,
+            'profesional',
+            'Día marcado como no laborable',
+            `Se han añadido fechas festivas a tu horario: <strong>${fechasTexto}</strong>. No tendrás citas programadas en esos días.`,
+            'info'
+          );
+          console.log('✅ Notificación: Día marcado como no laborable -', fechasTexto);
+        }
+      }
+    }
+
+    console.log('✅ Proceso de notificaciones de horario completado');
+
+    // ==========================================
+
     res.json({ mensaje: "Horario actualizado exitosamente", horario });
   } catch (error) {
     console.error(error);
@@ -603,8 +697,33 @@ app.put('/api/horarios/:id', async (req, res) => {
 // Eliminar un horario
 app.delete('/api/horarios/:id', async (req, res) => {
   try {
-    const eliminado = await Horario.findByIdAndDelete(req.params.id);
-    if (!eliminado) return res.status(404).json({ error: "Horario no encontrado" });
+    const horario = await Horario.findById(req.params.id);
+    if (!horario) return res.status(404).json({ error: "Horario no encontrado" });
+
+    // Obtener información del horario antes de eliminarlo
+    const profesional = await Profesional.findById(horario.profesional).populate('usuario');
+    const diasTexto = horario.dias.join(', ');
+    const horaInicio = horario.hora_inicio;
+    const horaFin = horario.hora_fin;
+
+    // Eliminar el horario
+    await Horario.findByIdAndDelete(req.params.id);
+
+    // ========== CREAR NOTIFICACIÓN ==========
+
+    if (profesional && profesional.usuario) {
+      await crearNotificacion(
+        profesional.usuario._id,
+        'profesional',
+        'Horario eliminado',
+        `Se ha eliminado un horario de tu agenda: <strong>${diasTexto}</strong> de <strong>${horaInicio}</strong> a <strong>${horaFin}</strong>.`,
+        'advertencia'
+      );
+    }
+
+    console.log('✅ Notificación de horario eliminado creada');
+
+    // ==========================================
 
     res.json({ mensaje: "Horario eliminado exitosamente" });
   } catch (error) {
@@ -612,7 +731,6 @@ app.delete('/api/horarios/:id', async (req, res) => {
     res.status(500).json({ error: "Error al eliminar el horario" });
   }
 });
-
 
 // Eliminar todos los horarios de un profesional
 app.delete('/api/horarios/profesional/:id', async (req, res) => {
@@ -732,12 +850,55 @@ app.put('/api/profesionales/:id', async (req, res) => {
 // Eliminar profesional
 app.delete('/api/profesionales/:id', async (req, res) => {
   try {
-    const eliminado = await Profesional.findByIdAndDelete(req.params.id);
-    if (!eliminado) return res.status(404).json({ error: "Profesional no encontrado" });
+    const { id } = req.params;
 
-    res.json({ mensaje: "Profesional eliminado" });
+    console.log('🗑️ ========================================');
+    console.log('🗑️ ELIMINANDO PROFESIONAL');
+    console.log('🗑️ ID recibido:', id);
+
+    // Validar que el ID sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ ID no válido:', id);
+      return res.status(400).json({ error: "ID de profesional no válido" });
+    }
+
+    // PASO 1: Buscar el profesional
+    const profesional = await Profesional.findById(id);
+    if (!profesional) {
+      console.log('❌ Profesional no encontrado con _id:', id);
+      return res.status(404).json({ error: "Profesional no encontrado" });
+    }
+
+    console.log(`✓ Profesional encontrado: ${profesional.nombre} ${profesional.apellidos}`);
+
+    // PASO 2: Eliminar relaciones profesional_servicio
+    const relacionesEliminadas = await ProfesionalServicio.deleteMany({ profesional: id });
+    console.log(`✅ Relaciones profesional_servicio eliminadas: ${relacionesEliminadas.deletedCount}`);
+
+    // PASO 3: Eliminar horarios del profesional
+    const horariosEliminados = await Horario.deleteMany({ profesional: id });
+    console.log(`✅ Horarios eliminados: ${horariosEliminados.deletedCount}`);
+
+    // PASO 4: Actualizar/eliminar citas del profesional
+    const citasActualizadas = await Cita.updateMany(
+      { profesional: id, estado: { $ne: 'completada' } },
+      { $set: { estado: 'cancelada', canceladaPor: 'sistema' } }
+    );
+    console.log(`✅ Citas actualizadas a canceladas: ${citasActualizadas.modifiedCount}`);
+
+    // PASO 5: Eliminar el profesional
+    const eliminado = await Profesional.findByIdAndDelete(id);
+    console.log(`✅ Profesional eliminado: ${eliminado.nombre} ${eliminado.apellidos}`);
+    console.log('🗑️ ========================================');
+
+    res.json({
+      mensaje: "Profesional eliminado exitosamente",
+      relacionesEliminadas: relacionesEliminadas.deletedCount,
+      horariosEliminados: horariosEliminados.deletedCount,
+      citasActualizadas: citasActualizadas.modifiedCount
+    });
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error al eliminar profesional:', error);
     res.status(500).json({ error: "Error al eliminar profesional" });
   }
 });
@@ -915,6 +1076,57 @@ app.delete('/api/usuarios/:id', async (req, res) => {
 
 
 
+// ============= FUNCIONES HELPER PARA NOTIFICACIONES =============
+
+// Función helper para crear notificación
+async function crearNotificacion(usuario, rolDestino, titulo, mensaje, tipo = 'info') {
+  try {
+    const notificacion = new Notificacion({
+      usuario,
+      rolDestino,
+      titulo,
+      mensaje,
+      tipo,
+      leida: false
+    });
+    await notificacion.save();
+    console.log(`✅ Notificación creada para usuario ${usuario}: ${titulo}`);
+  } catch (error) {
+    console.error('❌ Error al crear notificación:', error);
+  }
+}
+
+// Función para obtener todos los administradores
+async function obtenerAdministradores() {
+  try {
+    const admins = await Usuario.find({ rol: 'administrador', estado: 'activo' });
+    return admins.map(admin => admin._id);
+  } catch (error) {
+    console.error('Error al obtener administradores:', error);
+    return [];
+  }
+}
+
+// Función para obtener nivel de fidelidad según puntos
+function getNivelFidelidad(puntos) {
+  if (puntos >= 100) return { nivel: 'premium', nombre: 'Cliente Premium' };
+  if (puntos >= 50) return { nivel: 'habitual', nombre: 'Cliente Habitual' };
+  if (puntos >= 20) return { nivel: 'frecuente', nombre: 'Cliente Frecuente' };
+  return { nivel: 'nuevo', nombre: 'Cliente Nuevo' };
+}
+
+// Función para formatear fecha
+function formatearFecha(fecha) {
+  const d = new Date(fecha);
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const anio = d.getFullYear();
+  return `${dia}/${mes}/${anio}`;
+}
+
+// ============= FIN FUNCIONES HELPER =============
+
+
 // ============= ENDPOINTS PARA CITAS =============
 
 // GET: Obtener todas las citas (con populate)
@@ -1025,6 +1237,51 @@ app.post('/api/citas', async (req, res) => {
       .populate('servicio', 'nombre precio duracion')
       .populate('centro', 'nombre direccion');
 
+    // ========== CREAR NOTIFICACIONES ==========
+
+    const fechaFormateada = formatearFecha(fecha);
+    const nombreUsuario = citaCreada.usuario.nombre;
+    const nombreProfesional = citaCreada.profesional.nombre + ' ' + citaCreada.profesional.apellidos;
+    const nombreServicio = citaCreada.servicio.nombre;
+    const nombreCentro = citaCreada.centro.nombre;
+
+    // 1. Notificación para el CLIENTE
+    await crearNotificacion(
+      usuario,
+      'cliente',
+      'Reserva realizada',
+      `Has reservado una cita para <strong>${nombreServicio}</strong> con ${nombreProfesional} el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>. Tu cita está <strong>pendiente de confirmación</strong>.`,
+      'exito'
+    );
+
+    // 2. Notificación para el PROFESIONAL
+    const profesionalDB = await Profesional.findById(profesional).populate('usuario');
+    if (profesionalDB && profesionalDB.usuario) {
+      await crearNotificacion(
+        profesionalDB.usuario._id,
+        'profesional',
+        'Nueva cita reservada',
+        `<strong>${nombreUsuario}</strong> ha reservado una cita para <strong>${nombreServicio}</strong> el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>.`,
+        'info'
+      );
+    }
+
+    // 3. Notificación para todos los ADMINISTRADORES
+    const admins = await obtenerAdministradores();
+    for (const adminId of admins) {
+      await crearNotificacion(
+        adminId,
+        'administrador',
+        'Nueva reserva',
+        `<strong>${nombreUsuario}</strong> reservó <strong>${nombreServicio}</strong> con ${nombreProfesional} en <strong>${nombreCentro}</strong> para el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>.`,
+        'info'
+      );
+    }
+
+    console.log('✅ Notificaciones de nueva cita creadas exitosamente');
+
+    // ==========================================
+
     res.status(201).json({ mensaje: "Cita creada exitosamente", cita: citaCreada });
   } catch (error) {
     console.error('Error al crear cita:', error);
@@ -1038,12 +1295,19 @@ app.post('/api/citas', async (req, res) => {
 // PUT: Actualizar cita (cambiar estado, fecha, hora, etc.)
 app.put('/api/citas/:id', async (req, res) => {
   try {
-    const { estado, fecha, hora } = req.body;
+    const { estado, fecha, hora, actualizadoPor, rolActualizador } = req.body;
 
-    const cita = await Cita.findById(req.params.id);
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
+
     if (!cita) {
       return res.status(404).json({ error: "Cita no encontrada" });
     }
+
+    const estadoAnterior = cita.estado;
 
     // Si se cambia fecha u hora, verificar disponibilidad
     if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
@@ -1051,7 +1315,7 @@ app.put('/api/citas/:id', async (req, res) => {
       const nuevaHora = hora || cita.hora;
 
       const citaExistente = await Cita.findOne({
-        profesional: cita.profesional,
+        profesional: cita.profesional._id,
         fecha: nuevaFecha,
         hora: nuevaHora,
         _id: { $ne: req.params.id }
@@ -1074,6 +1338,161 @@ app.put('/api/citas/:id', async (req, res) => {
       .populate('profesional', 'nombre apellidos')
       .populate('servicio', 'nombre precio duracion')
       .populate('centro', 'nombre direccion');
+
+    // ========== CREAR NOTIFICACIONES SEGÚN CAMBIOS ==========
+
+    const fechaFormateada = formatearFecha(citaActualizada.fecha);
+    const nombreUsuario = citaActualizada.usuario.nombre;
+    const nombreProfesional = citaActualizada.profesional.nombre + ' ' + citaActualizada.profesional.apellidos;
+    const nombreServicio = citaActualizada.servicio.nombre;
+
+    // Si cambió el estado
+    if (estado && estado !== estadoAnterior) {
+
+      // CANCELACIÓN
+      if (estado === 'cancelada') {
+
+        // Si cancela el CLIENTE
+        if (rolActualizador === 'cliente') {
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Cancelación de cliente',
+              `<strong>${nombreUsuario}</strong> ha cancelado su cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'advertencia'
+            );
+          }
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Cancelación de cliente',
+              `<strong>${nombreUsuario}</strong> canceló su cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'advertencia'
+            );
+          }
+
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por ti',
+            `Has cancelado tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'info'
+          );
+        }
+
+        // Si cancela el PROFESIONAL
+        else if (rolActualizador === 'profesional') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por profesional',
+            `${nombreProfesional} ha cancelado tu cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'advertencia'
+          );
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Profesional modifica estado de cita',
+              `${nombreProfesional} canceló la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+
+        // Si cancela el ADMIN
+        else if (rolActualizador === 'administrador') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por el centro',
+            `El centro ha cancelado tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'advertencia'
+          );
+
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Admin modifica estado de cita',
+              `El administrador canceló la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+      }
+
+      // CONFIRMACIÓN
+      else if (estado === 'confirmada') {
+
+        // Si confirma el PROFESIONAL
+        if (rolActualizador === 'profesional') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita confirmada',
+            `${nombreProfesional} ha confirmado tu cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'exito'
+          );
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Profesional modifica estado de cita',
+              `${nombreProfesional} confirmó la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+
+        // Si confirma el ADMIN
+        else if (rolActualizador === 'administrador') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita confirmada',
+            `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong> ha sido confirmada.`,
+            'exito'
+          );
+
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Admin modifica estado de cita',
+              `El administrador confirmó tu cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+      }
+    }
+
+    console.log('✅ Notificaciones de actualización de cita creadas');
+
+    // ==========================================
 
     res.json({ mensaje: "Cita actualizada exitosamente", cita: citaActualizada });
   } catch (error) {
@@ -1101,7 +1520,13 @@ app.delete('/api/citas/:id', async (req, res) => {
 // PUT: Marcar cita como realizada (cambia estado y suma puntos)
 app.put('/api/citas/:id/marcar-realizada', async (req, res) => {
   try {
-    const cita = await Cita.findById(req.params.id);
+    const { marcadoPor, rolMarcador } = req.body; // Quién marca la cita
+
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email puntos')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
 
     if (!cita) {
       return res.status(404).json({ error: "Cita no encontrada" });
@@ -1116,23 +1541,120 @@ app.put('/api/citas/:id/marcar-realizada', async (req, res) => {
     await cita.save();
 
     // Sumar puntos al usuario
-    const usuario = await Usuario.findById(cita.usuario);
+    const usuario = await Usuario.findById(cita.usuario._id);
+    let puntosNuevos = 0;
+    let puntosActuales = 0;
+    let subioNivel = false;
+    let nivelAnterior = '';
+    let nivelNuevo = '';
+
     if (usuario && usuario.rol === 'cliente') {
-      const puntosActuales = usuario.puntos || 0;
-      const puntosNuevos = puntosActuales + 10;
+      // Asegurarse de que puntos no sea undefined o null
+      puntosActuales = usuario.puntos ?? 0;
+      puntosNuevos = puntosActuales + 10;
+
+      // Obtener niveles de fidelidad
+      const infoNivelAnterior = getNivelFidelidad(puntosActuales);
+      const infoNivelNuevo = getNivelFidelidad(puntosNuevos);
+
+      nivelAnterior = infoNivelAnterior.nombre;
+      nivelNuevo = infoNivelNuevo.nombre;
+      subioNivel = infoNivelAnterior.nivel !== infoNivelNuevo.nivel;
 
       usuario.puntos = puntosNuevos;
       await usuario.save();
 
-      return res.json({
-        mensaje: "Cita marcada como realizada y puntos sumados",
-        cita,
-        puntosSumados: 10,
-        puntosActuales: puntosNuevos
-      });
+      console.log(`✅ Puntos actualizados: ${puntosActuales} → ${puntosNuevos}`);
+      console.log(`   Nivel: ${nivelAnterior} → ${nivelNuevo} ${subioNivel ? '🏆 ¡SUBIÓ DE NIVEL!' : ''}`);
     }
 
-    res.json({ mensaje: "Cita marcada como realizada", cita });
+    // ========== CREAR NOTIFICACIONES ==========
+
+    const fechaFormateada = formatearFecha(cita.fecha);
+    const nombreUsuario = cita.usuario.nombre;
+    const nombreProfesional = cita.profesional.nombre + ' ' + cita.profesional.apellidos;
+    const nombreServicio = cita.servicio.nombre;
+
+    // Notificación para el CLIENTE
+    let mensajeCliente = `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> ha sido completada.<br><br>`;
+    mensajeCliente += `🎉 <strong>¡Has ganado 10 puntos de fidelidad!</strong><br>`;
+    mensajeCliente += `💰 Ahora tienes <strong>${puntosNuevos} puntos</strong> en total.<br>`;
+    mensajeCliente += `⭐ Tu nivel de fidelidad: <strong>${nivelNuevo}</strong>`;
+
+    if (subioNivel) {
+      mensajeCliente += `<br><br>🏆 <strong>¡FELICITACIONES!</strong><br>`;
+      mensajeCliente += `¡Has alcanzado el nivel <strong>${nivelNuevo}</strong>! 🎊`;
+    } else {
+      // Mostrar progreso al siguiente nivel
+      let puntosParaSiguienteNivel = 0;
+      let siguienteNivel = '';
+
+      if (puntosNuevos < 20) {
+        puntosParaSiguienteNivel = 20 - puntosNuevos;
+        siguienteNivel = 'Cliente Frecuente';
+      } else if (puntosNuevos < 50) {
+        puntosParaSiguienteNivel = 50 - puntosNuevos;
+        siguienteNivel = 'Cliente Habitual';
+      } else if (puntosNuevos < 100) {
+        puntosParaSiguienteNivel = 100 - puntosNuevos;
+        siguienteNivel = 'Cliente Premium';
+      }
+
+      if (puntosParaSiguienteNivel > 0) {
+        mensajeCliente += `<br>📊 Te faltan <strong>${puntosParaSiguienteNivel} puntos</strong> para alcanzar <strong>${siguienteNivel}</strong>.`;
+      }
+    }
+
+    await crearNotificacion(
+      cita.usuario._id,
+      'cliente',
+      'Cita realizada',
+      mensajeCliente,
+      'exito'
+    );
+
+    // Si la marcó el ADMINISTRADOR
+    if (rolMarcador === 'administrador') {
+      // Notificar al profesional
+      const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+      if (profesionalDB && profesionalDB.usuario) {
+        await crearNotificacion(
+          profesionalDB.usuario._id,
+          'profesional',
+          'Cita marcada como realizada por admin',
+          `El administrador ha marcado como realizada tu cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong>.`,
+          'info'
+        );
+      }
+    }
+
+    // Si la marcó el PROFESIONAL
+    if (rolMarcador === 'profesional') {
+      // Notificar a admins
+      const admins = await obtenerAdministradores();
+      for (const adminId of admins) {
+        await crearNotificacion(
+          adminId,
+          'administrador',
+          'Profesional marca cita como realizada',
+          `${nombreProfesional} ha marcado como realizada la cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong>.`,
+          'info'
+        );
+      }
+    }
+
+    console.log('✅ Notificaciones de cita realizada creadas');
+
+    // ==========================================
+
+    return res.json({
+      mensaje: "Cita marcada como realizada y puntos sumados",
+      cita,
+      puntosSumados: 10,
+      puntosActuales: puntosNuevos,
+      subioNivel,
+      nivelActual: Math.floor(puntosNuevos / 100)
+    });
   } catch (error) {
     console.error('Error al marcar cita como realizada:', error);
     res.status(500).json({ error: "Error al procesar la cita" });
@@ -1209,14 +1731,15 @@ app.get('/api/notificaciones/usuario/:id/contar-no-leidas', async (req, res) => 
 // POST: Crear nueva notificación
 app.post('/api/notificaciones', async (req, res) => {
   try {
-    const { usuario, titulo, mensaje, tipo } = req.body;
+    const { usuario, rolDestino, titulo, mensaje, tipo } = req.body;
 
-    if (!usuario || !titulo || !mensaje) {
-      return res.status(400).json({ error: "Faltan campos requeridos (usuario, titulo, mensaje)" });
+    if (!usuario || !rolDestino || !titulo || !mensaje) {
+      return res.status(400).json({ error: "Faltan campos requeridos (usuario, rolDestino, titulo, mensaje)" });
     }
 
     const nuevaNotificacion = new Notificacion({
       usuario,
+      rolDestino,
       titulo,
       mensaje,
       tipo: tipo || 'info',

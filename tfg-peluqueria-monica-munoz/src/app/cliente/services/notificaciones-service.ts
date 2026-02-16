@@ -1,113 +1,151 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { UsuariosService } from './usuarios-service';
+
+export interface NotificacionInterface {
+  _id?: string;
+  usuario: string;
+  rolDestino: 'cliente' | 'profesional' | 'administrador';
+  titulo: string;
+  mensaje: string;
+  leida: boolean;
+  tipo: 'info' | 'exito' | 'advertencia' | 'error';
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificacionesService {
 
-  private storageKey = 'notificaciones';
+  private apiUrl = 'http://localhost:3001/api/notificaciones';
 
-  constructor(private usuariosService: UsuariosService) {}
+  // Subject para notificar cuando las notificaciones cambian
+  private notificacionesActualizadas = new Subject<void>();
+  public notificacionesActualizadas$ = this.notificacionesActualizadas.asObservable();
 
-  crearNotificacion(notificacion: any) {
-    console.log('=== crearNotificacion llamada ===');
-    console.log('Notificación recibida:', notificacion);
-    const todas = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    console.log('Notificaciones existentes:', todas);
-    const n = { ...notificacion, leida: false };
+  constructor(
+    private http: HttpClient,
+    private usuariosService: UsuariosService
+  ) {}
 
-    // Normalizar fecha a formato DD/MM/YYYY HH:MM (sin milisegundos)
-    n.fecha = this.formatFecha(new Date());
-
-    todas.push(n);
-    console.log('Guardando notificación:', n);
-    console.log('Total de notificaciones después de agregar:', todas.length);
-    localStorage.setItem(this.storageKey, JSON.stringify(todas));
-    console.log('Notificación guardada en localStorage');
+  // Crear nueva notificación
+  crearNotificacion(notificacion: Partial<NotificacionInterface>): Observable<any> {
+    return this.http.post(this.apiUrl, notificacion);
   }
 
-  private pad(n: number) { return n < 10 ? '0' + n : '' + n; }
-
-  private formatFecha(d: Date): string {
-    const dia = this.pad(d.getDate());
-    const mes = this.pad(d.getMonth() + 1);
-    const año = d.getFullYear();
-    const hora = this.pad(d.getHours());
-    const min = this.pad(d.getMinutes());
-    return `${dia}/${mes}/${año} ${hora}:${min}`;
+  // Obtener todas las notificaciones del usuario logueado (retorna array para compatibilidad)
+  getNotificaciones(): NotificacionInterface[] {
+    // Este método debe ser actualizado en los componentes para usar la versión Observable
+    console.warn('getNotificaciones() síncrono está deprecated. Usa getNotificacionesObservable()');
+    return [];
   }
 
-  getNotificaciones() {
-    console.log('=== getNotificaciones llamada ===');
-    const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    console.log('Total de notificaciones en localStorage:', todas.length);
+  // Obtener todas las notificaciones del usuario logueado (Observable)
+  getNotificacionesObservable(): Observable<NotificacionInterface[]> {
+    const usuario = this.usuariosService.getUsuarioLogueado();
+    if (!usuario || !usuario._id) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+    return this.http.get<NotificacionInterface[]>(`${this.apiUrl}/usuario/${usuario._id}`);
+  }
 
-    // Debug: mostrar todas las notificaciones con sus tipos
-    todas.forEach((n, i) => {
-      console.log(`Notificación ${i}: idUsuario = ${n.idUsuario} (tipo: ${typeof n.idUsuario})`);
+  // Obtener notificaciones no leídas del usuario logueado
+  getNotificacionesNoLeidas(): Observable<NotificacionInterface[]> {
+    const usuario = this.usuariosService.getUsuarioLogueado();
+    if (!usuario || !usuario._id) {
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+    return this.http.get<NotificacionInterface[]>(`${this.apiUrl}/usuario/${usuario._id}/no-leidas`);
+  }
+
+  // Contar notificaciones no leídas
+  contarNoLeidas(): Observable<{ count: number }> {
+    const usuario = this.usuariosService.getUsuarioLogueado();
+    if (!usuario || !usuario._id) {
+      return new Observable(observer => {
+        observer.next({ count: 0 });
+        observer.complete();
+      });
+    }
+    return this.http.get<{ count: number }>(`${this.apiUrl}/usuario/${usuario._id}/contar-no-leidas`);
+  }
+
+  // Verificar si hay notificaciones sin leer (síncrono para compatibilidad con templates)
+  // Se debe usar con | async en el template
+  hayNotificacionesSinLeer(): Observable<boolean> {
+    return new Observable(observer => {
+      this.contarNoLeidas().subscribe({
+        next: (result) => {
+          observer.next(result.count > 0);
+          observer.complete();
+        },
+        error: () => {
+          observer.next(false);
+          observer.complete();
+        }
+      });
     });
+  }
 
+  // Marcar una notificación como leída
+  marcarComoLeida(idNotificacion: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${idNotificacion}/marcar-leida`, {});
+  }
+
+  // Marcar todas las notificaciones del usuario como leídas
+  marcarTodasComoLeidas(): Observable<any> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    console.log('Usuario logueado:', usuario);
-    console.log('Usuario logueado _id:', usuario?._id, '(tipo:', typeof usuario?._id, ')');
-
-    if (!usuario) {
-      console.log('No hay usuario logueado');
-      return [];
+    if (!usuario || !usuario._id) {
+      return new Observable(observer => {
+        observer.next({});
+        observer.complete();
+      });
     }
-
-    // Filtrar notificaciones por el _id del usuario
-    const notificacionesUsuario = todas.filter((n: any) => n.idUsuario === usuario._id);
-    console.log('Notificaciones del usuario (id ' + usuario._id + '):', notificacionesUsuario.length);
-    console.log('Notificaciones filtradas:', notificacionesUsuario);
-
-    // Ordenar de más reciente a más antigua (invertir el orden)
-    return notificacionesUsuario.reverse();
+    return this.http.put(`${this.apiUrl}/usuario/${usuario._id}/marcar-todas-leidas`, {}).pipe(
+      tap(() => {
+        // Emitir evento para actualizar el navbar
+        this.notificacionesActualizadas.next();
+      })
+    );
   }
 
-
- limpiarNotificaciones() {
-    const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario) return;
-
-    const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    const restantes = todas.filter((n: any) => n.idUsuario !== usuario._id);
-
-    localStorage.setItem(this.storageKey, JSON.stringify(restantes));
-  }
-
-  actualizarNotificaciones(notificaciones: any[]) {
-    const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario) return;
-
-    const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    const deOtros = todas.filter((n: any) => n.idUsuario !== usuario._id);
-    const actualizadas = [...deOtros, ...notificaciones];
-
-    localStorage.setItem(this.storageKey, JSON.stringify(actualizadas));
-  }
-
-  hayNotificacionesSinLeer(): boolean {
-    const nots = this.getNotificaciones();
-    return nots.some(n => n.leida === false || n.leida === undefined);
-  }
-
+  // Para compatibilidad con código antiguo
   marcarNotificacionesComoLeidas(): void {
+    this.marcarTodasComoLeidas().subscribe({
+      next: () => console.log('✅ Notificaciones marcadas como leídas'),
+      error: (err) => console.error('❌ Error al marcar notificaciones como leídas:', err)
+    });
+  }
+
+  // Eliminar una notificación específica
+  eliminarNotificacion(idNotificacion: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${idNotificacion}`);
+  }
+
+  // Eliminar todas las notificaciones del usuario (limpiar)
+  limpiarNotificaciones(): Observable<any> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario) return;
-
-    const todas: any[] = JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-    let modificado = false;
-    for (const n of todas) {
-      if (n.idUsuario === usuario._id && !n.leida) {
-        n.leida = true;
-        modificado = true;
-      }
+    if (!usuario || !usuario._id) {
+      return new Observable(observer => {
+        observer.next({});
+        observer.complete();
+      });
     }
+    return this.http.delete(`${this.apiUrl}/usuario/${usuario._id}`);
+  }
 
-    if (modificado) {
-      localStorage.setItem(this.storageKey, JSON.stringify(todas));
-    }
+  // Método para actualizar notificaciones (para compatibilidad, pero ahora no hace nada porque la API maneja todo)
+  actualizarNotificaciones(notificaciones: any[]): void {
+    console.warn('actualizarNotificaciones() está deprecated. La API maneja las actualizaciones automáticamente.');
   }
 }

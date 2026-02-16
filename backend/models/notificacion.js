@@ -6,6 +6,11 @@ const notificacionSchema = new mongoose.Schema({
     ref: 'Usuario',
     required: true
   },
+  rolDestino: {
+    type: String,
+    enum: ['cliente', 'profesional', 'administrador'],
+    required: true
+  },
   titulo: {
     type: String,
     required: true

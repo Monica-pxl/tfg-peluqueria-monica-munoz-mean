@@ -139,20 +139,54 @@ export class ServiciosEditar implements OnInit{
       return;
     }
 
+    // Primero actualizar el servicio
     this.serviciosService.actualizarServicio(this.servicio).subscribe({
       next: () => {
-        // eliminar relaciones antiguas usando el _id
-        this.profesionalServicioService.eliminarPorServicio(this.servicio._id).subscribe(() => {
-          // crear nuevas relaciones
-          if (this.id_profesionales.length > 0) {
-            this.id_profesionales.forEach(id_prof => {
-              this.profesionalServicioService.crearRelacion({
-                profesional: id_prof,
-                servicio: this.servicio._id
-              }).subscribe();
-            });
+        console.log('✅ Servicio actualizado, ahora eliminando relaciones antiguas...');
+
+        // Eliminar relaciones antiguas usando el _id
+        this.profesionalServicioService.eliminarPorServicio(this.servicio._id!).subscribe({
+          next: () => {
+            console.log('✅ Relaciones antiguas eliminadas');
+
+            // Crear nuevas relaciones si hay profesionales seleccionados
+            if (this.id_profesionales.length > 0) {
+              console.log('Creando nuevas relaciones para profesionales:', this.id_profesionales);
+
+              let relacionesCreadas = 0;
+
+              this.id_profesionales.forEach((id_prof, index) => {
+                this.profesionalServicioService.crearRelacion({
+                  profesional: id_prof,
+                  servicio: this.servicio._id
+                }).subscribe({
+                  next: () => {
+                    relacionesCreadas++;
+                    console.log(`✅ Relación ${relacionesCreadas}/${this.id_profesionales.length} creada`);
+
+                    // Si es la última relación, navegar de vuelta
+                    if (relacionesCreadas === this.id_profesionales.length) {
+                      this.alertService.success('Servicio actualizado exitosamente');
+                      this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
+                    }
+                  },
+                  error: (err) => {
+                    console.error('Error al crear relación:', err);
+                    this.alertService.warning('Servicio actualizado, pero hubo un error al asignar algunos profesionales');
+                    this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
+                  }
+                });
+              });
+            } else {
+              // Si no hay profesionales, simplemente confirmar la actualización
+              this.alertService.success('Servicio actualizado exitosamente');
+              this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
+            }
+          },
+          error: (err) => {
+            console.error('Error al eliminar relaciones antiguas:', err);
+            this.alertService.error('Error al actualizar las relaciones del servicio');
           }
-          this.router.navigate(['/admin/servicios']);
         });
       },
       error: () => this.alertService.error('Error al actualizar el servicio')
