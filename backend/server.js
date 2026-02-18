@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
     mensaje: '🚀 API de Peluquería funcionando correctamente',
     version: '2.0',
     endpoints: {
-      auth: '/api/auth (POST /login, /register)',
+      auth: '/api/login (POST), /api/registro (POST)',
       usuarios: '/api/usuarios',
       servicios: '/api/servicios',
       profesionales: '/api/profesionales',

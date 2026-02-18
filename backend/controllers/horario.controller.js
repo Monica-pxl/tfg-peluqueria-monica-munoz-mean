@@ -1,5 +1,6 @@
 const Horario = require('../models/horario');
 const Profesional = require('../models/profesional');
+const Centro = require('../models/centro');
 const { crearNotificacion, formatearFecha } = require('../helpers/notificaciones.helper');
 
 // Obtener todos los horarios
@@ -46,9 +47,79 @@ exports.createHorario = async (req, res) => {
   try {
     const { profesional, dias, hora_inicio, hora_fin, festivo, fechas_festivas } = req.body;
 
+    console.log('📝 Creando horario para profesional:', profesional);
+
     if (!profesional || !dias || !hora_inicio || !hora_fin) {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
+
+    // Obtener el profesional y su centro
+    const profesionalDB = await Profesional.findById(profesional).populate('centro');
+    if (!profesionalDB) {
+      return res.status(404).json({ error: 'Profesional no encontrado' });
+    }
+
+    if (!profesionalDB.centro) {
+      return res.status(400).json({ error: 'El profesional no tiene un centro asignado' });
+    }
+
+    // Validar que el horario del profesional esté dentro del horario del centro
+    const centro = profesionalDB.centro;
+    const horarioAperturaCentro = centro.horario_apertura;
+    const horarioCierreCentro = centro.horario_cierre;
+
+    console.log('🏢 Centro:', centro.nombre);
+    console.log('⏰ Horario del centro:', horarioAperturaCentro, '-', horarioCierreCentro);
+    console.log('⏰ Horario del profesional:', hora_inicio, '-', hora_fin);
+
+    // Validar que hora_inicio >= horario_apertura del centro
+    if (hora_inicio < horarioAperturaCentro) {
+      return res.status(400).json({
+        error: `El horario de inicio (${hora_inicio}) no puede ser anterior al horario de apertura del centro (${horarioAperturaCentro})`
+      });
+    }
+
+    // Validar que hora_fin <= horario_cierre del centro
+    if (hora_fin > horarioCierreCentro) {
+      return res.status(400).json({
+        error: `El horario de fin (${hora_fin}) no puede ser posterior al horario de cierre del centro (${horarioCierreCentro})`
+      });
+    }
+
+    // Validar que hora_inicio < hora_fin
+    if (hora_inicio >= hora_fin) {
+      return res.status(400).json({
+        error: 'El horario de inicio debe ser anterior al horario de fin'
+      });
+    }
+
+    console.log('✅ Validación exitosa: El horario del profesional está dentro del horario del centro');
+
+    // Verificar solapamiento con otros horarios del mismo profesional
+    const horariosExistentes = await Horario.find({ profesional: profesional });
+    console.log(`📋 Horarios existentes del profesional: ${horariosExistentes.length}`);
+
+    for (const h of horariosExistentes) {
+      // Verificar si hay días en común
+      const diasEnComun = dias.filter(d => h.dias.includes(d));
+
+      if (diasEnComun.length > 0) {
+        console.log(`⚠️ Días en común encontrados: ${diasEnComun.join(', ')}`);
+        console.log(`   Horario existente: ${h.hora_inicio} - ${h.hora_fin}`);
+        console.log(`   Nuevo horario: ${hora_inicio} - ${hora_fin}`);
+
+        // Verificar si hay solapamiento de horas
+        // NO hay solapamiento si: el nuevo termina antes de que empiece el existente O el nuevo empieza después de que termine el existente
+        if (!(hora_fin <= h.hora_inicio || hora_inicio >= h.hora_fin)) {
+          console.log('❌ ¡Solapamiento detectado!');
+          return res.status(400).json({
+            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}. Horario existente: ${h.hora_inicio} - ${h.hora_fin}`
+          });
+        }
+      }
+    }
+
+    console.log('✅ No hay solapamiento con otros horarios');
 
     const nuevoHorario = new Horario({
       profesional,
@@ -64,11 +135,10 @@ exports.createHorario = async (req, res) => {
       .populate('profesional', 'nombre apellidos');
 
     // Crear notificación para el profesional
-    const profesionalDB = await Profesional.findById(profesional).populate('usuario');
-    if (profesionalDB && profesionalDB.usuario) {
+    if (profesionalDB.usuario) {
       const diasTexto = dias.join(', ');
       await crearNotificacion(
-        profesionalDB.usuario._id,
+        profesionalDB.usuario._id || profesionalDB.usuario,
         'profesional',
         'Nuevo horario asignado',
         `Se ha añadido un nuevo horario a tu agenda: <strong>${diasTexto}</strong> de <strong>${hora_inicio}</strong> a <strong>${hora_fin}</strong>.`,
@@ -78,7 +148,7 @@ exports.createHorario = async (req, res) => {
 
     res.status(201).json(horarioCompleto);
   } catch (error) {
-    console.error('Error al crear horario:', error);
+    console.error('❌ Error al crear horario:', error);
     res.status(500).json({ error: 'Error al crear horario' });
   }
 };
@@ -86,12 +156,88 @@ exports.createHorario = async (req, res) => {
 // Actualizar un horario
 exports.updateHorario = async (req, res) => {
   try {
-    const horarioAnterior = await Horario.findById(req.params.id);
+    const horarioAnterior = await Horario.findById(req.params.id).populate('profesional');
     if (!horarioAnterior) {
       return res.status(404).json({ error: 'Horario no encontrado' });
     }
 
     const { dias, hora_inicio, hora_fin, fechas_festivas } = req.body;
+
+    // Si se están actualizando las horas, validar contra el horario del centro
+    if (hora_inicio || hora_fin) {
+      const horaInicioNueva = hora_inicio || horarioAnterior.hora_inicio;
+      const horaFinNueva = hora_fin || horarioAnterior.hora_fin;
+
+      // Obtener el profesional con su centro
+      const profesionalDB = await Profesional.findById(horarioAnterior.profesional._id).populate('centro');
+      if (!profesionalDB || !profesionalDB.centro) {
+        return res.status(400).json({ error: 'El profesional no tiene un centro asignado' });
+      }
+
+      const centro = profesionalDB.centro;
+      const horarioAperturaCentro = centro.horario_apertura;
+      const horarioCierreCentro = centro.horario_cierre;
+
+      console.log('🔄 Actualizando horario');
+      console.log('🏢 Centro:', centro.nombre);
+      console.log('⏰ Horario del centro:', horarioAperturaCentro, '-', horarioCierreCentro);
+      console.log('⏰ Nuevo horario del profesional:', horaInicioNueva, '-', horaFinNueva);
+
+      // Validar que hora_inicio >= horario_apertura del centro
+      if (horaInicioNueva < horarioAperturaCentro) {
+        return res.status(400).json({
+          error: `El horario de inicio (${horaInicioNueva}) no puede ser anterior al horario de apertura del centro (${horarioAperturaCentro})`
+        });
+      }
+
+      // Validar que hora_fin <= horario_cierre del centro
+      if (horaFinNueva > horarioCierreCentro) {
+        return res.status(400).json({
+          error: `El horario de fin (${horaFinNueva}) no puede ser posterior al horario de cierre del centro (${horarioCierreCentro})`
+        });
+      }
+
+      // Validar que hora_inicio < hora_fin
+      if (horaInicioNueva >= horaFinNueva) {
+        return res.status(400).json({
+          error: 'El horario de inicio debe ser anterior al horario de fin'
+        });
+      }
+
+      console.log('✅ Validación exitosa: El horario actualizado está dentro del horario del centro');
+    }
+
+    // Validar solapamiento con otros horarios del mismo profesional (excluyendo el actual)
+    const diasNuevos = dias || horarioAnterior.dias;
+    const horariosExistentes = await Horario.find({
+      profesional: horarioAnterior.profesional._id,
+      _id: { $ne: req.params.id } // Excluir el horario actual
+    });
+
+    console.log(`📋 Horarios existentes del profesional (excluyendo el actual): ${horariosExistentes.length}`);
+
+    for (const h of horariosExistentes) {
+      const diasEnComun = diasNuevos.filter(d => h.dias.includes(d));
+
+      if (diasEnComun.length > 0) {
+        const horaInicioNueva = hora_inicio || horarioAnterior.hora_inicio;
+        const horaFinNueva = hora_fin || horarioAnterior.hora_fin;
+
+        console.log(`⚠️ Días en común encontrados: ${diasEnComun.join(', ')}`);
+        console.log(`   Horario existente: ${h.hora_inicio} - ${h.hora_fin}`);
+        console.log(`   Nuevo horario: ${horaInicioNueva} - ${horaFinNueva}`);
+
+        // Verificar si hay solapamiento de horas
+        if (!(horaFinNueva <= h.hora_inicio || horaInicioNueva >= h.hora_fin)) {
+          console.log('❌ ¡Solapamiento detectado!');
+          return res.status(400).json({
+            error: `El horario se solapa con otro horario del mismo profesional en día(s): ${diasEnComun.join(', ')}. Horario existente: ${h.hora_inicio} - ${h.hora_fin}`
+          });
+        }
+      }
+    }
+
+    console.log('✅ No hay solapamiento con otros horarios');
 
     // Detectar cambios ANTES de actualizar
     const cambioHoras = (hora_inicio && hora_inicio !== horarioAnterior.hora_inicio) ||

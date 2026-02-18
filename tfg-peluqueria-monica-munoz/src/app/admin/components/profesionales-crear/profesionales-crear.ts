@@ -153,14 +153,14 @@ export class ProfesionalesCrear implements OnInit {
     const apellidos = nombreCompleto.slice(1).join(' ') || 'Sin apellidos';
 
     const nuevoProfesional = {
-      id_usuario: this.id_usuario,  // Enviar como id_usuario pero con valor de _id (string)
+      usuario: this.id_usuario,  // Backend espera 'usuario' con el _id del usuario
       nombre: nombre,
       apellidos: apellidos,
-      centro: this.id_centro  // Cambiar de id_centro a centro
+      centro: this.id_centro
     };
 
     console.log('Datos del profesional a crear:');
-    console.log('- id_usuario:', nuevoProfesional.id_usuario);
+    console.log('- usuario:', nuevoProfesional.usuario);
     console.log('- nombre:', nuevoProfesional.nombre);
     console.log('- apellidos:', nuevoProfesional.apellidos);
     console.log('- centro:', nuevoProfesional.centro);

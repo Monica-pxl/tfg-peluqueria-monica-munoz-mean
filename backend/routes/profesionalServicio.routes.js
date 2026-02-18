@@ -5,8 +5,9 @@ const profesionalServicioController = require('../controllers/profesionalServici
 // CRUD de relaciones profesional-servicio
 router.get('/', profesionalServicioController.getAllRelaciones);
 router.post('/', profesionalServicioController.createRelacion);
+// Las rutas más específicas deben ir primero
+router.delete('/servicio/:servicioId', profesionalServicioController.deleteRelacionesByServicio);
+router.delete('/profesional/:profesionalId', profesionalServicioController.deleteRelacionesByProfesional);
 router.delete('/:id', profesionalServicioController.deleteRelacion);
-router.delete('/servicio/:id', profesionalServicioController.deleteRelacionesByServicio);
-router.delete('/profesional/:id', profesionalServicioController.deleteRelacionesByProfesional);
 
 module.exports = router;

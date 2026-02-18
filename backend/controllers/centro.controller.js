@@ -28,23 +28,37 @@ exports.getCentroById = async (req, res) => {
 // Crear un centro
 exports.createCentro = async (req, res) => {
   try {
-    const { nombre, direccion, telefono, horario } = req.body;
+    const { nombre, direccion, telefono, email, horario_apertura, horario_cierre } = req.body;
 
-    if (!nombre || !direccion) {
-      return res.status(400).json({ error: 'Nombre y dirección son obligatorios' });
+    console.log('📝 Creando centro con datos:', { nombre, direccion, telefono, email, horario_apertura, horario_cierre });
+
+    if (!nombre || !direccion || !telefono || !email || !horario_apertura || !horario_cierre) {
+      console.log('❌ Faltan campos obligatorios:', {
+        nombre: !!nombre,
+        direccion: !!direccion,
+        telefono: !!telefono,
+        email: !!email,
+        horario_apertura: !!horario_apertura,
+        horario_cierre: !!horario_cierre
+      });
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
     const nuevoCentro = new Centro({
       nombre,
       direccion,
       telefono,
-      horario
+      email,
+      horario_apertura,
+      horario_cierre
     });
 
     await nuevoCentro.save();
+    console.log('✅ Centro guardado con _id:', nuevoCentro._id);
+
     res.status(201).json(nuevoCentro);
   } catch (error) {
-    console.error('Error al crear centro:', error);
+    console.error('❌ Error al crear centro:', error);
     res.status(500).json({ error: 'Error al crear centro' });
   }
 };
@@ -72,10 +86,20 @@ exports.updateCentro = async (req, res) => {
 // Eliminar un centro
 exports.deleteCentro = async (req, res) => {
   try {
+    // Verificar si hay profesionales asignados a este centro
+    const profesionales = await Profesional.find({ centro: req.params.id });
+    if (profesionales.length > 0) {
+      return res.status(400).json({
+        error: 'No se puede eliminar el centro porque tiene profesionales asignados',
+        profesionalesAsignados: profesionales.length
+      });
+    }
+
     const centro = await Centro.findByIdAndDelete(req.params.id);
     if (!centro) {
       return res.status(404).json({ error: 'Centro no encontrado' });
     }
+
     res.json({ mensaje: 'Centro eliminado exitosamente' });
   } catch (error) {
     console.error('Error al eliminar centro:', error);

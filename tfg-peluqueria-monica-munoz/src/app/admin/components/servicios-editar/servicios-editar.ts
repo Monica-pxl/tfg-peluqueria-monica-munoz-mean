@@ -11,6 +11,7 @@ import { ProfesionalServicioInterface } from '../../../cliente/interfaces/profes
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertService } from '../../../shared/services/alert-service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-servicios-editar',
@@ -153,38 +154,38 @@ export class ServiciosEditar implements OnInit{
             if (this.id_profesionales.length > 0) {
               console.log('Creando nuevas relaciones para profesionales:', this.id_profesionales);
 
-              let relacionesCreadas = 0;
-
-              this.id_profesionales.forEach((id_prof, index) => {
-                this.profesionalServicioService.crearRelacion({
+              // Crear array de observables para forkJoin
+              const observables = this.id_profesionales.map(id_prof => {
+                const relacion = {
                   profesional: id_prof,
                   servicio: this.servicio._id
-                }).subscribe({
-                  next: () => {
-                    relacionesCreadas++;
-                    console.log(`✅ Relación ${relacionesCreadas}/${this.id_profesionales.length} creada`);
+                };
+                console.log('Creando relación:', relacion);
+                return this.profesionalServicioService.crearRelacion(relacion);
+              });
 
-                    // Si es la última relación, navegar de vuelta
-                    if (relacionesCreadas === this.id_profesionales.length) {
-                      this.alertService.success('Servicio actualizado exitosamente');
-                      this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
-                    }
-                  },
-                  error: (err) => {
-                    console.error('Error al crear relación:', err);
-                    this.alertService.warning('Servicio actualizado, pero hubo un error al asignar algunos profesionales');
-                    this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
-                  }
-                });
+              // Ejecutar todas las peticiones en paralelo
+              forkJoin(observables).subscribe({
+                next: () => {
+                  console.log('✅ Todas las relaciones creadas exitosamente');
+                  this.alertService.success('Servicio actualizado exitosamente');
+                  this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
+                },
+                error: (err) => {
+                  console.error('❌ Error al crear relaciones:', err);
+                  this.alertService.warning('Servicio actualizado, pero hubo un error al actualizar profesionales');
+                  this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
+                }
               });
             } else {
               // Si no hay profesionales, simplemente confirmar la actualización
+              console.log('✅ No hay profesionales seleccionados');
               this.alertService.success('Servicio actualizado exitosamente');
               this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
             }
           },
           error: (err) => {
-            console.error('Error al eliminar relaciones antiguas:', err);
+            console.error('❌ Error al eliminar relaciones antiguas:', err);
             this.alertService.error('Error al actualizar las relaciones del servicio');
           }
         });

@@ -1,5 +1,7 @@
 const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
+const ProfesionalServicio = require('../models/profesionalServicio');
+const Horario = require('../models/horario');
 const bcrypt = require('bcryptjs');
 
 // Obtener todos los usuarios
@@ -100,14 +102,39 @@ exports.deleteUsuario = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Si el usuario es profesional, eliminar su registro de profesional
+    console.log(`🗑️ Usuario eliminado: ${usuario.nombre} (${usuario.rol})`);
+
+    // Si el usuario es profesional, eliminar su registro de profesional Y TODAS sus relaciones
     if (usuario.rol === 'profesional') {
-      await Profesional.findOneAndDelete({ usuario: req.params.id });
+      const profesional = await Profesional.findOne({ usuario: req.params.id });
+
+      if (profesional) {
+        console.log(`🗑️ Eliminando profesional asociado: ${profesional._id}`);
+
+        // 1. Eliminar relaciones profesional-servicio
+        const relaciones = await ProfesionalServicio.deleteMany({ profesional: profesional._id });
+        console.log(`   ├─ ${relaciones.deletedCount} relaciones profesional-servicio eliminadas`);
+
+        // 2. Eliminar horarios del profesional
+        const horarios = await Horario.deleteMany({ profesional: profesional._id });
+        console.log(`   ├─ ${horarios.deletedCount} horarios eliminados`);
+
+        // 3. Cancelar citas pendientes del profesional
+        const citas = await Cita.updateMany(
+          { profesional: profesional._id, estado: { $ne: 'realizada' } },
+          { $set: { estado: 'cancelada' } }
+        );
+        console.log(`   ├─ ${citas.modifiedCount} citas canceladas`);
+
+        // 4. Eliminar el registro de profesional
+        await Profesional.findByIdAndDelete(profesional._id);
+        console.log(`   └─ Registro de profesional eliminado`);
+      }
     }
 
     res.json({ mensaje: 'Usuario eliminado exitosamente' });
   } catch (error) {
-    console.error('Error al eliminar usuario:', error);
+    console.error('❌ Error al eliminar usuario:', error);
     res.status(500).json({ error: 'Error al eliminar usuario' });
   }
 };

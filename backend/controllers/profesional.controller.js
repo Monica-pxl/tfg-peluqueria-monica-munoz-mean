@@ -51,27 +51,34 @@ exports.getProfesionalByUsuario = async (req, res) => {
 // Crear un profesional
 exports.createProfesional = async (req, res) => {
   try {
-    const { nombre, apellidos, usuario, centro } = req.body;
+    // Aceptar tanto 'usuario' como 'id_usuario' para compatibilidad
+    const { nombre, apellidos, usuario, id_usuario, centro } = req.body;
+    const usuarioId = usuario || id_usuario;
 
-    if (!nombre || !apellidos || !usuario) {
+    console.log('📝 Creando profesional con datos:', { nombre, apellidos, usuario: usuarioId, centro });
+
+    if (!nombre || !apellidos || !usuarioId) {
+      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, apellidos: !!apellidos, usuario: !!usuarioId });
       return res.status(400).json({ error: 'Nombre, apellidos y usuario son obligatorios' });
     }
 
     const nuevoProfesional = new Profesional({
       nombre,
       apellidos,
-      usuario,
+      usuario: usuarioId,
       centro
     });
 
     await nuevoProfesional.save();
+    console.log('✅ Profesional guardado con _id:', nuevoProfesional._id);
+
     const profesionalCompleto = await Profesional.findById(nuevoProfesional._id)
       .populate('usuario', 'nombre email')
       .populate('centro', 'nombre direccion');
 
-    res.status(201).json(profesionalCompleto);
+    res.status(201).json({ profesional: profesionalCompleto });
   } catch (error) {
-    console.error('Error al crear profesional:', error);
+    console.error('❌ Error al crear profesional:', error);
     res.status(500).json({ error: 'Error al crear profesional' });
   }
 };
@@ -101,20 +108,55 @@ exports.updateProfesional = async (req, res) => {
 // Eliminar un profesional
 exports.deleteProfesional = async (req, res) => {
   try {
-    const profesional = await Profesional.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    console.log('🗑️ ========================================');
+    console.log('🗑️ ELIMINANDO PROFESIONAL');
+    console.log('🗑️ ID recibido:', id);
+
+    // Validar que el ID sea un ObjectId válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ ID no válido:', id);
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
+
+    // PASO 1: Buscar el profesional
+    const profesional = await Profesional.findById(id);
     if (!profesional) {
+      console.log('❌ Profesional no encontrado con _id:', id);
       return res.status(404).json({ error: 'Profesional no encontrado' });
     }
 
-    // Eliminar relaciones profesional-servicio
-    await ProfesionalServicio.deleteMany({ profesional: req.params.id });
+    console.log(`✓ Profesional encontrado: ${profesional.nombre} ${profesional.apellidos}`);
 
-    // Eliminar horarios del profesional
-    await Horario.deleteMany({ profesional: req.params.id });
+    // PASO 2: Eliminar relaciones profesional_servicio
+    const relacionesEliminadas = await ProfesionalServicio.deleteMany({ profesional: id });
+    console.log(`✅ Relaciones profesional_servicio eliminadas: ${relacionesEliminadas.deletedCount}`);
 
-    res.json({ mensaje: 'Profesional eliminado exitosamente' });
+    // PASO 3: Eliminar horarios del profesional
+    const horariosEliminados = await Horario.deleteMany({ profesional: id });
+    console.log(`✅ Horarios eliminados: ${horariosEliminados.deletedCount}`);
+
+    // PASO 4: Actualizar/eliminar citas del profesional
+    const citasActualizadas = await Cita.updateMany(
+      { profesional: id, estado: { $ne: 'realizada' } },
+      { $set: { estado: 'cancelada' } }
+    );
+    console.log(`✅ Citas actualizadas a canceladas: ${citasActualizadas.modifiedCount}`);
+
+    // PASO 5: Eliminar el profesional
+    await Profesional.findByIdAndDelete(id);
+    console.log(`✅ Profesional eliminado: ${profesional.nombre} ${profesional.apellidos}`);
+    console.log('🗑️ ========================================');
+
+    res.json({
+      mensaje: 'Profesional eliminado exitosamente',
+      relacionesEliminadas: relacionesEliminadas.deletedCount,
+      horariosEliminados: horariosEliminados.deletedCount,
+      citasActualizadas: citasActualizadas.modifiedCount
+    });
   } catch (error) {
-    console.error('Error al eliminar profesional:', error);
+    console.error('❌ Error al eliminar profesional:', error);
     res.status(500).json({ error: 'Error al eliminar profesional' });
   }
 };
