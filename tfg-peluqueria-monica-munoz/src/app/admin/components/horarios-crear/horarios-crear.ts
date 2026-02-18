@@ -31,6 +31,8 @@ export class HorariosCrear implements OnInit {
   hora_fin = '';
 
   profesionales: ProfesionalesInterface[] = [];
+  profesionalesFiltrados: ProfesionalesInterface[] = [];
+  busquedaProfesional: string = '';
   centros: CentrosInterface[] = [];
   usuarios: UsuariosInterface[] = [];
   cargandoProfesionales = false;
@@ -60,6 +62,7 @@ export class HorariosCrear implements OnInit {
     this.profesionalesService.getAllProfesionales().subscribe({
       next: (profesionales) => {
         this.profesionales = profesionales;
+        this.profesionalesFiltrados = profesionales; // Inicializar filtrados con todos
         console.log('Profesionales cargados:', profesionales);
         this.cargandoProfesionales = false;
       },
@@ -298,6 +301,19 @@ export class HorariosCrear implements OnInit {
         const mensaje = err.error?.error || 'Error al crear el horario';
         this.alertService.error(mensaje);
       }
+    });
+  }
+
+  filtrarProfesionales(): void {
+    if (!this.busquedaProfesional.trim()) {
+      this.profesionalesFiltrados = this.profesionales;
+      return;
+    }
+
+    const busqueda = this.busquedaProfesional.toLowerCase().trim();
+    this.profesionalesFiltrados = this.profesionales.filter(prof => {
+      const nombreCompleto = `${prof.nombre} ${prof.apellidos}`.toLowerCase();
+      return nombreCompleto.includes(busqueda);
     });
   }
 

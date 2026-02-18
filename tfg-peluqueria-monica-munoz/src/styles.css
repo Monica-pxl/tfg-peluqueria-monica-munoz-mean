@@ -33,3 +33,24 @@ app-root {
   color: #999;
 }
 
+/* Estilos para resaltar datos faltantes en tablas de admin */
+.sin-datos {
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white !important;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  animation: pulseWarning 2s ease-in-out infinite;
+}
+
+@keyframes pulseWarning {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 15px rgba(255, 107, 107, 0.5);
+  }
+}

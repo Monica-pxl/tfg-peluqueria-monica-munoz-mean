@@ -2,7 +2,7 @@
 
   <div class="header-notificaciones">
     <h2 class="titulo">
-      <span class="icono-titulo">🔔</span>
+      <i class="bi bi-bell-fill icono-titulo"></i>
       Notificaciones Profesional
       @if(notificaciones.length > 0) {
         <span class="badge-count">{{ notificaciones.length }}</span>
@@ -12,14 +12,14 @@
 
   @if(notificaciones.length > 0) {
     <button class="btn-limpiar" (click)="limpiar()">
-      <span class="icono-limpiar">✨</span>
+      <i class="bi bi-trash icono-limpiar"></i>
       Limpiar notificaciones
     </button>
   }
 
   @if(notificaciones.length === 0) {
     <div class="sin-notificaciones">
-      <div class="icono-vacio">📭</div>
+      <i class="bi bi-inbox icono-vacio"></i>
       <p>No hay notificaciones.</p>
       <p class="texto-secundario">Aquí aparecerán las notificaciones del sistema</p>
     </div>
@@ -29,15 +29,15 @@
     @for(n of notificaciones; track n._id) {
       <div class="notificacion-card">
         <div class="icono-notificacion">
-          @if(n.tipo === 'exito') { ✅ }
-          @else if(n.tipo === 'advertencia') { ⚠️ }
-          @else if(n.tipo === 'error') { ❌ }
-          @else { 📢 }
+          @if(n.tipo === 'exito') { <i class="bi bi-check-circle-fill"></i> }
+          @else if(n.tipo === 'advertencia') { <i class="bi bi-exclamation-triangle-fill"></i> }
+          @else if(n.tipo === 'error') { <i class="bi bi-x-circle-fill"></i> }
+          @else { <i class="bi bi-info-circle-fill"></i> }
         </div>
         <div class="contenido-notificacion">
           <strong>{{ n.titulo }}</strong>
           <p [innerHTML]="n.mensaje"></p>
-          <span class="fecha">🕒 {{ n.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span class="fecha"><i class="bi bi-clock"></i> {{ n.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
         </div>
         <button class="btn-borrar-notif" (click)="borrarNotificacion(n)" title="Eliminar notificación">
           <i class="bi bi-x-lg"></i>

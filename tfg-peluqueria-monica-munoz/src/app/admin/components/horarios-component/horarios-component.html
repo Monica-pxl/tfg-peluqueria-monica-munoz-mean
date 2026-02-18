@@ -72,7 +72,13 @@
         <tbody>
           @for (horario of horariosFiltrados; track horario._id) {
             <tr>
-              <td class="fw-bold">{{ getNombreProfesional(horario) }}</td>
+              <td class="fw-bold">
+                @if(getNombreProfesional(horario) === 'Desconocido') {
+                  <span class="sin-datos">Sin profesional</span>
+                } @else {
+                  {{ getNombreProfesional(horario) }}
+                }
+              </td>
             <td>
               {{ formatearDias(horario.dias) }}
             </td>

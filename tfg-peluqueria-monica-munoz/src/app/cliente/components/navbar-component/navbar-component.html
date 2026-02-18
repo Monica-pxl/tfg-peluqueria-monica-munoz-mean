@@ -103,7 +103,27 @@
             </li>
           }
 
+          <!-- Dropdown Ver (Servicios y Centros) -->
+          <li class="nav-item dropdown mx-2 nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              Ver
+            </a>
+            <ul class="dropdown-menu dropdown-custom">
+              <li>
+                <a class="dropdown-item dropdown-item-custom" [routerLink]="'/servicios'">
+                  Servicios
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item dropdown-item-custom" [routerLink]="'/centros'">
+                  Centros
+                </a>
+              </li>
+            </ul>
+          </li>
 
+          <!-- Dropdown Usuario -->
           <li class="nav-item dropdown nav-item-animated">
             <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
                data-bs-toggle="dropdown" style="color: #fff;">
@@ -140,10 +160,30 @@
             </li>
           }
 
-          @for(rutaAnonimo of rutasSinUsuario; track $index){
+          <!-- Dropdown Ver (Servicios y Centros) -->
+          <li class="nav-item dropdown mx-2 nav-item-animated">
+            <a class="nav-link dropdown-toggle py-2 px-4" href="#" role="button"
+               data-bs-toggle="dropdown" style="color: #fff;">
+              Ver
+            </a>
+            <ul class="dropdown-menu dropdown-custom">
+              <li>
+                <a class="dropdown-item dropdown-item-custom" [routerLink]="'/servicios'">
+                  Servicios
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item dropdown-item-custom" [routerLink]="'/centros'">
+                  Centros
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          @for(rutaSinUsuario of rutasSinUsuario; track $index){
             <li class="nav-item mx-2 nav-item-animated">
-              <a class="nav-link py-2 px-4" [routerLink]="rutaAnonimo.ruta" style="color: #fff;">
-                {{ rutaAnonimo.nombre }}
+              <a class="nav-link py-2 px-4 btn-sesion" [routerLink]="rutaSinUsuario.ruta">
+                {{ rutaSinUsuario.nombre }}
               </a>
             </li>
           }

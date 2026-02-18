@@ -31,8 +31,4 @@ export class HorariosService {
   deleteHorario(id: string | number): Observable<any> {
     return this.http.delete(`${this.url}/${id}`);
   }
-
-  deleteHorariosByProfesional(id_profesional: number): Observable<any> {
-    return this.http.delete(`${this.url}/profesional/${id_profesional}`);
-  }
 }

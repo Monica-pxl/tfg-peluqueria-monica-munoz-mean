@@ -19,18 +19,43 @@
             <span class="ms-2">Cargando profesionales...</span>
           </div>
         } @else {
+          <!-- Barra de búsqueda -->
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="bi bi-search text-muted"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                placeholder="Buscar profesional por nombre o apellidos..."
+                [(ngModel)]="busquedaProfesional"
+                name="busquedaProfesional"
+                (ngModelChange)="filtrarProfesionales()">
+            </div>
+            @if(busquedaProfesional && profesionalesFiltrados.length === 0) {
+              <small class="text-danger mt-1 d-block">No se encontraron profesionales</small>
+            }
+          </div>
+
+          <!-- Select de profesionales -->
           <select
             class="form-select form-control-custom"
             [(ngModel)]="id_profesional"
             name="id_profesional"
             required>
-            <option [value]="null">Selecciona un profesional</option>
-            @for (prof of profesionales; track prof._id) {
+            <option [value]="null">Selecciona un profesional ({{ profesionalesFiltrados.length }} disponibles)</option>
+            @for (prof of profesionalesFiltrados; track prof._id) {
               <option [value]="prof._id">
                 {{ prof.nombre }} {{ prof.apellidos }}
               </option>
             }
           </select>
+          @if(busquedaProfesional) {
+            <small class="text-muted d-block mt-2">
+              <i class="bi bi-funnel"></i> Mostrando {{ profesionalesFiltrados.length }} de {{ profesionales.length }} profesionales
+            </small>
+          }
         }
       </div>
 

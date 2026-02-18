@@ -47,37 +47,79 @@ export class NotificacionesService {
   // Obtener todas las notificaciones del usuario logueado (Observable)
   getNotificacionesObservable(): Observable<NotificacionInterface[]> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario || !usuario._id) {
+    console.log('🔍 [Notificaciones] Usuario logueado:', usuario);
+
+    // El backend ahora devuelve tanto _id como id_usuario
+    const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
+
+    if (!usuario || !userId) {
+      console.error('❌ [Notificaciones] No hay usuario logueado o no tiene ID');
       return new Observable(observer => {
         observer.next([]);
         observer.complete();
       });
     }
-    return this.http.get<NotificacionInterface[]>(`${this.apiUrl}/usuario/${usuario._id}`);
+
+    const url = `${this.apiUrl}/usuario/${userId}`;
+    console.log('📡 [Notificaciones] Llamando a:', url);
+
+    return this.http.get<NotificacionInterface[]>(url).pipe(
+      tap(notificaciones => {
+        console.log('✅ [Notificaciones] Recibidas:', notificaciones.length, 'notificaciones');
+      })
+    );
   }
 
   // Obtener notificaciones no leídas del usuario logueado
   getNotificacionesNoLeidas(): Observable<NotificacionInterface[]> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario || !usuario._id) {
+    console.log('🔍 [Notificaciones No Leídas] Usuario logueado:', usuario);
+
+    // Intentar obtener el ID del usuario (puede ser _id o id_usuario)
+    const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
+
+    if (!usuario || !userId) {
+      console.error('❌ [Notificaciones No Leídas] No hay usuario logueado o no tiene _id/id_usuario');
       return new Observable(observer => {
         observer.next([]);
         observer.complete();
       });
     }
-    return this.http.get<NotificacionInterface[]>(`${this.apiUrl}/usuario/${usuario._id}/no-leidas`);
+
+    const url = `${this.apiUrl}/usuario/${userId}/no-leidas`;
+    console.log('📡 [Notificaciones No Leídas] Llamando a:', url);
+
+    return this.http.get<NotificacionInterface[]>(url).pipe(
+      tap(notificaciones => {
+        console.log('✅ [Notificaciones No Leídas] Recibidas:', notificaciones.length, 'notificaciones');
+      })
+    );
   }
 
   // Contar notificaciones no leídas
   contarNoLeidas(): Observable<{ count: number }> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario || !usuario._id) {
+    console.log('🔍 [Contar No Leídas] Usuario logueado:', usuario);
+
+    // Intentar obtener el ID del usuario (puede ser _id o id_usuario)
+    const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
+
+    if (!usuario || !userId) {
+      console.error('❌ [Contar No Leídas] No hay usuario logueado o no tiene _id/id_usuario');
       return new Observable(observer => {
         observer.next({ count: 0 });
         observer.complete();
       });
     }
-    return this.http.get<{ count: number }>(`${this.apiUrl}/usuario/${usuario._id}/contar-no-leidas`);
+
+    const url = `${this.apiUrl}/usuario/${userId}/contar-no-leidas`;
+    console.log('📡 [Contar No Leídas] Llamando a:', url);
+
+    return this.http.get<{ count: number }>(url).pipe(
+      tap(response => {
+        console.log('✅ [Contar No Leídas] Count:', response.count);
+      })
+    );
   }
 
   // Verificar si hay notificaciones sin leer (síncrono para compatibilidad con templates)
@@ -105,13 +147,15 @@ export class NotificacionesService {
   // Marcar todas las notificaciones del usuario como leídas
   marcarTodasComoLeidas(): Observable<any> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario || !usuario._id) {
+    const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
+
+    if (!usuario || !userId) {
       return new Observable(observer => {
         observer.next({});
         observer.complete();
       });
     }
-    return this.http.put(`${this.apiUrl}/usuario/${usuario._id}/marcar-todas-leidas`, {}).pipe(
+    return this.http.put(`${this.apiUrl}/usuario/${userId}/marcar-todas-leidas`, {}).pipe(
       tap(() => {
         // Emitir evento para actualizar el navbar
         this.notificacionesActualizadas.next();
@@ -135,13 +179,15 @@ export class NotificacionesService {
   // Eliminar todas las notificaciones del usuario (limpiar)
   limpiarNotificaciones(): Observable<any> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    if (!usuario || !usuario._id) {
+    const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
+
+    if (!usuario || !userId) {
       return new Observable(observer => {
         observer.next({});
         observer.complete();
       });
     }
-    return this.http.delete(`${this.apiUrl}/usuario/${usuario._id}`);
+    return this.http.delete(`${this.apiUrl}/usuario/${userId}`);
   }
 
   // Método para actualizar notificaciones (para compatibilidad, pero ahora no hace nada porque la API maneja todo)

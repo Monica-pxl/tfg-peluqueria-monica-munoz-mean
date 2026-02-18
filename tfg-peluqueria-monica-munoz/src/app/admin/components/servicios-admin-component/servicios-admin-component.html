@@ -77,8 +77,20 @@
             <td>{{ servicio.descripcion }}</td>
             <td><span class="badge-hora">{{ servicio.duracion }} min</span></td>
             <td class="text-success fw-bold">{{ servicio.precio }}€</td>
-            <td>{{ nombreCentro(servicio) }}</td>
-            <td>{{ profesionalesDelServicio(servicio) }}</td>
+            <td>
+              @if(nombreCentro(servicio) === 'Sin centro') {
+                <span class="sin-datos">Sin centro</span>
+              } @else {
+                {{ nombreCentro(servicio) }}
+              }
+            </td>
+            <td>
+              @if(profesionalesDelServicio(servicio) === 'Sin profesionales') {
+                <span class="sin-datos">Sin profesionales</span>
+              } @else {
+                {{ profesionalesDelServicio(servicio) }}
+              }
+            </td>
             <td>
               <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/servicios/editar', servicio._id]">
                 <i class="bi bi-pencil"></i>

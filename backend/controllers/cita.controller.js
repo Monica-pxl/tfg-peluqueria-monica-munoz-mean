@@ -1,0 +1,527 @@
+const Cita = require('../models/cita');
+const Usuario = require('../models/usuario');
+const Profesional = require('../models/profesional');
+const Servicio = require('../models/servicio');
+const { crearNotificacion, obtenerAdministradores, getNivelFidelidad, formatearFecha } = require('../helpers/notificaciones.helper');
+
+// Obtener todas las citas
+exports.getAllCitas = async (req, res) => {
+  try {
+    const citas = await Cita.find()
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas:', error);
+    res.status(500).json({ error: 'Error al obtener citas' });
+  }
+};
+
+// Obtener citas por usuario
+exports.getCitasByUsuario = async (req, res) => {
+  try {
+    const citas = await Cita.find({ usuario: req.params.usuarioId })
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas por usuario:', error);
+    res.status(500).json({ error: 'Error al obtener citas por usuario' });
+  }
+};
+
+// Obtener citas por profesional
+exports.getCitasByProfesional = async (req, res) => {
+  try {
+    const citas = await Cita.find({ profesional: req.params.profesionalId })
+      .populate('usuario', 'nombre email')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion')
+      .sort({ fecha: -1, hora: -1 });
+    res.json(citas);
+  } catch (error) {
+    console.error('Error al obtener citas por profesional:', error);
+    res.status(500).json({ error: 'Error al obtener citas por profesional' });
+  }
+};
+
+// Obtener una cita por ID
+exports.getCitaById = async (req, res) => {
+  try {
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion');
+
+    if (!cita) {
+      return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+
+    res.json(cita);
+  } catch (error) {
+    console.error('Error al obtener la cita:', error);
+    res.status(500).json({ error: 'Error al obtener la cita' });
+  }
+};
+
+// Crear una cita
+exports.createCita = async (req, res) => {
+  try {
+    const { usuario, profesional, servicio, centro, fecha, hora } = req.body;
+
+    if (!usuario || !profesional || !servicio || !centro || !fecha || !hora) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    }
+
+    const servicioDB = await Servicio.findById(servicio);  // ← Buscar el servicio
+    if (!servicioDB) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+
+    const nuevaCita = new Cita({
+      usuario,
+      profesional,
+      servicio,
+      centro,
+      fecha,
+      hora,
+      precio: servicioDB.precio,
+      estado: 'pendiente'
+    });
+
+    await nuevaCita.save();
+    const citaCompleta = await Cita.findById(nuevaCita._id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion');
+
+    // Crear notificaciones
+    const fechaFormateada = formatearFecha(fecha);
+    const nombreUsuario = citaCompleta.usuario.nombre;
+    const nombreProfesional = citaCompleta.profesional.nombre + ' ' + citaCompleta.profesional.apellidos;
+    const nombreServicio = citaCompleta.servicio.nombre;
+    const nombreCentro = citaCompleta.centro.nombre;
+
+    // 1. Notificación para el CLIENTE
+    await crearNotificacion(
+      usuario,
+      'cliente',
+      'Reserva realizada',
+      `Has reservado una cita para <strong>${nombreServicio}</strong> con ${nombreProfesional} el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>. Tu cita está <strong>pendiente de confirmación</strong>.`,
+      'exito'
+    );
+
+    // 2. Notificación para el PROFESIONAL
+    const profesionalDB = await Profesional.findById(profesional).populate('usuario');
+    if (profesionalDB && profesionalDB.usuario) {
+      await crearNotificacion(
+        profesionalDB.usuario._id,
+        'profesional',
+        'Nueva cita reservada',
+        `<strong>${nombreUsuario}</strong> ha reservado una cita para <strong>${nombreServicio}</strong> el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>.`,
+        'info'
+      );
+    }
+
+    // 3. Notificación para todos los ADMINISTRADORES
+    const admins = await obtenerAdministradores();
+    for (const adminId of admins) {
+      await crearNotificacion(
+        adminId,
+        'administrador',
+        'Nueva reserva',
+        `<strong>${nombreUsuario}</strong> reservó <strong>${nombreServicio}</strong> con ${nombreProfesional} en <strong>${nombreCentro}</strong> para el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>.`,
+        'info'
+      );
+    }
+
+    res.status(201).json(citaCompleta);
+  } catch (error) {
+    console.error('Error al crear cita:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Ya existe una cita en ese horario para ese profesional' });
+    }
+    res.status(500).json({ error: 'Error al crear cita' });
+  }
+};
+
+// Actualizar una cita
+exports.updateCita = async (req, res) => {
+  try {
+    const { estado, fecha, hora, actualizadoPor, rolActualizador } = req.body;
+
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion');
+
+    if (!cita) {
+      return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+
+    const estadoAnterior = cita.estado;
+
+    // Si se cambia fecha u hora, verificar disponibilidad
+    if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
+      const nuevaFecha = fecha || cita.fecha;
+      const nuevaHora = hora || cita.hora;
+
+      const citaExistente = await Cita.findOne({
+        profesional: cita.profesional._id,
+        fecha: nuevaFecha,
+        hora: nuevaHora,
+        _id: { $ne: req.params.id }
+      });
+
+      if (citaExistente) {
+        return res.status(400).json({ error: 'Ya existe una cita para ese profesional en ese horario' });
+      }
+    }
+
+    // Actualizar campos
+    if (estado) cita.estado = estado;
+    if (fecha) cita.fecha = fecha;
+    if (hora) cita.hora = hora;
+
+    await cita.save();
+
+    const citaActualizada = await Cita.findById(cita._id)
+      .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion');
+
+    // Crear notificaciones según cambios
+    const fechaFormateada = formatearFecha(citaActualizada.fecha);
+    const nombreUsuario = citaActualizada.usuario.nombre;
+    const nombreProfesional = citaActualizada.profesional.nombre + ' ' + citaActualizada.profesional.apellidos;
+    const nombreServicio = citaActualizada.servicio.nombre;
+
+    // Si cambió el estado
+    if (estado && estado !== estadoAnterior) {
+
+      // CANCELACIÓN
+      if (estado === 'cancelada') {
+
+        // Si cancela el CLIENTE
+        if (rolActualizador === 'cliente') {
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Cancelación de cliente',
+              `<strong>${nombreUsuario}</strong> ha cancelado su cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'advertencia'
+            );
+          }
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Cancelación de cliente',
+              `<strong>${nombreUsuario}</strong> canceló su cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'advertencia'
+            );
+          }
+
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por ti',
+            `Has cancelado tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'info'
+          );
+        }
+
+        // Si cancela el PROFESIONAL
+        else if (rolActualizador === 'profesional') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por profesional',
+            `${nombreProfesional} ha cancelado tu cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'advertencia'
+          );
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Profesional modifica estado de cita',
+              `${nombreProfesional} canceló la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+
+        // Si cancela el ADMIN
+        else if (rolActualizador === 'administrador') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita cancelada por el centro',
+            `El centro ha cancelado tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'advertencia'
+          );
+
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Admin modifica estado de cita',
+              `El administrador canceló la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+      }
+
+      // CONFIRMACIÓN
+      else if (estado === 'confirmada') {
+
+        // Si confirma el PROFESIONAL
+        if (rolActualizador === 'profesional') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita confirmada',
+            `${nombreProfesional} ha confirmado tu cita de <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+            'exito'
+          );
+
+          // Notificar a admins
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Profesional modifica estado de cita',
+              `${nombreProfesional} confirmó la cita de <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+
+        // Si confirma el ADMIN
+        else if (rolActualizador === 'administrador') {
+          // Notificar al cliente
+          await crearNotificacion(
+            cita.usuario._id,
+            'cliente',
+            'Cita confirmada',
+            `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong> ha sido confirmada.`,
+            'exito'
+          );
+
+          // Notificar al profesional
+          const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+          if (profesionalDB && profesionalDB.usuario) {
+            await crearNotificacion(
+              profesionalDB.usuario._id,
+              'profesional',
+              'Admin modifica estado de cita',
+              `El administrador confirmó tu cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${citaActualizada.hora}</strong>.`,
+              'info'
+            );
+          }
+        }
+      }
+    }
+
+    res.json({ mensaje: 'Cita actualizada exitosamente', cita: citaActualizada });
+  } catch (error) {
+    console.error('Error al actualizar cita:', error);
+    res.status(500).json({ error: 'Error al actualizar cita' });
+  }
+};
+
+// Eliminar una cita
+exports.deleteCita = async (req, res) => {
+  try {
+    const cita = await Cita.findByIdAndDelete(req.params.id);
+    if (!cita) {
+      return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+    res.json({ mensaje: 'Cita eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar cita:', error);
+    res.status(500).json({ error: 'Error al eliminar cita' });
+  }
+};
+
+// Marcar cita como realizada
+exports.marcarRealizada = async (req, res) => {
+  try {
+    const { marcadoPor, rolMarcador } = req.body;
+
+    const cita = await Cita.findById(req.params.id)
+      .populate('usuario', 'nombre email puntos')
+      .populate('profesional', 'nombre apellidos')
+      .populate('servicio', 'nombre precio duracion')
+      .populate('centro', 'nombre direccion');
+
+    if (!cita) {
+      return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+
+    if (cita.estado === 'realizada') {
+      return res.status(400).json({ error: 'La cita ya fue marcada como realizada' });
+    }
+
+    // Actualizar estado de la cita
+    cita.estado = 'realizada';
+    await cita.save();
+
+    // Sumar puntos al usuario
+    const usuario = await Usuario.findById(cita.usuario._id);
+    let puntosNuevos = 0;
+    let puntosActuales = 0;
+    let subioNivel = false;
+    let nivelAnterior = '';
+    let nivelNuevo = '';
+
+    if (usuario && usuario.rol === 'cliente') {
+      puntosActuales = usuario.puntos ?? 0;
+      puntosNuevos = puntosActuales + 10;
+
+      // Obtener niveles de fidelidad
+      const infoNivelAnterior = getNivelFidelidad(puntosActuales);
+      const infoNivelNuevo = getNivelFidelidad(puntosNuevos);
+
+      nivelAnterior = infoNivelAnterior.nombre;
+      nivelNuevo = infoNivelNuevo.nombre;
+      subioNivel = infoNivelAnterior.nivel !== infoNivelNuevo.nivel;
+
+      usuario.puntos = puntosNuevos;
+      await usuario.save();
+    }
+
+    // Crear notificaciones
+    const fechaFormateada = formatearFecha(cita.fecha);
+    const nombreUsuario = cita.usuario.nombre;
+    const nombreProfesional = cita.profesional.nombre + ' ' + cita.profesional.apellidos;
+    const nombreServicio = cita.servicio.nombre;
+
+    // Notificación para el CLIENTE
+    let mensajeCliente = `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> ha sido completada.<br><br>`;
+    mensajeCliente += `🎉 <strong>¡Has ganado 10 puntos de fidelidad!</strong><br>`;
+    mensajeCliente += `💰 Ahora tienes <strong>${puntosNuevos} puntos</strong> en total.<br>`;
+    mensajeCliente += `⭐ Tu nivel de fidelidad: <strong>${nivelNuevo}</strong>`;
+
+    if (subioNivel) {
+      mensajeCliente += `<br><br>🏆 <strong>¡FELICITACIONES!</strong><br>`;
+      mensajeCliente += `¡Has alcanzado el nivel <strong>${nivelNuevo}</strong>! 🎊`;
+    } else {
+      // Mostrar progreso al siguiente nivel
+      let puntosParaSiguienteNivel = 0;
+      let siguienteNivel = '';
+
+      if (puntosNuevos < 20) {
+        puntosParaSiguienteNivel = 20 - puntosNuevos;
+        siguienteNivel = 'Cliente Frecuente';
+      } else if (puntosNuevos < 50) {
+        puntosParaSiguienteNivel = 50 - puntosNuevos;
+        siguienteNivel = 'Cliente Habitual';
+      } else if (puntosNuevos < 100) {
+        puntosParaSiguienteNivel = 100 - puntosNuevos;
+        siguienteNivel = 'Cliente Premium';
+      }
+
+      if (puntosParaSiguienteNivel > 0) {
+        mensajeCliente += `<br>📊 Te faltan <strong>${puntosParaSiguienteNivel} puntos</strong> para alcanzar <strong>${siguienteNivel}</strong>.`;
+      }
+    }
+
+    await crearNotificacion(
+      cita.usuario._id,
+      'cliente',
+      'Cita realizada',
+      mensajeCliente,
+      'exito'
+    );
+
+    // Si la marcó el ADMINISTRADOR
+    if (rolMarcador === 'administrador') {
+      const profesionalDB = await Profesional.findById(cita.profesional._id).populate('usuario');
+      if (profesionalDB && profesionalDB.usuario) {
+        await crearNotificacion(
+          profesionalDB.usuario._id,
+          'profesional',
+          'Cita marcada como realizada por admin',
+          `El administrador ha marcado como realizada tu cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong>.`,
+          'info'
+        );
+      }
+    }
+
+    // Si la marcó el PROFESIONAL
+    if (rolMarcador === 'profesional') {
+      const admins = await obtenerAdministradores();
+      for (const adminId of admins) {
+        await crearNotificacion(
+          adminId,
+          'administrador',
+          'Profesional marca cita como realizada',
+          `${nombreProfesional} ha marcado como realizada la cita con <strong>${nombreUsuario}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong>.`,
+          'info'
+        );
+      }
+    }
+
+    return res.json({
+      mensaje: 'Cita marcada como realizada y puntos sumados',
+      cita,
+      puntosSumados: 10,
+      puntosActuales: puntosNuevos,
+      subioNivel,
+      nivelActual: Math.floor(puntosNuevos / 100)
+    });
+  } catch (error) {
+    console.error('Error al marcar cita como realizada:', error);
+    res.status(500).json({ error: 'Error al marcar cita como realizada' });
+  }
+};
+
+// Verificar disponibilidad
+exports.verificarDisponibilidad = async (req, res) => {
+  try {
+    const { profesionalId, fecha, hora } = req.params;
+
+    if (!profesionalId || !fecha || !hora) {
+      return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
+    }
+
+    const citaExistente = await Cita.findOne({
+      profesional: profesionalId,
+      fecha,
+      hora,
+      estado: { $ne: 'cancelada' }
+    });
+
+    res.json({ disponible: !citaExistente });
+  } catch (error) {
+    console.error('Error al verificar disponibilidad:', error);
+    res.status(500).json({ error: 'Error al verificar disponibilidad' });
+  }
+};

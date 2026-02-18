@@ -135,10 +135,17 @@ export class MisCitasComponent implements OnInit{
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
   }
 
+  // Verificar si la cita ya pasó (fecha y hora)
+  citaYaPaso(cita: any): boolean {
+    const fechaHoraCita = new Date(`${cita.fecha}T${cita.hora}`);
+    const ahora = new Date();
+    return fechaHoraCita < ahora;
+  }
+
   puedeSerCancelada(cita: any): boolean {
-    // Solo se puede cancelar si el estado es 'pendiente' (o si no tiene estado definido, asumimos pendiente)
+    // Solo se puede cancelar si el estado es 'pendiente' Y la cita NO ha pasado
     const estado = cita.estado || 'pendiente';
-    return estado === 'pendiente';
+    return estado === 'pendiente' && !this.citaYaPaso(cita);
   }
 
   getEstadoClase(estado: string): string {

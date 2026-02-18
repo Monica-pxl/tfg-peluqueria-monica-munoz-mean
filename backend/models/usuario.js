@@ -13,6 +13,14 @@ const usuarioSchema = new mongoose.Schema({
       return this.rol === 'cliente' ? 0 : undefined;
     }
   }
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  toJSON: {
+    transform: function(doc, ret) {
+      ret.id_usuario = ret._id; // Añadir id_usuario para compatibilidad con frontend
+      return ret;
+    }
+  }
+});
 
 module.exports = mongoose.model('Usuario', usuarioSchema);

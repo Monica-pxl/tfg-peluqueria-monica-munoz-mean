@@ -251,6 +251,8 @@ export class MisCitasComponent implements OnInit {
 
   // Obtener estados disponibles según el estado actual y si la cita ya pasó
   getEstadosDisponibles(cita: CitasInterface): string[] {
+    const yaPaso = this.citaYaPaso(cita);
+
     // Si la cita ya está realizada, no se puede cambiar
     if (cita.estado === 'realizada') {
       return ['realizada'];
@@ -258,7 +260,7 @@ export class MisCitasComponent implements OnInit {
 
     // Si la cita ya está cancelada, solo puede marcar como realizada o mantener cancelada
     if (cita.estado === 'cancelada') {
-      if (this.citaYaPaso(cita)) {
+      if (yaPaso) {
         return ['cancelada', 'realizada'];
       } else {
         return ['cancelada'];
@@ -267,19 +269,21 @@ export class MisCitasComponent implements OnInit {
 
     // Si la cita está confirmada
     if (cita.estado === 'confirmada') {
-      if (this.citaYaPaso(cita)) {
-        // Si ya pasó, puede ir a cancelada o realizada (no a pendiente)
-        return ['confirmada', 'cancelada', 'realizada'];
+      if (yaPaso) {
+        // Si ya pasó, SOLO puede marcarse como realizada (NO cancelar)
+        return ['confirmada', 'realizada'];
       } else {
-        // Si no ha pasado, puede ir a cancelada (no a pendiente)
+        // Si no ha pasado, puede cancelarse
         return ['confirmada', 'cancelada'];
       }
     }
 
     // Si la cita está pendiente
-    if (this.citaYaPaso(cita)) {
-      return ['pendiente', 'confirmada', 'cancelada', 'realizada'];
+    if (yaPaso) {
+      // Si ya pasó y sigue pendiente, NO se puede cambiar (se quedó sin gestionar)
+      return ['pendiente'];
     } else {
+      // Si no ha pasado, puede confirmarse o cancelarse
       return ['pendiente', 'confirmada', 'cancelada'];
     }
   }

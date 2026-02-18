@@ -84,8 +84,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   rutasNavbar: {nombre: string, ruta: string} [] = [
     { nombre: "Inicio", ruta: "/"},
-    { nombre: "Servicios", ruta: "/servicios"},
-    {nombre: "Centros", ruta: "/centros"},
     { nombre: "Mis Citas", ruta: "/mis-citas"},
     { nombre: "Reservar Cita", ruta: "/reservar-cita"}
   ];
