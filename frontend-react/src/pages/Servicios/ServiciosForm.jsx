@@ -1,8 +1,8 @@
 // src/pages/ServiciosForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getServicioById, createServicio, updateServicio } from '../services/serviciosService';
-import api from '../services/api';
+import serviciosService from '../../services/serviciosService.js';
+import api from '../../services/api.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ServiciosForm = () => {
@@ -42,15 +42,29 @@ const ServiciosForm = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-      getServicioById(id)
-        .then(data => {
+      // Cargar TODOS los servicios y buscar el específico (como hace Angular)
+      serviciosService.getAll()
+        .then(response => {
+          const servicios = response.data;
+          console.log('Todos los servicios:', servicios);
+          // Buscar el servicio específico por _id
+          const servicioEncontrado = servicios.find(s => s._id === id);
+
+          if (!servicioEncontrado) {
+            setErrorMessage('Servicio no encontrado');
+            setLoading(false);
+            return;
+          }
+
+          console.log('Servicio encontrado:', servicioEncontrado);
+
           setServicio({
-            nombre: data.nombre || '',
-            descripcion: data.descripcion || '',
-            duracion: data.duracion || '',
-            precio: data.precio || '',
-            centro: data.centro || '',
-            imagen: data.imagen || ''
+            nombre: servicioEncontrado.nombre || '',
+            descripcion: servicioEncontrado.descripcion || '',
+            duracion: servicioEncontrado.duracion || '',
+            precio: servicioEncontrado.precio || '',
+            centro: servicioEncontrado.centro?._id || servicioEncontrado.centro || '',
+            imagen: servicioEncontrado.imagen || ''
           });
           setLoading(false);
         })
@@ -126,10 +140,10 @@ const ServiciosForm = () => {
       };
 
       if (id) {
-        await updateServicio(id, servicioData);
+        await serviciosService.update(id, servicioData);
         setSuccessMessage('✅ ¡Servicio actualizado correctamente!');
       } else {
-        await createServicio(servicioData);
+        await serviciosService.create(servicioData);
         setSuccessMessage('✅ ¡Servicio creado correctamente!');
       }
 

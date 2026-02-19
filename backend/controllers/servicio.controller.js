@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Servicio = require('../models/servicio');
 const ProfesionalServicio = require('../models/profesionalServicio');
 
@@ -12,19 +13,6 @@ exports.getAllServicios = async (req, res) => {
   }
 };
 
-// Obtener un servicio por ID
-exports.getServicioById = async (req, res) => {
-  try {
-    const servicio = await Servicio.findById(req.params.id).populate('centro', 'nombre direccion');
-    if (!servicio) {
-      return res.status(404).json({ error: 'Servicio no encontrado' });
-    }
-    res.json(servicio);
-  } catch (error) {
-    console.error('Error al obtener servicio:', error);
-    res.status(500).json({ error: 'Error al obtener servicio' });
-  }
-};
 
 // Crear un servicio
 exports.createServicio = async (req, res) => {
@@ -126,13 +114,3 @@ exports.deleteServicio = async (req, res) => {
   }
 };
 
-// Obtener servicios por centro
-exports.getServiciosByCentro = async (req, res) => {
-  try {
-    const servicios = await Servicio.find({ centro: req.params.centroId }).populate('centro', 'nombre direccion');
-    res.json(servicios);
-  } catch (error) {
-    console.error('Error al obtener servicios por centro:', error);
-    res.status(500).json({ error: 'Error al obtener servicios por centro' });
-  }
-};

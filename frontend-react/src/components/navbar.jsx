@@ -50,11 +50,11 @@ const Navbar = () => {
             </li>
             <li className="nav-item mx-3 nav-item-animated">
               <Link
-                className={`nav-link nav-link-futuristic ${isActive('/usuarios') ? 'active' : ''}`}
-                to="/usuarios"
+                className={`nav-link nav-link-futuristic ${isActive('/centros') ? 'active' : ''}`}
+                to="/centros"
               >
-                <i className="bi bi-people me-2"></i>
-                <span>Usuarios</span>
+                <i className="bi bi-building me-2"></i>
+                <span>Centros</span>
               </Link>
             </li>
           </ul>

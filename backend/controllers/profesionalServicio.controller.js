@@ -13,29 +13,6 @@ exports.getAllRelaciones = async (req, res) => {
   }
 };
 
-// Obtener relaciones por profesional
-exports.getRelacionesByProfesional = async (req, res) => {
-  try {
-    const relaciones = await ProfesionalServicio.find({ profesional: req.params.profesionalId })
-      .populate('servicio', 'nombre precio duracion');
-    res.json(relaciones);
-  } catch (error) {
-    console.error('Error al obtener relaciones por profesional:', error);
-    res.status(500).json({ error: 'Error al obtener relaciones por profesional' });
-  }
-};
-
-// Obtener relaciones por servicio
-exports.getRelacionesByServicio = async (req, res) => {
-  try {
-    const relaciones = await ProfesionalServicio.find({ servicio: req.params.servicioId })
-      .populate('profesional', 'nombre apellidos');
-    res.json(relaciones);
-  } catch (error) {
-    console.error('Error al obtener relaciones por servicio:', error);
-    res.status(500).json({ error: 'Error al obtener relaciones por servicio' });
-  }
-};
 
 // Crear una relación
 exports.createRelacion = async (req, res) => {

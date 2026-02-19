@@ -30,17 +30,6 @@ exports.getHorarioById = async (req, res) => {
   }
 };
 
-// Obtener horarios por profesional
-exports.getHorariosByProfesional = async (req, res) => {
-  try {
-    const horarios = await Horario.find({ profesional: req.params.profesionalId })
-      .populate('profesional', 'nombre apellidos');
-    res.json(horarios);
-  } catch (error) {
-    console.error('Error al obtener horarios por profesional:', error);
-    res.status(500).json({ error: 'Error al obtener horarios por profesional' });
-  }
-};
 
 // Crear un horario
 exports.createHorario = async (req, res) => {

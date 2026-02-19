@@ -1,7 +1,7 @@
 // src/pages/ServiciosList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllServicios, deleteServicio } from '../services/serviciosService';
+import serviciosService from '../../services/serviciosService.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ServiciosList = () => {
@@ -18,9 +18,9 @@ const ServiciosList = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getAllServicios();
-      setServicios(data);
-      setServiciosFiltrados(data);
+      const response = await serviciosService.getAll();
+      setServicios(response.data);
+      setServiciosFiltrados(response.data);
       setLoading(false);
     } catch (err) {
       console.error('❌ Error al cargar servicios:', err);
@@ -51,7 +51,7 @@ const ServiciosList = () => {
     if (!window.confirm(`¿Estás seguro de eliminar el servicio "${nombre}"?`)) return;
 
     try {
-      await deleteServicio(id);
+      await serviciosService.delete(id);
       setServicios(servicios.filter(s => s._id !== id));
       setSuccessMessage(`✅ Servicio "${nombre}" eliminado correctamente`);
       setTimeout(() => setSuccessMessage(''), 4000);

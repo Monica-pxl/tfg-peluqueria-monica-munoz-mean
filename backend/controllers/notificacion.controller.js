@@ -1,17 +1,5 @@
 const Notificacion = require('../models/notificacion');
 
-// Obtener todas las notificaciones
-exports.getAllNotificaciones = async (req, res) => {
-  try {
-    const notificaciones = await Notificacion.find()
-      .populate('usuario', 'nombre email')
-      .sort({ createdAt: -1 });
-    res.json(notificaciones);
-  } catch (error) {
-    console.error('Error al obtener notificaciones:', error);
-    res.status(500).json({ error: 'Error al obtener notificaciones' });
-  }
-};
 
 // Obtener notificaciones por usuario
 exports.getNotificacionesByUsuario = async (req, res) => {

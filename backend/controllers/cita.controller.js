@@ -2,7 +2,46 @@ const Cita = require('../models/cita');
 const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
 const Servicio = require('../models/servicio');
+const Centro = require('../models/centro');
 const { crearNotificacion, obtenerAdministradores, getNivelFidelidad, formatearFecha } = require('../helpers/notificaciones.helper');
+
+// Helper para agregar nombres históricos cuando las referencias son null
+function agregarNombresHistoricos(cita) {
+  const citaObj = typeof cita.toObject === 'function' ? cita.toObject() : cita;
+
+  // Si usuario es null, usar nombres históricos
+  if (!citaObj.usuario && (citaObj.usuarioNombre || citaObj.usuarioEmail)) {
+    citaObj.usuario = {
+      nombre: citaObj.usuarioNombre || '',
+      email: citaObj.usuarioEmail || ''
+    };
+  }
+
+  // Si profesional es null, usar nombres históricos
+  if (!citaObj.profesional && (citaObj.profesionalNombre || citaObj.profesionalApellidos)) {
+    citaObj.profesional = {
+      nombre: citaObj.profesionalNombre || '',
+      apellidos: citaObj.profesionalApellidos || ''
+    };
+  }
+
+  // Si servicio es null, usar nombre histórico
+  if (!citaObj.servicio && citaObj.servicioNombre) {
+    citaObj.servicio = {
+      nombre: citaObj.servicioNombre
+    };
+  }
+
+  // Si centro es null, usar nombre histórico
+  if (!citaObj.centro && citaObj.centroNombre) {
+    citaObj.centro = {
+      nombre: citaObj.centroNombre
+    };
+  }
+
+  return citaObj;
+}
+
 
 // Obtener todas las citas
 exports.getAllCitas = async (req, res) => {
@@ -13,7 +52,9 @@ exports.getAllCitas = async (req, res) => {
       .populate('servicio', 'nombre duracion precio')
       .populate('centro', 'nombre direccion')
       .sort({ fecha: -1, hora: -1 });
-    res.json(citas);
+
+    const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
+    res.json(citasConHistorico);
   } catch (error) {
     console.error('Error al obtener citas:', error);
     res.status(500).json({ error: 'Error al obtener citas' });
@@ -28,7 +69,9 @@ exports.getCitasByUsuario = async (req, res) => {
       .populate('servicio', 'nombre duracion precio')
       .populate('centro', 'nombre direccion')
       .sort({ fecha: -1, hora: -1 });
-    res.json(citas);
+
+    const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
+    res.json(citasConHistorico);
   } catch (error) {
     console.error('Error al obtener citas por usuario:', error);
     res.status(500).json({ error: 'Error al obtener citas por usuario' });
@@ -43,7 +86,9 @@ exports.getCitasByProfesional = async (req, res) => {
       .populate('servicio', 'nombre duracion precio')
       .populate('centro', 'nombre direccion')
       .sort({ fecha: -1, hora: -1 });
-    res.json(citas);
+
+    const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
+    res.json(citasConHistorico);
   } catch (error) {
     console.error('Error al obtener citas por profesional:', error);
     res.status(500).json({ error: 'Error al obtener citas por profesional' });
@@ -63,7 +108,8 @@ exports.getCitaById = async (req, res) => {
       return res.status(404).json({ error: 'Cita no encontrada' });
     }
 
-    res.json(cita);
+    const citaConHistorico = agregarNombresHistoricos(cita);
+    res.json(citaConHistorico);
   } catch (error) {
     console.error('Error al obtener la cita:', error);
     res.status(500).json({ error: 'Error al obtener la cita' });
@@ -79,9 +125,25 @@ exports.createCita = async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
-    const servicioDB = await Servicio.findById(servicio);  // ← Buscar el servicio
+    // Obtener los datos completos para guardar información histórica
+    const usuarioDB = await Usuario.findById(usuario);
+    if (!usuarioDB) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const servicioDB = await Servicio.findById(servicio);
     if (!servicioDB) {
       return res.status(404).json({ error: 'Servicio no encontrado' });
+    }
+
+    const profesionalDB = await Profesional.findById(profesional);
+    if (!profesionalDB) {
+      return res.status(404).json({ error: 'Profesional no encontrado' });
+    }
+
+    const centroDB = await Centro.findById(centro);
+    if (!centroDB) {
+      return res.status(404).json({ error: 'Centro no encontrado' });
     }
 
     const nuevaCita = new Cita({
@@ -92,7 +154,14 @@ exports.createCita = async (req, res) => {
       fecha,
       hora,
       precio: servicioDB.precio,
-      estado: 'pendiente'
+      estado: 'pendiente',
+      // Guardar datos históricos
+      usuarioNombre: usuarioDB.nombre,
+      usuarioEmail: usuarioDB.email,
+      profesionalNombre: profesionalDB.nombre,
+      profesionalApellidos: profesionalDB.apellidos,
+      servicioNombre: servicioDB.nombre,
+      centroNombre: centroDB.nombre
     });
 
     await nuevaCita.save();
@@ -119,10 +188,10 @@ exports.createCita = async (req, res) => {
     );
 
     // 2. Notificación para el PROFESIONAL
-    const profesionalDB = await Profesional.findById(profesional).populate('usuario');
-    if (profesionalDB && profesionalDB.usuario) {
+    const profesionalData = await Profesional.findById(profesional).populate('usuario');
+    if (profesionalData && profesionalData.usuario) {
       await crearNotificacion(
-        profesionalDB.usuario._id,
+        profesionalData.usuario._id,
         'profesional',
         'Nueva cita reservada',
         `<strong>${nombreUsuario}</strong> ha reservado una cita para <strong>${nombreServicio}</strong> el <strong>${fechaFormateada}</strong> a las <strong>${hora}</strong>.`,

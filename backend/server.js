@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+
+// Importar la función que configura los middlewares
+const aplicarMiddlewares = require('./middlewares');
 
 // Importar routes
 const authRoutes = require('./routes/auth.routes');
@@ -17,21 +19,23 @@ const profesionalServicioRoutes = require('./routes/profesionalServicio.routes')
 // Inicializar Express
 const app = express();
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
 
-// Conexión a MongoDB
+// ✅ APLICAR MIDDLEWARES (DESDE /middlewares)
+aplicarMiddlewares(app);  // ← Esto configura cors, express.json, etc.
+
+
+// CONEXIÓN A MONGODB
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
 
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Conectado a MongoDB Atlas'))
-  .catch(err => {
-    console.error('❌ Error al conectar a MongoDB:', err);
-    process.exit(1);
-  });
+    .then(() => console.log('✅ Conectado a MongoDB Atlas'))
+    .catch(err => {
+      console.error('❌ Error al conectar a MongoDB:', err);
+      process.exit(1);
+    });
 
-// Rutas de la API
+
+// RUTAS DE LA API
 app.use('/api', authRoutes);  // Mantiene /api/login y /api/registro
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/servicios', servicioRoutes);
@@ -42,7 +46,9 @@ app.use('/api/citas', citaRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
 app.use('/api/profesional_servicio', profesionalServicioRoutes);
 
-// Ruta de prueba
+
+
+// RUTA DE PRUEBA
 app.get('/', (req, res) => {
   res.json({
     mensaje: '🚀 API de Peluquería funcionando correctamente',
@@ -61,22 +67,26 @@ app.get('/', (req, res) => {
   });
 });
 
-// Manejo de errores 404
+
+
+// MANEJO DE ERRORES
+// 404 - Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint no encontrado' });
 });
 
-// Manejo de errores global
+
+// Error global
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-// Iniciar servidor
+
+// INICIAR SERVIDOR
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📚 Documentación: http://localhost:${PORT}/`);
 });
 
 module.exports = app;

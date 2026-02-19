@@ -3,7 +3,6 @@ const router = express.Router();
 const notificacionController = require('../controllers/notificacion.controller');
 
 // CRUD de notificaciones
-router.get('/', notificacionController.getAllNotificaciones);
 router.post('/', notificacionController.createNotificacion);
 router.delete('/:id', notificacionController.deleteNotificacion);
 

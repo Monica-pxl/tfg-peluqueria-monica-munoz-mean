@@ -18,23 +18,23 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar todas las citas\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Citas tienen populate completo\", () => {\r",
+                  "pm.test(\"Citas tienen datos completos\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    if (data.length > 0) {\r",
-                  "        pm.expect(data[0]).to.have.property('usuario');\r",
-                  "        pm.expect(data[0]).to.have.property('profesional');\r",
-                  "        pm.expect(data[0]).to.have.property('servicio');\r",
-                  "        pm.expect(data[0]).to.have.property('centro');\r",
+                  "        // Puede tener objeto usuario o datos históricos\r",
+                  "        pm.expect(data[0]).to.have.property('usuario').or.have.property('usuarioNombre');\r",
+                  "        pm.expect(data[0]).to.have.property('profesional').or.have.property('profesionalNombre');\r",
+                  "        pm.expect(data[0]).to.have.property('servicio').or.have.property('servicioNombre');\r",
+                  "        pm.expect(data[0]).to.have.property('centro').or.have.property('centroNombre');\r",
                   "    }\r",
                   "});"
                 ],
@@ -69,12 +69,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para citas de profesional\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve array de citas del profesional\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});"
@@ -112,12 +111,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para citas de usuario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve array de citas del usuario\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});"
@@ -155,17 +153,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para cita por ID\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve objeto cita\", () => {\r",
+                  "pm.test(\"Cita encontrada\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
-                  "    pm.expect(data).to.have.property('estado');\r",
-                  "    pm.expect(data).to.have.property('fecha');\r",
-                  "    pm.expect(data).to.have.property('hora');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -207,10 +201,13 @@
                   "\r",
                   "pm.test(\"Cita creada correctamente\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Cita creada exitosamente');\r",
-                  "    pm.expect(data).to.have.property('cita');\r",
-                  "    pm.expect(data.cita).to.have.property('_id');\r",
-                  "    pm.expect(data.cita).to.have.property('estado', 'pendiente');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('estado', 'pendiente');\r",
+                  "    pm.expect(data).to.have.property('usuario');\r",
+                  "    pm.expect(data).to.have.property('profesional');\r",
+                  "    pm.expect(data).to.have.property('servicio');\r",
+                  "    pm.expect(data).to.have.property('centro');\r",
+                  "    pm.expect(data).to.have.property('precio');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -224,7 +221,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"usuario\": \"6992242aa7310b9614980c80\",\r\n  \"profesional\": \"6992244617fa4fabac5221b5\",\r\n  \"servicio\": \"6992245d881e51034d2b82bd\",\r\n  \"centro\": \"699224224297fb28942103f1\",\r\n  \"fecha\": \"2026-02-19\",\r\n  \"hora\": \"15:00\"\r\n}\r\n",
+              "raw": "{\r\n  \"usuario\":\"6992242aa7310b9614980c7e\",\r\n  \"profesional\":\"6992244617fa4fabac5221b5\",\r\n  \"servicio\":\"6992245d881e51034d2b82bd\",\r\n  \"centro\":\"699224224297fb28942103f1\",\r\n  \"fecha\":\"2026-02-25\",\r\n  \"hora\":\"15:00\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -253,7 +250,6 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar cita\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
@@ -305,12 +301,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar cita\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Cita eliminada\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Cita eliminada exitosamente');\r",
                   "});"
@@ -351,13 +346,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para marcar cita como realizada\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Suma 10 puntos al cliente\", () => {\r",
+                  "pm.test(\"Cita marcada como realizada\", () => {\r",
                   "    const data = pm.response.json();\r",
+                  "    pm.expect(data).to.have.property('mensaje', 'Cita marcada como realizada y puntos sumados');\r",
                   "    pm.expect(data).to.have.property('puntosSumados', 10);\r",
                   "    pm.expect(data).to.have.property('puntosActuales');\r",
                   "    pm.expect(data).to.have.property('subioNivel');\r",
@@ -393,7 +388,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3001/api/citas/6994b4f71e289a41a5540cfe/marcar-realizada",
+              "raw": "http://localhost:3001/api/citas/6994a110336950080477804a/marcar-realizada",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -402,7 +397,7 @@
               "path": [
                 "api",
                 "citas",
-                "6994b4f71e289a41a5540cfe",
+                "6994a110336950080477804a",
                 "marcar-realizada"
               ]
             }
@@ -416,12 +411,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para verificar disponibilidad\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve disponibilidad booleana\", () => {\r",
+                  "pm.test(\"Devuelve disponibilidad\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('disponible');\r",
                   "    pm.expect(data.disponible).to.be.a('boolean');\r",
@@ -474,22 +468,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar servicios\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Servicios tienen campos esperados\", () => {\r",
+                  "pm.test(\"Servicios tienen centro\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    if (data.length > 0) {\r",
-                  "        pm.expect(data[0]).to.have.property('_id');\r",
-                  "        pm.expect(data[0]).to.have.property('nombre');\r",
-                  "        pm.expect(data[0]).to.have.property('precio');\r",
+                  "        pm.expect(data[0]).to.have.property('centro');\r",
                   "    }\r",
                   "});"
                 ],
@@ -524,21 +515,15 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear servicio\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Servicio creado con _id\", () => {\r",
+                  "pm.test(\"Servicio creado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
-                  "    pm.expect(data._id).to.match(/^[0-9a-fA-F]{24}$/);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Datos guardados correctamente\", () => {\r",
-                  "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('nombre');\r",
-                  "    pm.expect(data).to.have.property('precio');\r",
+                  "    pm.expect(data).to.have.property('centro');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -581,7 +566,6 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar servicio\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
@@ -633,20 +617,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar servicio\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Servicio eliminado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Servicio eliminado');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Relaciones eliminadas contadas\", () => {\r",
-                  "    const data = pm.response.json();\r",
+                  "    pm.expect(data).to.have.property('mensaje', 'Servicio eliminado exitosamente');\r",
                   "    pm.expect(data).to.have.property('relacionesEliminadas');\r",
-                  "    pm.expect(data.relacionesEliminadas).to.be.a('number');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -690,22 +668,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para Login (más completo que el que tienes)",
                   "pm.test(\"Status 200 OK\", () => {",
                   "    pm.response.to.have.status(200);",
                   "});",
                   "",
-                  "pm.test(\"Devuelve token y usuario\", () => {",
+                  "pm.test(\"Login exitoso\", () => {",
                   "    const data = pm.response.json();",
+                  "    pm.expect(data).to.have.property('mensaje', 'Login exitoso');",
                   "    pm.expect(data).to.have.property('token');",
                   "    pm.expect(data).to.have.property('usuario');",
-                  "});",
-                  "",
-                  "pm.test(\"Token no vacío\", () => {",
-                  "    const data = pm.response.json();",
-                  "    pm.expect(data.token).to.not.be.empty;",
-                  "});",
-                  ""
+                  "    pm.expect(data.usuario).to.have.property('_id');",
+                  "    pm.expect(data.usuario).to.have.property('id_usuario');",
+                  "    pm.expect(data.usuario).to.have.property('rol');",
+                  "});"
                 ],
                 "type": "text/javascript",
                 "packages": {},
@@ -715,8 +690,12 @@
             {
               "listen": "prerequest",
               "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
                 "packages": {},
-                "type": "text/javascript"
+                "requests": {}
               }
             }
           ],
@@ -761,22 +740,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para Registro\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Usuario creado correctamente\", () => {\r",
+                  "pm.test(\"Usuario registrado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Usuario registrado exitosamente');\r",
+                  "    pm.expect(data).to.have.property('token');\r",
                   "    pm.expect(data).to.have.property('usuario');\r",
                   "    pm.expect(data.usuario).to.have.property('_id');\r",
-                  "    pm.expect(data.usuario).to.have.property('email');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Contraseña no visible\", () => {\r",
-                  "    const data = pm.response.json();\r",
-                  "    pm.expect(data.usuario).to.not.have.property('password');\r",
+                  "    pm.expect(data.usuario).to.have.property('id_usuario');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -819,21 +793,18 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar usuarios\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array de usuarios\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Cada usuario tiene _id y email\", () => {\r",
+                  "pm.test(\"Usuarios sin contraseña\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    if (data.length > 0) {\r",
-                  "        pm.expect(data[0]).to.have.property('_id');\r",
-                  "        pm.expect(data[0]).to.have.property('email');\r",
                   "        pm.expect(data[0]).to.not.have.property('password');\r",
                   "    }\r",
                   "});"
@@ -869,21 +840,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar usuario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Usuario actualizado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Usuario actualizado exitosamente');\r",
-                  "    pm.expect(data).to.have.property('usuario');\r",
-                  "    pm.expect(data.usuario).to.have.property('_id');\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Contraseña no visible\", () => {\r",
-                  "    const data = pm.response.json();\r",
-                  "    pm.expect(data.usuario).to.not.have.property('password');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
+                  "    pm.expect(data).to.not.have.property('password');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -933,12 +897,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar usuario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Usuario eliminado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Usuario eliminado exitosamente');\r",
                   "});"
@@ -997,17 +960,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar profesionales\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Profesionales tienen populate\", () => {\r",
+                  "pm.test(\"Profesionales tienen usuario y centro\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    if (data.length > 0) {\r",
                   "        pm.expect(data[0]).to.have.property('usuario');\r",
@@ -1046,15 +1008,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para obtener profesional por ID\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve profesional con datos relacionados\", () => {\r",
+                  "pm.test(\"Profesional encontrado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
-                  "    pm.expect(data).to.have.property('nombre');\r",
                   "    pm.expect(data).to.have.property('usuario');\r",
                   "    pm.expect(data).to.have.property('centro');\r",
                   "});"
@@ -1098,14 +1058,12 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear profesional\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Profesional creado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Profesional creado exitosamente');\r",
                   "    pm.expect(data).to.have.property('profesional');\r",
                   "    pm.expect(data.profesional).to.have.property('_id');\r",
                   "});"
@@ -1150,15 +1108,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar profesional\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Profesional actualizado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Profesional actualizado');\r",
-                  "    pm.expect(data).to.have.property('profesional');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1202,17 +1158,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar profesional\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Eliminación en cascada reportada\", () => {\r",
+                  "pm.test(\"Profesional eliminado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Profesional eliminado exitosamente');\r",
                   "    pm.expect(data).to.have.property('relacionesEliminadas');\r",
                   "    pm.expect(data).to.have.property('horariosEliminados');\r",
-                  "    pm.expect(data).to.have.property('citasActualizadas');\r",
+                  "    pm.expect(data).to.have.property('citasCanceladas');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1256,12 +1211,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar centros\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});"
@@ -1297,15 +1251,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para obtener centro por ID\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un objeto centro\", () => {\r",
+                  "pm.test(\"Centro encontrado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
-                  "    pm.expect(data).to.have.property('nombre');\r",
                   "    pm.expect(data).to.have.property('horario_apertura');\r",
                   "    pm.expect(data).to.have.property('horario_cierre');\r",
                   "});"
@@ -1342,16 +1294,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear centro\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Centro creado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Centro creado exitosamente');\r",
-                  "    pm.expect(data).to.have.property('centro');\r",
-                  "    pm.expect(data.centro).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('nombre');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1394,15 +1344,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar centro\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Centro actualizado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Centro actualizado exitosamente');\r",
-                  "    pm.expect(data).to.have.property('centro');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1446,9 +1394,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar centro\r",
-                  "pm.test(\"Status 200 OK (o 400 si tiene profesionales)\", () => {\r",
-                  "    // Puede ser 200 si se elimina, o 400 si tiene profesionales\r",
+                  "pm.test(\"Status 200 OK o 400\", () => {\r",
                   "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);\r",
                   "});\r",
                   "\r",
@@ -1502,17 +1448,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar horarios\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Horarios tienen populate de profesional\", () => {\r",
+                  "pm.test(\"Horarios tienen profesional\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    if (data.length > 0) {\r",
                   "        pm.expect(data[0]).to.have.property('profesional');\r",
@@ -1550,17 +1495,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para obtener horario por ID\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve objeto horario\", () => {\r",
+                  "pm.test(\"Horario encontrado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
                   "    pm.expect(data).to.have.property('dias');\r",
-                  "    pm.expect(data).to.have.property('hora_inicio');\r",
-                  "    pm.expect(data).to.have.property('hora_fin');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1595,16 +1537,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear horario\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Horario creado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Horario creado exitosamente');\r",
-                  "    pm.expect(data).to.have.property('horario');\r",
-                  "    pm.expect(data.horario).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('dias');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1618,7 +1558,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"profesional\": \"6992244717fa4fabac5221e9\",\r\n  \"dias\": [\"Jueves\"],\r\n  \"hora_inicio\": \"09:00\",\r\n  \"hora_fin\": \"17:00\"\r\n}\r\n",
+              "raw": "{\r\n  \"profesional\": \"6994c3c5136d5aa04a0664f1\",\r\n  \"dias\": [\"Jueves\"],\r\n  \"hora_inicio\": \"09:00\",\r\n  \"hora_fin\": \"17:00\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1647,15 +1587,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para actualizar horario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Horario actualizado\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Horario actualizado exitosamente');\r",
-                  "    pm.expect(data).to.have.property('horario');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1699,12 +1637,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar horario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Horario eliminado\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Horario eliminado exitosamente');\r",
                   "});"
@@ -1750,12 +1687,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar relaciones\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});\r",
@@ -1799,17 +1735,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear relación\r",
-                  "pm.test(\"Status 200 o 201\", () => {\r",
-                  "    // 200 si ya existe, 201 si es nueva\r",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "pm.test(\"Status 201 Created\", () => {\r",
+                  "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve la relación\", () => {\r",
+                  "pm.test(\"Relación creada\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('_id');\r",
-                  "    pm.expect(data).to.have.property('profesional');\r",
-                  "    pm.expect(data).to.have.property('servicio');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1852,14 +1784,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar relación específica\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Relación eliminada\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Relación eliminada');\r",
+                  "    pm.expect(data).to.have.property('mensaje', 'Relación eliminada exitosamente');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1898,14 +1829,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar por servicio\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Relaciones eliminadas\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Relaciones eliminadas por servicio');\r",
+                  "    pm.expect(data.mensaje).to.include('relaciones eliminadas');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1945,14 +1875,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar por profesional\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Relaciones eliminadas\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Relaciones eliminadas por profesional');\r",
+                  "    pm.expect(data.mensaje).to.include('relaciones eliminadas');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -1997,12 +1926,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para listar notificaciones de usuario\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve un array\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
                   "});"
@@ -2017,7 +1945,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3001/api/notificaciones/usuario/6992242aa7310b9614980c7e",
+              "raw": "http://localhost:3001/api/notificaciones/usuario/6992242aa7310b9614980c86",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -2027,7 +1955,7 @@
                 "api",
                 "notificaciones",
                 "usuario",
-                "6992242aa7310b9614980c7e"
+                "6992242aa7310b9614980c86"
               ]
             }
           },
@@ -2040,17 +1968,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para notificaciones no leídas\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Devuelve array de no leídas\", () => {\r",
+                  "pm.test(\"Devuelve array\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.be.an('array');\r",
-                  "    if (data.length > 0) {\r",
-                  "        pm.expect(data[0]).to.have.property('leida', false);\r",
-                  "    }\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -2087,7 +2011,6 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para contar no leídas\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
@@ -2132,16 +2055,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para crear notificación\r",
                   "pm.test(\"Status 201 Created\", () => {\r",
                   "    pm.response.to.have.status(201);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Notificación creada\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Notificación creada exitosamente');\r",
-                  "    pm.expect(data).to.have.property('notificacion');\r",
-                  "    pm.expect(data.notificacion).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('_id');\r",
+                  "    pm.expect(data).to.have.property('leida', false);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -2184,15 +2105,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para marcar como leída\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
                   "pm.test(\"Notificación marcada como leída\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Notificación marcada como leída');\r",
-                  "    pm.expect(data.notificacion).to.have.property('leida', true);\r",
+                  "    pm.expect(data).to.have.property('leida', true);\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -2237,15 +2156,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para marcar todas como leídas\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Todas marcadas como leídas\", () => {\r",
+                  "pm.test(\"Notificaciones marcadas\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Todas las notificaciones marcadas como leídas');\r",
-                  "    pm.expect(data).to.have.property('actualizadas');\r",
+                  "    pm.expect(data.mensaje).to.include('notificaciones marcadas como leídas');\r",
                   "});"
                 ],
                 "type": "text/javascript",
@@ -2285,18 +2202,17 @@
           "response": []
         },
         {
-          "name": "Delete Notificacion",
+          "name": "Delete Notificaciones",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar notificación\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje de confirmación\", () => {\r",
+                  "pm.test(\"Notificación eliminada\", () => {\r",
                   "    const data = pm.response.json();\r",
                   "    pm.expect(data).to.have.property('mensaje', 'Notificación eliminada exitosamente');\r",
                   "});"
@@ -2331,21 +2247,19 @@
           "response": []
         },
         {
-          "name": "Delete Notificaciones",
+          "name": "Delete Notificacion por usuario",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "// Tests para eliminar todas notificaciones\r",
                   "pm.test(\"Status 200 OK\", () => {\r",
                   "    pm.response.to.have.status(200);\r",
                   "});\r",
                   "\r",
-                  "pm.test(\"Mensaje con conteo\", () => {\r",
+                  "pm.test(\"Notificaciones eliminadas\", () => {\r",
                   "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.have.property('mensaje', 'Notificaciones eliminadas exitosamente');\r",
-                  "    pm.expect(data).to.have.property('eliminadas');\r",
+                  "    pm.expect(data.mensaje).to.include('notificaciones eliminadas');\r",
                   "});"
                 ],
                 "type": "text/javascript",

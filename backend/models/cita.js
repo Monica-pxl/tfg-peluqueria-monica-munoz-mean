@@ -21,6 +21,25 @@ const citaSchema = new mongoose.Schema({
     ref: 'Centro',
     required: true
   },
+  // Campos históricos para mantener la información incluso si se eliminan las referencias
+  usuarioNombre: {
+    type: String
+  },
+  usuarioEmail: {
+    type: String
+  },
+  profesionalNombre: {
+    type: String
+  },
+  profesionalApellidos: {
+    type: String
+  },
+  servicioNombre: {
+    type: String
+  },
+  centroNombre: {
+    type: String
+  },
   fecha: {
     type: String,  // formato: YYYY-MM-DD
     required: true

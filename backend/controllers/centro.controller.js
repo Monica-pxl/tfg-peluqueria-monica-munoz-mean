@@ -1,4 +1,7 @@
 const Centro = require('../models/centro');
+const Profesional = require('../models/profesional');
+const Servicio = require('../models/servicio');
+
 
 // Obtener todos los centros
 exports.getAllCentros = async (req, res) => {
@@ -92,6 +95,15 @@ exports.deleteCentro = async (req, res) => {
       return res.status(400).json({
         error: 'No se puede eliminar el centro porque tiene profesionales asignados',
         profesionalesAsignados: profesionales.length
+      });
+    }
+
+    // Verificar si hay servicios asignados a este centro
+    const servicios = await Servicio.find({ centro: req.params.id });
+    if (servicios.length > 0) {
+      return res.status(400).json({
+        error: 'No se puede eliminar el centro porque tiene servicios asignados',
+        serviciosAsignados: servicios.length
       });
     }
 

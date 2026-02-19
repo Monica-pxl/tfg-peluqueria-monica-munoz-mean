@@ -2,6 +2,7 @@ const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
 const ProfesionalServicio = require('../models/profesionalServicio');
 const Horario = require('../models/horario');
+const Cita = require('../models/cita');
 const bcrypt = require('bcryptjs');
 
 // Obtener todos los usuarios
@@ -15,57 +16,6 @@ exports.getAllUsuarios = async (req, res) => {
   }
 };
 
-// Obtener un usuario por ID
-exports.getUsuarioById = async (req, res) => {
-  try {
-    const usuario = await Usuario.findById(req.params.id).select('-password');
-    if (!usuario) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-    res.json(usuario);
-  } catch (error) {
-    console.error('Error al obtener usuario:', error);
-    res.status(500).json({ error: 'Error al obtener usuario' });
-  }
-};
-
-// Crear un usuario
-exports.createUsuario = async (req, res) => {
-  try {
-    const { nombre, email, password, rol } = req.body;
-
-    if (!nombre || !email || !password || !rol) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
-
-    const existeUsuario = await Usuario.findOne({ email });
-    if (existeUsuario) {
-      return res.status(400).json({ error: 'El email ya está registrado' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const nuevoUsuario = new Usuario({
-      nombre,
-      email,
-      password: hashedPassword,
-      rol,
-      fecha_alta: new Date(),
-      estado: 'activo',
-      puntos: rol === 'cliente' ? 0 : undefined
-    });
-
-    await nuevoUsuario.save();
-    const usuarioSinPassword = nuevoUsuario.toObject();
-    delete usuarioSinPassword.password;
-
-    res.status(201).json(usuarioSinPassword);
-  } catch (error) {
-    console.error('Error al crear usuario:', error);
-    res.status(500).json({ error: 'Error al crear usuario' });
-  }
-};
 
 // Actualizar un usuario
 exports.updateUsuario = async (req, res) => {
@@ -119,17 +69,193 @@ exports.deleteUsuario = async (req, res) => {
         const horarios = await Horario.deleteMany({ profesional: profesional._id });
         console.log(`   ├─ ${horarios.deletedCount} horarios eliminados`);
 
-        // 3. Cancelar citas pendientes del profesional
-        const citas = await Cita.updateMany(
-          { profesional: profesional._id, estado: { $ne: 'realizada' } },
-          { $set: { estado: 'cancelada' } }
-        );
-        console.log(`   ├─ ${citas.modifiedCount} citas canceladas`);
+        // 3. Cancelar citas futuras/pendientes/confirmadas y notificar a clientes
+        // IMPORTANTE: NO eliminar las citas, solo cambiar su estado a "cancelada"
+        const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
+        const fechaHoy = new Date();
+        fechaHoy.setHours(0, 0, 0, 0);
+
+        console.log(`   📅 Fecha de hoy (para comparación): ${fechaHoy.toISOString()}`);
+
+        // Buscar citas pendientes o confirmadas que NO hayan pasado
+        const citasAfectadas = await Cita.find({
+          profesional: profesional._id,
+          estado: { $in: ['pendiente', 'confirmada'] }
+        })
+          .populate('usuario', 'nombre email')
+          .populate('servicio', 'nombre')
+          .populate('centro', 'nombre');
+
+        console.log(`   📋 Total citas afectadas encontradas: ${citasAfectadas.length}`);
+
+        let citasCanceladas = 0;
+
+        for (const cita of citasAfectadas) {
+          // Verificar si la cita ya pasó
+          const fechaCita = new Date(cita.fecha);
+          fechaCita.setHours(0, 0, 0, 0);
+
+          console.log(`      📅 Comparando: Cita ${cita._id} del ${fechaCita.toISOString()} vs Hoy ${fechaHoy.toISOString()}`);
+
+          if (fechaCita >= fechaHoy) {
+            // La cita es futura o es hoy, cancelarla
+            const estadoAnterior = cita.estado;
+
+            // Guardar información histórica si no existe
+            if (!cita.usuarioNombre && cita.usuario?.nombre) {
+              cita.usuarioNombre = cita.usuario.nombre;
+            }
+            if (!cita.usuarioEmail && cita.usuario?.email) {
+              cita.usuarioEmail = cita.usuario.email;
+            }
+            if (!cita.profesionalNombre) {
+              cita.profesionalNombre = profesional.nombre;
+            }
+            if (!cita.profesionalApellidos) {
+              cita.profesionalApellidos = profesional.apellidos;
+            }
+            if (!cita.servicioNombre && cita.servicio?.nombre) {
+              cita.servicioNombre = cita.servicio.nombre;
+            }
+            if (!cita.centroNombre && cita.centro?.nombre) {
+              cita.centroNombre = cita.centro.nombre;
+            }
+
+            cita.estado = 'cancelada';
+            await cita.save();
+            citasCanceladas++;
+
+            console.log(`      ✅ Cita ${cita._id} cancelada (estado anterior: ${estadoAnterior})`);
+
+            // Notificar al cliente
+            if (cita.usuario && cita.usuario._id) {
+              const nombreProfesional = `${profesional.nombre} ${profesional.apellidos}`;
+              const fechaFormateada = formatearFecha(cita.fecha);
+              const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
+
+              await crearNotificacion(
+                cita.usuario._id,
+                'cliente',
+                'Cita cancelada por el centro',
+                `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ya no está disponible.`,
+                'advertencia'
+              );
+
+              console.log(`      ✉️ Notificación enviada a: ${cita.usuario.nombre}`);
+            }
+          } else {
+            console.log(`      ⏩ Cita del ${cita.fecha} ya pasó, no se modifica`);
+          }
+        }
+
+        console.log(`   ├─ ${citasCanceladas} citas canceladas (futuras)`);
+        console.log(`   ├─ ${citasAfectadas.length - citasCanceladas} citas ya pasadas (sin cambios)`);
 
         // 4. Eliminar el registro de profesional
         await Profesional.findByIdAndDelete(profesional._id);
         console.log(`   └─ Registro de profesional eliminado`);
       }
+    }
+
+    // Si el usuario es cliente, cancelar sus citas futuras y notificar
+    if (usuario.rol === 'cliente') {
+      console.log(`🗑️ Gestionando citas del cliente: ${usuario.nombre}`);
+
+      const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
+      const fechaHoy = new Date();
+      fechaHoy.setHours(0, 0, 0, 0);
+
+      console.log(`   📅 Fecha de hoy (para comparación): ${fechaHoy.toISOString()}`);
+
+      // Buscar citas pendientes o confirmadas que NO hayan pasado
+      const citasAfectadas = await Cita.find({
+        usuario: req.params.id,
+        estado: { $in: ['pendiente', 'confirmada'] }
+      })
+        .populate('profesional', 'nombre apellidos usuario')
+        .populate('servicio', 'nombre')
+        .populate('centro', 'nombre');
+
+      console.log(`   📋 Total citas afectadas encontradas: ${citasAfectadas.length}`);
+
+      let citasCanceladas = 0;
+
+      for (const cita of citasAfectadas) {
+        // Verificar si la cita ya pasó
+        const fechaCita = new Date(cita.fecha);
+        fechaCita.setHours(0, 0, 0, 0);
+
+        console.log(`      📅 Comparando: Cita ${cita._id} del ${fechaCita.toISOString()} vs Hoy ${fechaHoy.toISOString()}`);
+
+        if (fechaCita >= fechaHoy) {
+          // La cita es futura o es hoy, cancelarla
+          const estadoAnterior = cita.estado;
+
+          // Guardar información histórica del usuario si no existe
+          if (!cita.usuarioNombre) {
+            cita.usuarioNombre = usuario.nombre;
+          }
+          if (!cita.usuarioEmail) {
+            cita.usuarioEmail = usuario.email;
+          }
+          if (!cita.profesionalNombre && cita.profesional?.nombre) {
+            cita.profesionalNombre = cita.profesional.nombre;
+          }
+          if (!cita.profesionalApellidos && cita.profesional?.apellidos) {
+            cita.profesionalApellidos = cita.profesional.apellidos;
+          }
+          if (!cita.servicioNombre && cita.servicio?.nombre) {
+            cita.servicioNombre = cita.servicio.nombre;
+          }
+          if (!cita.centroNombre && cita.centro?.nombre) {
+            cita.centroNombre = cita.centro.nombre;
+          }
+
+          cita.estado = 'cancelada';
+          await cita.save();
+          citasCanceladas++;
+
+          console.log(`      ✅ Cita ${cita._id} cancelada (estado anterior: ${estadoAnterior})`);
+
+          const fechaFormateada = formatearFecha(cita.fecha);
+          const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
+          const nombreCliente = usuario.nombre;
+
+          // Notificar al profesional
+          if (cita.profesional && cita.profesional.usuario) {
+            const nombreProfesional = `${cita.profesional.nombre} ${cita.profesional.apellidos}`;
+
+            await crearNotificacion(
+              cita.profesional.usuario,
+              'profesional',
+              'Cita cancelada',
+              `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el cliente eliminó su cuenta.`,
+              'advertencia'
+            );
+
+            console.log(`      ✉️ Notificación enviada al profesional: ${nombreProfesional}`);
+          }
+
+          // Notificar a administradores
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Cita cancelada por eliminación de cliente',
+              `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el cliente eliminó su cuenta.`,
+              'info'
+            );
+          }
+
+          console.log(`      ✉️ Notificaciones enviadas a ${admins.length} administrador(es)`);
+        } else {
+          console.log(`      ⏩ Cita del ${cita.fecha} ya pasó, no se modifica`);
+        }
+      }
+
+      console.log(`   ├─ ${citasCanceladas} citas canceladas (futuras)`);
+      console.log(`   └─ ${citasAfectadas.length - citasCanceladas} citas ya pasadas (sin cambios)`);
     }
 
     res.json({ mensaje: 'Usuario eliminado exitosamente' });
@@ -139,28 +265,3 @@ exports.deleteUsuario = async (req, res) => {
   }
 };
 
-// Actualizar puntos de un cliente
-exports.actualizarPuntos = async (req, res) => {
-  try {
-    const { puntos } = req.body;
-
-    if (typeof puntos !== 'number') {
-      return res.status(400).json({ error: 'Los puntos deben ser un número' });
-    }
-
-    const usuario = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { puntos } },
-      { new: true }
-    ).select('-password');
-
-    if (!usuario) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    res.json(usuario);
-  } catch (error) {
-    console.error('Error al actualizar puntos:', error);
-    res.status(500).json({ error: 'Error al actualizar puntos' });
-  }
-};

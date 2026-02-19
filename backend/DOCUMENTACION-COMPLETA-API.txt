@@ -1,0 +1,1825 @@
+═══════════════════════════════════════════════════════════════
+  📚 DOCUMENTACIÓN COMPLETA DE ENDPOINTS - API PELUQUERÍA
+═══════════════════════════════════════════════════════════════
+
+🌐 BASE URL: http://localhost:3001/api
+
+═══════════════════════════════════════════════════════════════
+  🔐 AUTENTICACIÓN (auth.routes.js)
+═══════════════════════════════════════════════════════════════
+
+1. POST /api/login
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Autentica un usuario y genera un token JWT
+
+   📥 Body (JSON):
+   {
+     "email": "usuario@example.com",
+     "password": "password123"
+   }
+
+   📤 Respuesta exitosa (200):
+   {
+     "mensaje": "Login exitoso",
+     "token": "eyJhbGciOiJIUzI1NiIs...",
+     "usuario": {
+       "_id": "...",
+       "id_usuario": "...",
+       "nombre": "María López",
+       "email": "maria@example.com",
+       "rol": "cliente",
+       "estado": "activo",
+       "puntos": 70,
+       "fecha_alta": "2026-01-15T00:00:00.000Z"
+     }
+   }
+
+   ❌ Errores:
+   - 400: Faltan campos obligatorios
+   - 401: Credenciales incorrectas
+   - 404: Usuario no encontrado
+
+   🔧 Qué hace internamente:
+   - Busca usuario por email
+   - Verifica contraseña con bcrypt
+   - Genera token JWT válido por 2 horas
+   - Devuelve datos del usuario (sin password)
+
+   🎯 Usado en frontend:
+   - Página de login (todos los roles)
+   - Guarda token en localStorage/sessionStorage
+   - Redirige según rol (admin/profesional/cliente)
+
+
+2. POST /api/registro
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Registra un nuevo usuario
+
+   📥 Body (JSON):
+   {
+     "nombre": "Juan Pérez",
+     "email": "juan@example.com",
+     "password": "password123",
+     "rol": "cliente" // opcional, por defecto "cliente"
+   }
+
+   📤 Respuesta exitosa (201):
+   {
+     "mensaje": "Usuario registrado exitosamente",
+     "token": "eyJhbGciOiJIUzI1NiIs...",
+     "usuario": {
+       "_id": "...",
+       "nombre": "Juan Pérez",
+       "email": "juan@example.com",
+       "rol": "cliente",
+       "estado": "activo",
+       "puntos": 0,
+       "fecha_alta": "2026-02-18T..."
+     }
+   }
+
+   ❌ Errores:
+   - 400: Faltan campos o email ya existe
+
+   🔧 Qué hace internamente:
+   - Valida que el email no exista
+   - Encripta la contraseña con bcrypt
+   - Crea usuario con puntos=0 si es cliente
+   - Genera token JWT automáticamente
+   - Fecha de alta = fecha actual
+
+   🎯 Usado en frontend:
+   - Página de registro público
+   - Login automático después del registro
+
+
+═══════════════════════════════════════════════════════════════
+  👥 USUARIOS (usuario.routes.js)
+═══════════════════════════════════════════════════════════════
+
+3. GET /api/usuarios
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Obtiene todos los usuarios (sin passwords)
+
+   📤 Respuesta exitosa (200):
+   [
+     {
+       "_id": "...",
+       "nombre": "María López",
+       "email": "maria@example.com",
+       "rol": "cliente",
+       "estado": "activo",
+       "puntos": 70,
+       "fecha_alta": "2026-01-15T..."
+     },
+     ...
+   ]
+
+   🔧 Qué hace internamente:
+   - Obtiene todos los usuarios de MongoDB
+   - Excluye el campo password (.select('-password'))
+   - Ordena por fecha de creación
+
+   🎯 Usado en frontend:
+   - Panel de administrador → Gestión de usuarios
+   - Muestra tabla con todos los usuarios
+
+
+4. PUT /api/usuarios/:id
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Actualiza un usuario existente
+
+   📥 Body (JSON):
+   {
+     "nombre": "Nuevo nombre",
+     "email": "nuevo@email.com",
+     "rol": "profesional",
+     "estado": "inactivo",
+     "password": "nueva_password" // opcional
+   }
+
+   📤 Respuesta exitosa (200):
+   {
+     "_id": "...",
+     "nombre": "Nuevo nombre",
+     ...
+   }
+
+   🔧 Qué hace internamente:
+   - Si se envía password, lo encripta con bcrypt
+   - Actualiza solo los campos enviados
+   - Devuelve usuario actualizado sin password
+
+   🎯 Usado en frontend:
+   - Panel admin → Editar usuario
+   - Cambiar rol de usuario
+   - Activar/desactivar usuario
+
+
+5. DELETE /api/usuarios/:id
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Elimina un usuario y gestiona todos sus datos relacionados
+                   de forma inteligente según el rol
+
+   📤 Respuesta exitosa (200):
+   {
+     "mensaje": "Usuario eliminado exitosamente"
+   }
+
+   ❌ Errores:
+   - 404: Usuario no encontrado
+   - 500: Error en el proceso de eliminación
+
+   🔧 QUÉ HACE INTERNAMENTE:
+
+   ═══════════════════════════════════════════════════════════
+   SI EL USUARIO ES PROFESIONAL:
+   ═══════════════════════════════════════════════════════════
+
+   1️⃣ BUSCAR REGISTRO DE PROFESIONAL
+      - Encuentra el profesional asociado al usuario
+      - Si no existe, solo elimina el usuario
+
+   2️⃣ ELIMINAR RELACIONES PROFESIONAL-SERVICIO
+      - Borra todas las asignaciones de servicios
+      - deleteMany({ profesional: id })
+      - Log: Cantidad eliminada
+
+   3️⃣ ELIMINAR HORARIOS DEL PROFESIONAL
+      - Borra todos los horarios laborales
+      - deleteMany({ profesional: id })
+      - Log: Cantidad eliminada
+
+   4️⃣ CANCELAR CITAS FUTURAS Y NOTIFICAR CLIENTES
+      - Busca citas con estado: 'pendiente' o 'confirmada'
+      - Solo las que sean futuras (fecha >= hoy)
+      - Para cada cita:
+
+        a) Guardar datos históricos (si no existen):
+           • usuarioNombre (del cliente)
+           • usuarioEmail (del cliente)
+           • profesionalNombre
+           • profesionalApellidos
+           • servicioNombre
+           • centroNombre
+
+        b) Cambiar estado a 'cancelada'
+
+        c) Enviar notificación al CLIENTE:
+           Título: "Cita cancelada por el centro"
+           Mensaje: "Tu cita de [Servicio] con [Profesional]
+                    del [Fecha] a las [Hora] ha sido cancelada
+                    porque el profesional ya no está disponible."
+           Tipo: advertencia
+
+      - NO modifica citas ya pasadas (estado: realizada)
+      - Log: Cantidad canceladas vs cantidad intacta
+
+   5️⃣ ELIMINAR REGISTRO DE PROFESIONAL
+      - findByIdAndDelete(profesional._id)
+
+   6️⃣ ELIMINAR USUARIO
+      - Ya se eliminó al inicio (findByIdAndDelete)
+
+   ═══════════════════════════════════════════════════════════
+   SI EL USUARIO ES CLIENTE:
+   ═══════════════════════════════════════════════════════════
+
+   1️⃣ BUSCAR SUS CITAS FUTURAS
+      - Busca citas con estado: 'pendiente' o 'confirmada'
+      - Solo las que sean futuras (fecha >= hoy)
+      - Hace populate de: profesional, servicio, centro
+
+   2️⃣ CANCELAR CITAS Y NOTIFICAR
+      - Para cada cita futura:
+
+        a) Guardar datos históricos (si no existen):
+           • usuarioNombre (del cliente)
+           • usuarioEmail (del cliente)
+           • profesionalNombre
+           • profesionalApellidos
+           • servicioNombre
+           • centroNombre
+
+        b) Cambiar estado a 'cancelada'
+
+        c) Enviar notificación al PROFESIONAL:
+           Título: "Cita cancelada"
+           Mensaje: "La cita de [Cliente] para [Servicio]
+                    del [Fecha] a las [Hora] ha sido cancelada
+                    porque el cliente eliminó su cuenta."
+           Tipo: advertencia
+
+        d) Enviar notificación a TODOS LOS ADMIN:
+           Título: "Cita cancelada por eliminación de cliente"
+           Mensaje: "La cita de [Cliente] para [Servicio]
+                    del [Fecha] a las [Hora] ha sido cancelada
+                    porque el cliente eliminó su cuenta."
+           Tipo: info
+
+      - NO modifica citas ya pasadas
+      - Log: Cantidad canceladas vs cantidad intacta
+
+   3️⃣ ELIMINAR USUARIO
+      - findByIdAndDelete(usuarioId)
+
+   ═══════════════════════════════════════════════════════════
+
+   ⚠️ COMPORTAMIENTO CRÍTICO:
+
+   ✅ LAS CITAS NUNCA SE ELIMINAN
+      - Solo cambian de estado a "cancelada"
+      - Permanecen en la base de datos
+      - Visibles para auditoría e historial
+
+   ✅ NOMBRES HISTÓRICOS PRESERVADOS
+      - Se guardan ANTES de cancelar
+      - Cliente: nombre + email
+      - Profesional: nombre + apellidos
+      - Servicio: nombre
+      - Centro: nombre
+      - Frontend NUNCA ve "null" o "Desconocido"
+
+   ✅ CITAS PASADAS INTACTAS
+      - Si fecha < hoy → No se modifica
+      - Si estado = "realizada" → No se modifica
+      - Mantiene historial completo
+
+   ✅ NOTIFICACIONES AUTOMÁTICAS
+      - Se envían a TODOS los afectados
+      - Mensajes personalizados con detalles
+      - Tipo apropiado (advertencia/info)
+
+   ═══════════════════════════════════════════════════════════
+
+   📊 EJEMPLO VISUAL:
+
+   ANTES DE ELIMINAR CLIENTE "María López":
+   ─────────────────────────────────────────────────────────
+   Citas en BD:
+   - 2026-03-15 10:00 | María → Laura | Pendiente ✓
+   - 2026-01-10 11:00 | María → Laura | Realizada ✓
+   - 2026-04-20 14:00 | María → Ana   | Confirmada ✓
+
+   DESPUÉS DE ELIMINAR:
+   ─────────────────────────────────────────────────────────
+   Usuario eliminado: ✅
+
+   Citas en BD:
+   - 2026-03-15 10:00 | María López → Laura | Cancelada ✅
+     └─ Profesional Laura recibió notificación ✓
+     └─ Admin recibió notificación ✓
+
+   - 2026-01-10 11:00 | María López → Laura | Realizada ✅
+     └─ NO SE MODIFICÓ (ya pasó)
+
+   - 2026-04-20 14:00 | María López → Ana | Cancelada ✅
+     └─ Profesional Ana recibió notificación ✓
+     └─ Admin recibió notificación ✓
+
+   Vista del PROFESIONAL:
+   - Ve "María López" (NO "Desconocido")
+   - Ve estado "Cancelada"
+   - Recibió notificación explicativa
+
+   Vista del ADMIN:
+   - Ve cliente "María López" preservado
+   - Ve profesional "Laura Gómez" preservado
+   - Historial completo para auditoría
+
+   ═══════════════════════════════════════════════════════════
+
+   💡 VENTAJAS DEL SISTEMA:
+
+   1. TRANSPARENCIA TOTAL
+      ✅ Todos saben qué pasó con las citas
+      ✅ Notificaciones claras y automáticas
+
+   2. HISTORIAL COMPLETO
+      ✅ No se pierde información
+      ✅ Auditoría completa del sistema
+
+   3. PROFESIONALIDAD
+      ✅ Los profesionales ven quién canceló
+      ✅ Los admins tienen trazabilidad
+
+   4. CUMPLIMIENTO LEGAL
+      ✅ Registro de todas las operaciones
+      ✅ Útil para reclamaciones
+
+   ═══════════════════════════════════════════════════════════
+
+   🎯 Usado en frontend:
+   - Panel admin → Eliminar usuario
+   - Botón con confirmación obligatoria
+   - Mensaje de advertencia sobre consecuencias
+   - Log de todas las operaciones realizadas
+
+
+═══════════════════════════════════════════════════════════════
+  ✂️ SERVICIOS (servicio.routes.js)
+═══════════════════════════════════════════════════════════════
+
+6. GET /api/servicios
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Obtiene todos los servicios
+
+   📤 Respuesta exitosa (200):
+   [
+     {
+       "_id": "...",
+       "nombre": "Corte de Cabello",
+       "descripcion": "Corte moderno...",
+       "duracion": 30,
+       "precio": 15.99,
+       "centro": {
+         "_id": "...",
+         "nombre": "Glamour Studio"
+       },
+       "imagen": "corte.png"
+     },
+     ...
+   ]
+
+   🔧 Qué hace internamente:
+   - Obtiene todos los servicios
+   - Hace populate del centro (nombre, direccion)
+   - Ordena alfabéticamente por nombre
+
+   🎯 Usado en frontend:
+   - Home público → Listado de servicios
+   - Panel cliente → Ver servicios disponibles
+   - Panel admin → Gestión de servicios
+   - Reservar cita → Seleccionar servicio
+
+
+7. POST /api/servicios
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Crea un nuevo servicio
+
+   📥 Body (JSON):
+   {
+     "nombre": "Manicura",
+     "descripcion": "Manicura completa",
+     "duracion": 45,
+     "precio": 20,
+     "centro": "64f7a8b...",
+     "imagen": "manicura.png"
+   }
+
+   📤 Respuesta exitosa (201):
+   {
+     "_id": "...",
+     "nombre": "Manicura",
+     ...
+   }
+
+   🔧 Qué hace internamente:
+   - Valida que nombre y centro sean obligatorios
+   - Crea el servicio en MongoDB
+   - Hace populate del centro en la respuesta
+
+   🎯 Usado en frontend:
+   - Panel admin → Crear servicio
+
+
+8. PUT /api/servicios/:id
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Actualiza un servicio existente
+
+   📥 Body (JSON):
+   {
+     "nombre": "Corte Premium",
+     "precio": 25
+   }
+
+   📤 Respuesta exitosa (200):
+   {
+     "_id": "...",
+     "nombre": "Corte Premium",
+     "precio": 25,
+     ...
+   }
+
+   🔧 Qué hace internamente:
+   - Actualiza solo los campos enviados
+   - Valida con runValidators
+   - Hace populate del centro
+
+   🎯 Usado en frontend:
+   - Panel admin → Editar servicio
+
+
+9. DELETE /api/servicios/:id
+   ────────────────────────────────────────────────────────────
+   📝 Descripción: Elimina un servicio y sus relaciones
+
+   📤 Respuesta exitosa (200):
+   {
+     "mensaje": "Servicio eliminado exitosamente",
+     "relacionesEliminadas": 3,
+     "nombreServicio": "Corte de Cabello"
+   }
+
+   🔧 Qué hace internamente:
+   - Valida que el ID sea válido (ObjectId)
+   - Busca y elimina TODAS las relaciones profesional_servicio
+   - Verifica que se eliminaron correctamente
+   - Elimina el servicio
+   - Devuelve cantidad de relaciones eliminadas
+
+   ⚠️ IMPORTANTE:
+   - Elimina en cascada las relaciones
+   - Las citas con este servicio mantienen el nombre histórico
+
+   🎯 Usado en frontend:
+   - Panel admin → Eliminar servicio
+
+
+═══════════════════════════════════════════════════════════════
+  💼 PROFESIONALES (profesional.routes.js)
+═══════════════════════════════════════════════════════════════
+
+10. GET /api/profesionales
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene todos los profesionales
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "nombre": "Laura",
+        "apellidos": "Gómez Ruiz",
+        "usuario": {
+          "_id": "...",
+          "nombre": "Laura",
+          "email": "laura@example.com"
+        },
+        "centro": {
+          "_id": "...",
+          "nombre": "Glamour Studio"
+        }
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Obtiene todos los profesionales
+    - Hace populate de usuario (nombre, email)
+    - Hace populate de centro (nombre, direccion)
+    - Ordena alfabéticamente por nombre
+
+    🎯 Usado en frontend:
+    - Panel admin → Gestión de profesionales
+    - Reservar cita → Seleccionar profesional
+    - Ver horarios disponibles
+
+
+11. GET /api/profesionales/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene un profesional por ID
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "nombre": "Laura",
+      "apellidos": "Gómez Ruiz",
+      "usuario": {...},
+      "centro": {...}
+    }
+
+    🔧 Qué hace internamente:
+    - Busca profesional por _id
+    - Hace populate de usuario y centro
+
+    🎯 Usado en frontend:
+    - Ver detalles de profesional
+    - Editar profesional
+
+
+12. POST /api/profesionales
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Crea un nuevo profesional
+
+    📥 Body (JSON):
+    {
+      "nombre": "Ana",
+      "apellidos": "Martínez",
+      "usuario": "64f7a8b...", // ID del usuario
+      "centro": "64f7a9c..."
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "profesional": {
+        "_id": "...",
+        "nombre": "Ana",
+        "apellidos": "Martínez",
+        ...
+      }
+    }
+
+    🔧 Qué hace internamente:
+    - Valida campos obligatorios
+    - Acepta 'usuario' o 'id_usuario' (compatibilidad)
+    - Crea profesional con referencias
+    - Hace populate en la respuesta
+
+    🎯 Usado en frontend:
+    - Panel admin → Crear profesional
+    - Asignar usuario con rol profesional
+
+
+13. PUT /api/profesionales/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Actualiza un profesional
+
+    📥 Body (JSON):
+    {
+      "nombre": "Ana María",
+      "centro": "otro_id..."
+    }
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "nombre": "Ana María",
+      ...
+    }
+
+    🔧 Qué hace internamente:
+    - Actualiza campos enviados
+    - Valida con runValidators
+    - Hace populate en respuesta
+
+    🎯 Usado en frontend:
+    - Panel admin → Editar profesional
+
+
+14. DELETE /api/profesionales/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina un profesional y gestiona sus citas
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Profesional eliminado exitosamente",
+      "relacionesEliminadas": 2,
+      "horariosEliminados": 5,
+      "citasCanceladas": 3,
+      "clientesNotificados": 3
+    }
+
+    🔧 Qué hace internamente:
+    - Valida que el ID sea ObjectId válido
+    - Busca y guarda datos del profesional
+    - Elimina relaciones profesional_servicio
+    - Elimina todos sus horarios
+    - Busca citas pendientes/confirmadas futuras
+    - Para cada cita futura:
+      • Guarda nombres históricos si no existen
+      • Cambia estado a "cancelada"
+      • Envía notificación al cliente
+    - NO modifica citas ya pasadas
+    - Elimina el profesional
+
+    ⚠️ SUPER IMPORTANTE:
+    - Las citas NO se eliminan, se cancelan
+    - Los clientes reciben notificaciones
+    - Se mantienen nombres históricos
+    - Las citas pasadas quedan intactas
+
+    🎯 Usado en frontend:
+    - Panel admin → Eliminar profesional
+    - Confirmación con advertencia
+
+
+═══════════════════════════════════════════════════════════════
+  🏢 CENTROS (centro.routes.js)
+═══════════════════════════════════════════════════════════════
+
+15. GET /api/centros
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene todos los centros
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "nombre": "Glamour Studio",
+        "direccion": "Calle Principal 123",
+        "telefono": "912345678",
+        "email": "info@glamour.com",
+        "imagen": "glamour.jpg"
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Obtiene todos los centros
+    - Ordena alfabéticamente por nombre
+
+    🎯 Usado en frontend:
+    - Home → Ver centros
+    - Panel admin → Gestión de centros
+    - Reservar cita → Seleccionar centro
+
+
+16. GET /api/centros/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene un centro por ID
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "nombre": "Glamour Studio",
+      "direccion": "Calle Principal 123",
+      ...
+    }
+
+    🎯 Usado en frontend:
+    - Ver detalles de centro
+
+
+17. POST /api/centros
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Crea un nuevo centro
+
+    📥 Body (JSON):
+    {
+      "nombre": "Beauty Center",
+      "direccion": "Calle Nueva 456",
+      "telefono": "912345678",
+      "email": "info@beauty.com",
+      "imagen": "beauty.jpg"
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "mensaje": "Centro creado exitosamente",
+      "centro": {...}
+    }
+
+    🔧 Qué hace internamente:
+    - Valida que el nombre sea obligatorio
+    - Crea el centro
+
+    🎯 Usado en frontend:
+    - Panel admin → Crear centro
+
+
+18. PUT /api/centros/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Actualiza un centro
+
+    📥 Body (JSON):
+    {
+      "nombre": "Glamour Studio Premium",
+      "telefono": "999888777"
+    }
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Centro actualizado exitosamente",
+      "centro": {...}
+    }
+
+    🎯 Usado en frontend:
+    - Panel admin → Editar centro
+
+
+19. DELETE /api/centros/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina un centro (con validaciones)
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Centro eliminado exitosamente"
+    }
+
+    ❌ Errores:
+    - 400: Centro tiene profesionales asignados
+    - 400: Centro tiene servicios asignados
+
+    🔧 Qué hace internamente:
+    - Verifica que NO tenga profesionales asignados
+    - Verifica que NO tenga servicios asignados
+    - Solo elimina si está vacío
+
+    ⚠️ IMPORTANTE:
+    - NO permite eliminar si tiene datos relacionados
+    - Primero hay que reasignar profesionales/servicios
+
+    🎯 Usado en frontend:
+    - Panel admin → Eliminar centro
+    - Muestra error si tiene datos
+
+
+═══════════════════════════════════════════════════════════════
+  🕐 HORARIOS (horario.routes.js)
+═══════════════════════════════════════════════════════════════
+
+20. GET /api/horarios
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene todos los horarios
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "profesional": {
+          "_id": "...",
+          "nombre": "Laura",
+          "apellidos": "Gómez"
+        },
+        "dias": ["Lunes", "Martes", "Miércoles"],
+        "hora_inicio": "09:00",
+        "hora_fin": "17:00",
+        "festivo": false,
+        "fechas_festivas": []
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Obtiene todos los horarios
+    - Hace populate del profesional (nombre, apellidos)
+    - Ordena por profesional
+
+    🎯 Usado en frontend:
+    - Panel admin → Gestión de horarios
+    - Ver disponibilidad de profesionales
+
+
+21. GET /api/horarios/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene un horario específico
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "profesional": {...},
+      "dias": ["Lunes"],
+      ...
+    }
+
+    🎯 Usado en frontend:
+    - Editar horario
+
+
+22. POST /api/horarios
+    ──────────────────────────���─────────────────────────────────
+    📝 Descripción: Crea un nuevo horario
+
+    📥 Body (JSON):
+    {
+      "profesional": "64f7a8b...",
+      "dias": ["Lunes", "Martes"],
+      "hora_inicio": "09:00",
+      "hora_fin": "14:00",
+      "festivo": false,
+      "fechas_festivas": []
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "_id": "...",
+      ...
+    }
+
+    ❌ Errores:
+    - 400: El horario se solapa con otro existente
+
+    🔧 Qué hace internamente:
+    - Valida campos obligatorios
+    - Verifica que NO haya solapamiento de horarios
+    - Crea el horario
+    - Envía notificación al profesional
+
+    🎯 Usado en frontend:
+    - Panel admin → Crear horario para profesional
+
+
+23. PUT /api/horarios/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Actualiza un horario
+
+    📥 Body (JSON):
+    {
+      "hora_inicio": "10:00",
+      "hora_fin": "18:00"
+    }
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      ...
+    }
+
+    🔧 Qué hace internamente:
+    - Actualiza el horario
+    - Envía notificación al profesional sobre el cambio
+
+    🎯 Usado en frontend:
+    - Panel admin → Editar horario
+
+
+24. DELETE /api/horarios/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina un horario
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Horario eliminado exitosamente"
+    }
+
+    🔧 Qué hace internamente:
+    - Obtiene info del horario antes de eliminar
+    - Elimina el horario
+    - Envía notificación al profesional
+
+    🎯 Usado en frontend:
+    - Panel admin → Eliminar horario
+
+
+═══════════════════════════════════════════════════════════════
+  📅 CITAS (cita.routes.js)
+═══════════════════════════════════════════════════════════════
+
+25. GET /api/citas
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene todas las citas
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "usuario": {
+          "_id": "...",
+          "nombre": "María",
+          "email": "maria@example.com"
+        },
+        "profesional": {
+          "nombre": "Laura",
+          "apellidos": "Gómez"
+        },
+        "servicio": {
+          "nombre": "Corte de Cabello"
+        },
+        "centro": {
+          "nombre": "Glamour Studio"
+        },
+        "fecha": "2026-03-15",
+        "hora": "10:00",
+        "estado": "pendiente",
+        "precio": 15.99
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Obtiene todas las citas
+    - Hace populate de usuario, profesional, servicio, centro
+    - Si profesional/servicio/centro son null (eliminados):
+      • Usa campos históricos (profesionalNombre, etc.)
+      • Crea objetos con esos nombres
+    - Ordena por fecha descendente
+
+    ⚠️ IMPORTANTE:
+    - Maneja automáticamente datos históricos
+    - NO devuelve "null" aunque se hayan eliminado referencias
+
+    🎯 Usado en frontend:
+    - Panel admin → Todas las citas
+    - Ver historial completo
+
+
+26. GET /api/citas/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene una cita específica
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "usuario": {...},
+      "profesional": {...}, // O nombre histórico
+      ...
+    }
+
+    🔧 Qué hace internamente:
+    - Busca cita por ID
+    - Hace populate
+    - Usa campos históricos si referencias son null
+
+    🎯 Usado en frontend:
+    - Ver detalles de cita
+
+
+27. GET /api/citas/usuario/:usuarioId
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene citas de un usuario
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "profesional": {...}, // O nombre histórico
+        "servicio": {...},
+        "estado": "cancelada", // Incluye canceladas
+        ...
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Filtra citas por usuario
+    - Incluye TODAS las citas (incluso canceladas)
+    - Usa campos históricos
+    - Ordena por fecha descendente
+
+    ⚠️ SUPER IMPORTANTE:
+    - Devuelve citas canceladas (historial completo)
+    - Los nombres de profesionales eliminados se mantienen
+
+    🎯 Usado en frontend:
+    - Panel cliente → Mis citas
+    - Muestra historial completo con canceladas
+
+
+28. GET /api/citas/profesional/:profesionalId
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene citas de un profesional
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "usuario": {...},
+        "servicio": {...},
+        "fecha": "2026-03-15",
+        ...
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Filtra citas por profesional
+    - Hace populate de usuario, servicio, centro
+    - Usa campos históricos para servicio/centro
+
+    🎯 Usado en frontend:
+    - Panel profesional → Mis citas
+
+
+29. POST /api/citas
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Crea una nueva cita
+
+    📥 Body (JSON):
+    {
+      "usuario": "64f7a8b...",
+      "profesional": "64f7a9c...",
+      "servicio": "64f7a9d...",
+      "centro": "64f7a9e...",
+      "fecha": "2026-03-15",
+      "hora": "10:00"
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "_id": "...",
+      "usuario": {...},
+      "profesional": {...},
+      "precio": 15.99, // Obtenido del servicio
+      "estado": "pendiente",
+      "profesionalNombre": "Laura", // ✅ Guardado
+      "profesionalApellidos": "Gómez", // ✅ Guardado
+      "servicioNombre": "Corte", // ✅ Guardado
+      "centroNombre": "Glamour" // ✅ Guardado
+    }
+
+    🔧 Qué hace internamente:
+    - Valida campos obligatorios
+    - Busca servicio para obtener precio
+    - Busca profesional, centro para nombres históricos
+    - Guarda TODOS los nombres históricos
+    - Crea la cita con estado "pendiente"
+    - Envía 3 notificaciones:
+      1. Cliente: "Reserva realizada"
+      2. Profesional: "Nueva cita reservada"
+      3. Admin(s): "Nueva reserva"
+
+    ⚠️ IMPORTANTE:
+    - Guarda nombres históricos desde la creación
+    - Precio se toma del servicio automáticamente
+
+    🎯 Usado en frontend:
+    - Reservar cita (todos los roles)
+
+
+30. PUT /api/citas/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Actualiza una cita
+
+    📥 Body (JSON):
+    {
+      "estado": "confirmada",
+      "actualizadoPor": "64f7a8b...",
+      "rolActualizador": "profesional"
+    }
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "estado": "confirmada",
+      ...
+    }
+
+    🔧 Qué hace internamente:
+    - Actualiza la cita
+    - Si cambia el estado:
+      • Envía notificaciones según quién lo haga
+      • Admin/Profesional → Notifica a cliente
+      • Cliente cancela → Notifica a prof y admin
+
+    🎯 Usado en frontend:
+    - Cambiar estado de cita
+    - Confirmar/cancelar cita
+
+
+31. DELETE /api/citas/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina una cita físicamente
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Cita eliminada exitosamente"
+    }
+
+    ⚠️ NOTA:
+    - Este endpoint elimina físicamente
+    - Normalmente se usa PUT para cancelar
+
+    🎯 Usado en frontend:
+    - Panel admin → Eliminar cita completamente
+
+
+32. PUT /api/citas/:id/marcar-realizada
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Marca una cita como realizada y suma puntos
+
+    📥 Body (JSON):
+    {
+      "marcadoPor": "64f7a8b...",
+      "rolMarcador": "profesional"
+    }
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Cita marcada como realizada",
+      "puntosSumados": 10,
+      "puntosActuales": 80,
+      "nivelAnterior": "Cliente frecuente",
+      "nivelActual": "Cliente habitual",
+      "subioNivel": false
+    }
+
+    🔧 Qué hace internamente:
+    - Cambia estado a "realizada"
+    - Suma 10 puntos al cliente
+    - Calcula nivel de fidelidad:
+      • 0-19: Cliente nuevo
+      • 20-49: Cliente frecuente
+      • 50-99: Cliente habitual
+      • 100+: Cliente premium
+    - Detecta si subió de nivel
+    - Envía notificaciones:
+      • Cliente: "Cita realizada" + puntos ganados
+      • Si subió nivel: Lo menciona en la notificación
+      • Admin: "Profesional marca cita como realizada"
+      • Si marcó admin: Notifica a profesional
+
+    ⚠️ IMPORTANTE:
+    - Solo suma puntos UNA VEZ
+    - Sistema de fidelización automático
+
+    🎯 Usado en frontend:
+    - Panel profesional → Marcar cita realizada
+    - Panel admin → Gestionar citas
+
+
+33. GET /api/citas/disponibilidad/:profesionalId/:fecha/:hora
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Verifica si un horario está disponible
+
+    📤 Respuesta exitosa (200):
+    {
+      "disponible": true
+    }
+
+    O:
+    {
+      "disponible": false,
+      "mensaje": "Ya existe una cita en ese horario"
+    }
+
+    🔧 Qué hace internamente:
+    - Busca citas del profesional en esa fecha/hora
+    - Considera solo estados: pendiente, confirmada, realizada
+    - NO cuenta las canceladas
+
+    🎯 Usado en frontend:
+    - Reservar cita → Verificar disponibilidad
+    - Mostrar horas disponibles/ocupadas
+
+
+═══════════════════════════════════════════════════════════════
+  🔔 NOTIFICACIONES (notificacion.routes.js)
+═══════════════════════════════════════════════════════════════
+
+34. GET /api/notificaciones/usuario/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene notificaciones de un usuario
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "usuario": "64f7a8b...",
+        "titulo": "Cita confirmada",
+        "mensaje": "Tu cita ha sido confirmada...",
+        "tipo": "exito",
+        "leida": false,
+        "createdAt": "2026-02-18T..."
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Filtra por usuario
+    - Ordena por fecha descendente (más recientes primero)
+
+    🎯 Usado en frontend:
+    - Campana de notificaciones (navbar)
+    - Panel de notificaciones
+
+
+35. GET /api/notificaciones/usuario/:id/no-leidas
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene solo notificaciones no leídas
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "titulo": "Nueva cita",
+        "leida": false,
+        ...
+      }
+    ]
+
+    🎯 Usado en frontend:
+    - Badge con contador de no leídas
+
+
+36. GET /api/notificaciones/usuario/:id/contar-no-leidas
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Cuenta notificaciones no leídas
+
+    📤 Respuesta exitosa (200):
+    {
+      "count": 5
+    }
+
+    🎯 Usado en frontend:
+    - Número en la campana (badge rojo)
+
+
+37. POST /api/notificaciones
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Crea una notificación
+
+    📥 Body (JSON):
+    {
+      "usuario": "64f7a8b...",
+      "titulo": "Recordatorio",
+      "mensaje": "Tu cita es mañana...",
+      "tipo": "info" // info, exito, advertencia, error
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "_id": "...",
+      "usuario": {...},
+      "titulo": "Recordatorio",
+      ...
+    }
+
+    🔧 Qué hace internamente:
+    - Valida campos obligatorios
+    - Crea notificación con leida=false
+    - Hace populate del usuario
+
+    🎯 Usado en frontend:
+    - Generalmente no se usa directamente
+    - Las notificaciones se crean automáticamente
+
+
+38. PUT /api/notificaciones/:id/marcar-leida
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Marca una notificación como leída
+
+    📤 Respuesta exitosa (200):
+    {
+      "_id": "...",
+      "leida": true,
+      ...
+    }
+
+    🎯 Usado en frontend:
+    - Al hacer clic en una notificación
+
+
+39. PUT /api/notificaciones/usuario/:id/marcar-todas-leidas
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Marca todas como leídas
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "5 notificaciones marcadas como leídas"
+    }
+
+    🎯 Usado en frontend:
+    - Botón "Marcar todas como leídas"
+
+
+40. DELETE /api/notificaciones/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina una notificación
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Notificación eliminada exitosamente"
+    }
+
+    🎯 Usado en frontend:
+    - Botón eliminar en notificación individual
+
+
+41. DELETE /api/notificaciones/usuario/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina todas las notificaciones de un usuario
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "10 notificaciones eliminadas"
+    }
+
+    🎯 Usado en frontend:
+    - Botón "Limpiar todas las notificaciones"
+
+
+═══════════════════════════════════════════════════════════════
+  🔗 PROFESIONAL-SERVICIO (profesionalServicio.routes.js)
+═══════════════════════════════════════════════════════════════
+
+42. GET /api/profesional_servicio
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Obtiene todas las relaciones
+
+    📤 Respuesta exitosa (200):
+    [
+      {
+        "_id": "...",
+        "profesional": {
+          "_id": "...",
+          "nombre": "Laura",
+          "apellidos": "Gómez"
+        },
+        "servicio": {
+          "_id": "...",
+          "nombre": "Corte de Cabello",
+          "precio": 15.99
+        }
+      },
+      ...
+    ]
+
+    🔧 Qué hace internamente:
+    - Obtiene todas las relaciones
+    - Hace populate de profesional y servicio
+
+    🎯 Usado en frontend:
+    - Panel admin → Ver qué profesionales ofrecen qué servicios
+
+
+43. POST /api/profesional_servicio
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Crea una relación profesional-servicio
+
+    📥 Body (JSON):
+    {
+      "profesional": "64f7a8b...",
+      "servicio": "64f7a9c..."
+    }
+
+    📤 Respuesta exitosa (201):
+    {
+      "_id": "...",
+      "profesional": {...},
+      "servicio": {...}
+    }
+
+    ❌ Errores:
+    - 400: La relación ya existe
+
+    🔧 Qué hace internamente:
+    - Valida campos obligatorios
+    - Verifica que no exista ya la relación
+    - Crea la relación
+
+    🎯 Usado en frontend:
+    - Panel admin → Asignar servicio a profesional
+    - Al crear/editar profesional
+    - Al crear/editar servicio
+
+
+44. DELETE /api/profesional_servicio/:id
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina una relación específica
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "Relación eliminada exitosamente"
+    }
+
+    🎯 Usado en frontend:
+    - Quitar servicio de un profesional
+
+
+45. DELETE /api/profesional_servicio/servicio/:servicioId
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina todas las relaciones de un servicio
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "3 relaciones eliminadas"
+    }
+
+    🔧 Qué hace internamente:
+    - Busca todas las relaciones con ese servicio
+    - Las elimina en bloque
+
+    🎯 Usado en frontend:
+    - Al eliminar un servicio (automático)
+
+
+46. DELETE /api/profesional_servicio/profesional/:profesionalId
+    ────────────────────────────────────────────────────────────
+    📝 Descripción: Elimina todas las relaciones de un profesional
+
+    📤 Respuesta exitosa (200):
+    {
+      "mensaje": "5 relaciones eliminadas"
+    }
+
+    🔧 Qué hace internamente:
+    - Busca todas las relaciones de ese profesional
+    - Las elimina en bloque
+
+    🎯 Usado en frontend:
+    - Al eliminar un profesional (automático)
+
+
+═══════════════════════════════════════════════════════════════
+  📊 RESUMEN DE ENDPOINTS
+═══════════════════════════════════════════════════════════════
+
+TOTAL: 46 ENDPOINTS
+
+AUTENTICACIÓN: 2
+  - Login
+  - Registro
+
+USUARIOS: 3
+  - GET todos, PUT actualizar, DELETE eliminar
+
+SERVICIOS: 4
+  - GET todos, POST crear, PUT actualizar, DELETE eliminar
+
+PROFESIONALES: 5
+  - GET todos, GET uno, POST crear, PUT actualizar, DELETE eliminar
+
+CENTROS: 5
+  - GET todos, GET uno, POST crear, PUT actualizar, DELETE eliminar
+
+HORARIOS: 5
+  - GET todos, GET uno, POST crear, PUT actualizar, DELETE eliminar
+
+CITAS: 10
+  - GET todos, GET uno, GET por usuario, GET por profesional
+  - POST crear, PUT actualizar, DELETE eliminar
+  - PUT marcar realizada
+  - GET disponibilidad
+
+NOTIFICACIONES: 8
+  - GET por usuario, GET no leídas, GET contar
+  - POST crear
+  - PUT marcar leída, PUT marcar todas leídas
+  - DELETE una, DELETE todas
+
+PROFESIONAL-SERVICIO: 4
+  - GET todos, POST crear
+  - DELETE uno, DELETE por servicio, DELETE por profesional
+
+
+═══════════════════════════════════════════════════════════════
+  🏛️ SISTEMA DE DATOS HISTÓRICOS
+═══════════════════════════════════════════════════════════════
+
+📋 DESCRIPCIÓN GENERAL:
+
+El sistema implementa un mecanismo automático de preservación de datos
+que garantiza que la información crítica de las citas NUNCA se pierda,
+incluso cuando se eliminen usuarios, profesionales, servicios o centros.
+
+═══════════════════════════════════════════════════════════════
+
+🗂️ CAMPOS HISTÓRICOS EN EL MODELO CITA:
+
+El modelo Cita (models/cita.js) incluye 6 campos adicionales opcionales:
+
+1. usuarioNombre: string
+   - Nombre completo del cliente
+   - Se guarda al crear la cita
+   - Se usa si el usuario es eliminado
+
+2. usuarioEmail: string
+   - Email del cliente
+   - Se guarda al crear la cita
+   - Útil para identificación
+
+3. profesionalNombre: string
+   - Nombre del profesional
+   - Se guarda al crear la cita
+   - Se usa si el profesional es eliminado
+
+4. profesionalApellidos: string
+   - Apellidos del profesional
+   - Se guarda al crear la cita
+   - Complementa el nombre
+
+5. servicioNombre: string
+   - Nombre del servicio
+   - Se guarda al crear la cita
+   - Se usa si el servicio es eliminado
+
+6. centroNombre: string
+   - Nombre del centro
+   - Se guarda al crear la cita
+   - Se usa si el centro es eliminado
+
+═══════════════════════════════════════════════════════════════
+
+⚙️ FUNCIONAMIENTO AUTOMÁTICO:
+
+1️⃣ AL CREAR UNA CITA (POST /api/citas):
+   ────────────────────────────────────────────────────────────
+   - El backend busca: usuario, profesional, servicio, centro
+   - Extrae los nombres de cada uno
+   - Guarda TODOS los campos históricos automáticamente
+   - No requiere acción del frontend
+
+   Ejemplo de cita creada:
+   {
+     usuario: ObjectId("64f7a8b..."),
+     profesional: ObjectId("64f7a9c..."),
+     servicio: ObjectId("64f7a9d..."),
+     centro: ObjectId("64f7a9e..."),
+
+     // Campos históricos guardados automáticamente:
+     usuarioNombre: "María López",
+     usuarioEmail: "maria@example.com",
+     profesionalNombre: "Laura",
+     profesionalApellidos: "Gómez Ruiz",
+     servicioNombre: "Corte de Cabello",
+     centroNombre: "Glamour Studio"
+   }
+
+2️⃣ AL ELIMINAR USUARIO/PROFESIONAL:
+   ────────────────────────────────────────────────────────────
+   - ANTES de cancelar las citas, verifica campos históricos
+   - Si algún campo no existe, lo guarda en ese momento
+   - Luego cambia estado a "cancelada"
+   - La referencia (ObjectId) puede quedar "huérfana"
+   - Pero los nombres históricos están guardados
+
+3️⃣ AL OBTENER CITAS (GET endpoints):
+   ────────────────────────────────────────────────────────────
+   - Hace populate normal de todas las referencias
+   - Ejecuta función helper: agregarNombresHistoricos()
+   - Si alguna referencia es null (eliminada):
+     • Crea objeto con los campos históricos
+     • Lo asigna a la propiedad correspondiente
+   - Frontend recibe objetos completos SIEMPRE
+
+   Ejemplo:
+
+   CITA EN BD (después de eliminar usuario):
+   {
+     usuario: ObjectId("64f7a8b..."), // No existe en BD
+     usuarioNombre: "María López",
+     usuarioEmail: "maria@example.com",
+     profesional: { nombre: "Laura", apellidos: "Gómez" },
+     ...
+   }
+
+   DESPUÉS DEL HELPER (lo que recibe el frontend):
+   {
+     usuario: {
+       nombre: "María López",  // ← Creado del histórico
+       email: "maria@example.com"  // ← Creado del histórico
+     },
+     profesional: { nombre: "Laura", apellidos: "Gómez" },
+     ...
+   }
+
+═══════════════════════════════════════════════════════════════
+
+🔍 FUNCIÓN HELPER: agregarNombresHistoricos()
+
+Ubicación: controllers/cita.controller.js (líneas 9-44)
+
+Propósito:
+- Detectar cuando referencias son null
+- Usar campos históricos para crear objetos
+- Garantizar que frontend nunca ve null
+
+Código (simplificado):
+```javascript
+function agregarNombresHistoricos(cita) {
+  const citaObj = cita.toObject();
+
+  // Si usuario es null, usar históricos
+  if (!citaObj.usuario && citaObj.usuarioNombre) {
+    citaObj.usuario = {
+      nombre: citaObj.usuarioNombre,
+      email: citaObj.usuarioEmail
+    };
+  }
+
+  // Si profesional es null, usar históricos
+  if (!citaObj.profesional && citaObj.profesionalNombre) {
+    citaObj.profesional = {
+      nombre: citaObj.profesionalNombre,
+      apellidos: citaObj.profesionalApellidos
+    };
+  }
+
+  // Similar para servicio y centro...
+
+  return citaObj;
+}
+```
+
+Usada en:
+- getAllCitas()
+- getCitasByUsuario()
+- getCitasByProfesional()
+- getCitaById()
+
+═══════════════════════════════════════════════════════════════
+
+📊 CASOS DE USO:
+
+CASO 1: Cliente elimina su cuenta
+─────────────────────────────────────────────────────────────
+Cita ANTES:
+{
+  usuario: ObjectId("abc123") → Existe en BD
+  usuarioNombre: "María López"
+}
+
+Después de eliminar usuario:
+{
+  usuario: ObjectId("abc123") → YA NO existe en BD
+  usuarioNombre: "María López" ← Sigue existiendo
+}
+
+Al hacer GET:
+{
+  usuario: {
+    nombre: "María López",  ← Del histórico
+    email: "maria@example.com"  ← Del histórico
+  }
+}
+
+✅ Profesional ve "María López" en sus citas canceladas
+✅ Admin ve "María López" en el historial
+✅ NUNCA se pierde la información
+
+CASO 2: Profesional eliminado del sistema
+─────────────────────────────────────────────────────────────
+Cita ANTES:
+{
+  profesional: ObjectId("xyz789") → Existe en BD
+  profesionalNombre: "Laura"
+}
+
+Después de eliminar profesional:
+{
+  profesional: ObjectId("xyz789") → YA NO existe
+  profesionalNombre: "Laura" ← Sigue existiendo
+}
+
+Al hacer GET:
+{
+  profesional: {
+    nombre: "Laura",  ← Del histórico
+    apellidos: "Gómez"  ← Del histórico
+  }
+}
+
+✅ Cliente ve "Laura Gómez" en su historial
+✅ Admin ve "Laura Gómez" en las citas
+✅ Información preservada para auditoría
+
+═══════════════════════════════════════════════════════════════
+
+💾 MIGRACIÓN DE CITAS EXISTENTES:
+
+Para citas creadas ANTES de implementar el sistema histórico:
+
+Script: actualizar-citas-historico.js
+
+Ejecutar UNA VEZ:
+```bash
+cd backend
+node actualizar-citas-historico.js
+```
+
+Qué hace:
+1. Busca todas las citas sin campos históricos
+2. Hace populate de usuario, profesional, servicio, centro
+3. Extrae los nombres de cada uno
+4. Guarda en los campos históricos
+5. Actualiza la cita en MongoDB
+
+Resultado:
+✅ Todas las citas tienen datos históricos
+✅ Sistema completamente funcional
+✅ Compatibilidad total con código actual
+
+═══════════════════════════════════════════════════════════════
+
+🎯 VENTAJAS DEL SISTEMA:
+
+1. AUTOMÁTICO
+   ✅ No requiere intervención manual
+   ✅ Funciona en segundo plano
+   ✅ Transparente para el frontend
+
+2. ROBUSTO
+   ✅ Funciona aunque se eliminen referencias
+   ✅ No rompe el sistema
+   ✅ Siempre hay datos disponibles
+
+3. AUDITABLE
+   ✅ Historial completo preservado
+   ✅ Trazabilidad total
+   ✅ Cumple requisitos legales
+
+4. COMPATIBLE
+   ✅ Frontend no necesita cambios
+   ✅ Funciona con código existente
+   ✅ Fácil de mantener
+
+═══════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE PARA DESARROLLADORES:
+
+1. NO ELIMINES CITAS FÍSICAMENTE
+   - Usa estado "cancelada" en su lugar
+   - Las citas son documentos históricos
+   - Se necesitan para estadísticas
+
+2. SIEMPRE USA LOS HELPERS
+   - agregarNombresHistoricos() en controllers
+   - No reinventes la rueda
+   - Mantén consistencia
+
+3. AL CREAR NUEVOS ENDPOINTS DE CITAS
+   - Recuerda aplicar el helper
+   - Ejemplo: GET por fecha, GET por centro
+   - Siempre map(agregarNombresHistoricos)
+
+4. FRONTEND: NO ASUMAS QUE OBJETOS EXISTEN
+   - Usa optional chaining: cita.usuario?.nombre
+   - O usa los helpers que se proveerán
+   - Pero el backend ya envía objetos completos
+
+═══════════════════════════════════════════════════════════════
+
+
+═══════════════════════════════════════════════════════════════
+  🎯 NOTAS IMPORTANTES PARA EL FRONTEND ANGULAR
+═══════════════════════════════════════════════════════════════
+
+1. CITAS CANCELADAS
+   ✅ El backend SIEMPRE devuelve citas canceladas
+   ✅ Los nombres históricos están incluidos automáticamente
+   ⚠️ NO filtres citas canceladas en el frontend
+   ⚠️ Muéstralas en el historial con estado visible
+
+2. NOMBRES HISTÓRICOS
+   ✅ profesional.nombre funcionará aunque se haya eliminado
+   ✅ usuario.nombre funcionará aunque se haya eliminado
+   ✅ No verás "Desconocido" o null
+   ✅ El backend lo maneja automáticamente con la función helper
+
+3. NOTIFICACIONES
+   ✅ Se crean automáticamente en el backend
+   ✅ Solo necesitas GET para mostrarlas
+   ✅ Actualiza el contador cada 5-10 segundos
+
+4. PUNTOS Y NIVELES
+   ✅ Se calculan automáticamente al marcar cita como realizada
+   ✅ 10 puntos por cita
+   ✅ Niveles: Nuevo (0-19), Frecuente (20-49),
+       Habitual (50-99), Premium (100+)
+
+5. VALIDACIONES
+   ✅ La mayoría se hacen en el backend
+   ✅ Verifica disponibilidad antes de crear cita
+   ✅ Maneja errores 400 para mostrar mensajes
+
+6. INTERFACES (TypeScript)
+   ⚠️ Actualiza CitasInterface con campos opcionales:
+   ```typescript
+   export interface CitasInterface {
+     _id?: string;
+     usuario: string | { _id: string; nombre: string; email: string; };
+     profesional: string | { _id: string; nombre: string; apellidos: string; };
+     servicio: string | { _id: string; nombre: string; };
+     centro: string | { _id: string; nombre: string; };
+
+     // Campos históricos (opcionales):
+     usuarioNombre?: string;
+     usuarioEmail?: string;
+     profesionalNombre?: string;
+     profesionalApellidos?: string;
+     servicioNombre?: string;
+     centroNombre?: string;
+
+     fecha: string;
+     hora: string;
+     estado: 'pendiente' | 'confirmada' | 'realizada' | 'cancelada';
+     precio: number;
+   }
+   ```
+
+═══════════════════════════════════════════════════════════════
+
+📅 Documento actualizado: 18/02/2026
+🔧 Versión de la API: 2.1
+💻 Backend: Node.js + Express + MongoDB
+🏛️ Sistema de Datos Históricos: ACTIVO
+
+═══════════════════════════════════════════════════════════════
