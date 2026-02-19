@@ -22,3 +22,9 @@ out/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Archivos obsoletos que ya eliminamos
+backend/*.backup.js
+backend/seed*.js
+backend/mapeo_*.json
+backend/data_originales/
