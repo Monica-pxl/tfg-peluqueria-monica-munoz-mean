@@ -71,42 +71,48 @@ export class ServiciosEditar implements OnInit{
         }
 
         // cargar relaciones actuales usando _id del servicio
-        this.profesionalServicioService.getAllProfesionalServicio().subscribe(relaciones => {
-          // Filtrar relaciones para este servicio
-          const relsFiltradas = relaciones.filter(r => {
-            // Si servicio está poblado
-            if (typeof r.servicio === 'object' && r.servicio !== null) {
-              return r.servicio._id === this.servicio._id;
-            }
-            // Si servicio es string (_id)
-            return r.servicio === this.servicio._id;
-          });
-
-          // Extraer IDs de profesionales (como strings para MongoDB)
-          this.id_profesionales = relsFiltradas
-            .map(r => {
-              if (typeof r.profesional === 'object' && r.profesional !== null) {
-                return r.profesional._id;
+        this.profesionalServicioService.getAllProfesionalServicio().subscribe({
+          next: relaciones => {
+            // Filtrar relaciones para este servicio
+            const relsFiltradas = relaciones.filter(r => {
+              // Si servicio está poblado
+              if (typeof r.servicio === 'object' && r.servicio !== null) {
+                return r.servicio._id === this.servicio._id;
               }
-              return r.profesional as string;
-            })
-            .filter((id): id is string => !!id);
+              // Si servicio es string (_id)
+              return r.servicio === this.servicio._id;
+            });
 
-          console.log('Profesionales del servicio:', this.id_profesionales);
+            // Extraer IDs de profesionales (como strings para MongoDB)
+            this.id_profesionales = relsFiltradas
+              .map(r => {
+                if (typeof r.profesional === 'object' && r.profesional !== null) {
+                  return r.profesional._id;
+                }
+                return r.profesional as string;
+              })
+              .filter((id): id is string => !!id);
 
-          // Filtrar profesionales por el centro del servicio
-          const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
-            ? this.servicio.centro._id
-            : this.servicio.centro;
+            console.log('Profesionales del servicio:', this.id_profesionales);
 
-          this.profesionalesFiltrados = this.profesionales.filter(p => {
-            const pCentroId = typeof p.centro === 'object' && p.centro !== null
-              ? p.centro._id
-              : p.centro;
-            return pCentroId === centroId;
-          });
+            // Filtrar profesionales por el centro del servicio
+            const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
+              ? this.servicio.centro._id
+              : this.servicio.centro;
 
-          this.cargando = false;
+            this.profesionalesFiltrados = this.profesionales.filter(p => {
+              const pCentroId = typeof p.centro === 'object' && p.centro !== null
+                ? p.centro._id
+                : p.centro;
+              return pCentroId === centroId;
+            });
+
+            this.cargando = false;
+          },
+          error: (err) => {
+            console.error('Error al cargar relaciones:', err);
+            this.cargando = false;
+          }
         });
       },
       error: () => {

@@ -1,17 +1,31 @@
 .admin-dashboard {
-  background: linear-gradient(135deg, #ffffff 0%, #ffe5f0 50%, #ffd5e8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f9 50%, #ffe8f5 100%);
   min-height: 100vh;
   padding-bottom: 3rem;
+  position: relative;
+}
+
+.admin-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(255, 105, 180, 0.03) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 105, 180, 0.03) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .hero-banner-admin {
-  background: linear-gradient(135deg, rgb(10, 10, 10) 0%, rgb(30, 30, 30) 100%);
-  color: #ffffff; 
-  padding: 90px 0; 
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  color: #ffffff;
+  padding: 90px 0;
   margin-bottom: 40px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 30px rgba(255, 105, 180, 0.3);
   position: relative;
   overflow: hidden;
+  border-bottom: 2px solid rgba(255, 105, 180, 0.3);
 }
 
 .hero-banner-admin::before {
@@ -21,8 +35,8 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 111, 191, 0.1), transparent);
-  animation: shimmer 3s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.15), transparent);
+  animation: shimmer 4s infinite;
 }
 
 @keyframes shimmer {
@@ -36,17 +50,25 @@
 
 .hero-icon {
   font-size: 4rem;
-  color: #ff6fbf;
+  color: #ff69b4;
   animation: iconFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.6));
 }
 
 @keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 20px rgba(255, 105, 180, 0.6));
+  }
+  50% {
+    transform: translateY(-10px);
+    filter: drop-shadow(0 0 30px rgba(255, 105, 180, 0.9));
+  }
 }
 
 .title-animated {
   animation: fadeInDown 0.8s ease-out;
+  text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
 }
 
 .subtitle-animated {
@@ -89,27 +111,29 @@
 
 /* Tarjetas principales mejoradas */
 .card-hover {
-  background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%);
-  transform: translateY(0); 
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  transform: translateY(0);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 2px solid rgba(255, 111, 191, 0.15) !important;
+  border: 2px solid rgba(255, 105, 180, 0.2) !important;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.15);
 }
 
 .card-hover::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 111, 191, 0.15), transparent);
-  transition: left 0.6s ease;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 105, 180, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
 .card-hover:hover::before {
-  left: 100%;
+  opacity: 1;
 }
 
 .card-hover::after {
@@ -123,17 +147,17 @@
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.5s ease;
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.8);
 }
 
 .card-hover:hover::after {
   transform: scaleX(1);
 }
 
-
 .card-hover:hover {
-  transform: translateY(-12px) scale(1.02);
-  box-shadow: 0 15px 35px rgba(255, 111, 191, 0.2);
-  border: 1px solid rgba(255, 111, 191, 0.3) !important;
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(255, 105, 180, 0.3);
+  border-color: rgba(255, 105, 180, 0.4) !important;
 }
 
 .icon-wrapper {
@@ -141,27 +165,38 @@
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6fbf 0%, #ff3d94 100%);
+  background: linear-gradient(135deg, #ff69b4 0%, #ff3d94 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(255, 111, 191, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
   transition: all 0.3s ease;
+  animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 25px rgba(255, 105, 180, 0.7);
+  }
 }
 
 .card-hover:hover .icon-wrapper {
   transform: rotateY(360deg) scale(1.1);
-  box-shadow: 0 6px 25px rgba(255, 111, 191, 0.5);
+  box-shadow: 0 8px 30px rgba(255, 105, 180, 0.6);
 }
 
 .card-icon {
   font-size: 2rem;
   color: white;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
 }
 
 .card-title {
-  color: #ff6fbf;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  color: #ff69b4;
+  text-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
   font-weight: 600;
   transition: all 0.3s ease;
 }
@@ -169,6 +204,7 @@
 .card-hover:hover .card-title {
   color: #ff3d94;
   transform: scale(1.05);
+  text-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
 }
 
 /* Tarjetas de estadísticas */
@@ -257,11 +293,11 @@
 }
 
 @keyframes statsPulse {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 8px 25px rgba(255, 111, 191, 0.4);
     transform: scale(1);
   }
-  50% { 
+  50% {
     box-shadow: 0 12px 35px rgba(255, 111, 191, 0.6);
     transform: scale(1.05);
   }

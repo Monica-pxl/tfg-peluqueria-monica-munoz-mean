@@ -1,12 +1,23 @@
+/* Servicios - Diseño Futurista Limpio */
 .servicios-section {
   background: linear-gradient(135deg, #ffffff 0%, #fff5f9 100%);
   padding: 4rem 0;
+  position: relative;
+}
+
+.servicios-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(255, 105, 180, 0.03) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .servicios-section h2 {
   color: #ff69b4;
   font-weight: 700;
   font-size: 2.5rem;
+  animation: titleGlow 4s ease-in-out infinite;
 }
 
 .section-header {
@@ -30,7 +41,12 @@
   font-weight: 500;
 }
 
-/* BUSCADOR */
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 0 4px 20px rgba(255, 105, 180, 0.3); }
+  50% { text-shadow: 0 6px 30px rgba(255, 105, 180, 0.6); }
+}
+
+/* Search Bar - Igual que Centros */
 .search-wrapper {
   max-width: 600px;
   margin: 0 auto;
@@ -40,15 +56,6 @@
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 1.2rem;
-  color: #ff69b4;
-  font-size: 1.2rem;
-  z-index: 10;
-  pointer-events: none;
 }
 
 .search-input {
@@ -68,6 +75,15 @@
 
 .search-input::placeholder {
   color: #ccc;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.2rem;
+  color: #ff69b4;
+  font-size: 1.2rem;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .clear-search {
@@ -90,70 +106,33 @@
   transform: scale(1.1);
 }
 
-/* CARDS - Servicios */
-.card {
-  border-radius: 1rem;
-  padding: 0;
-  border: 0;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(18, 18, 18, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-  position: relative;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
-  z-index: 1;
-}
-
-.card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 22px 60px rgba(255, 105, 180, 0.15);
-}
-
-.card:hover::before {
-  left: 100%;
-}
-
+/* Card specifics */
 .card-image-wrapper {
-  width: 100%;
   height: 280px;
   overflow: hidden;
   border-radius: 1rem 1rem 0 0;
   position: relative;
 }
 
-.card-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 105, 180, 0);
-  transition: all 0.3s ease;
-}
-
-.card:hover .card-overlay {
-  background: rgba(255, 105, 180, 0.15);
-}
-
 .card-img-top {
-  width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .card:hover .card-img-top {
   transform: scale(1.1);
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 105, 180, 0);
+  transition: background 0.3s ease;
+}
+
+.card:hover .card-overlay {
+  background: rgba(255, 105, 180, 0.15);
 }
 
 .card-badge {
@@ -167,73 +146,77 @@
   font-size: 0.75rem;
   font-weight: 600;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
-  animation: pulse-badge 2s infinite;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+  animation: badgePulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse-badge {
+@keyframes badgePulse {
   0%, 100% {
-    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5);
+    box-shadow: 0 6px 25px rgba(255, 105, 180, 0.7);
+    transform: scale(1.05);
   }
-}
-
-.card-body {
-  padding: 1.5rem;
-}
-
-.card-title {
-  color: #ff69b4;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.card-text {
-  color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
 }
 
 .precio-highlight {
   color: #ff69b4;
   font-size: 1.3rem;
+  font-weight: 700;
 }
 
+/* Badge Bestseller */
 .bg-pink {
-  background-color: #ff69b4 !important;
+  background: linear-gradient(135deg, #ff69b4, #ff89c4) !important;
+  color: white !important;
+  padding: 0.4rem 0.8rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(255, 105, 180, 0.4);
+  animation: badgePulse 2s ease-in-out infinite;
 }
 
-/* BOTONES */
-.btn-primary.text-white {
-  background-color: #ff69b4;
-  border: none;
-  color: #fff;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+/* Empty State */
+.empty-state {
+  padding: 4rem 2rem;
 }
 
-.btn-primary.text-white::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-50%);
-  transition: left 0.5s ease;
+.empty-icon {
+  font-size: 5rem;
+  animation: floatIcon 3s ease-in-out infinite;
 }
 
-.btn-primary.text-white:hover {
-  background-color: #d1558f;
-  box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
-.btn-primary.text-white:hover::before {
-  left: 100%;
+/* Responsive */
+@media (max-width: 768px) {
+  .servicios-section {
+    padding: 2.5rem 0;
+  }
+
+  .servicios-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .card-image-wrapper {
+    height: 220px;
+  }
+}
+
+@media (max-width: 576px) {
+  .card-image-wrapper {
+    height: 200px;
+  }
+
+  .precio-highlight {
+    font-size: 1.2rem;
+  }
 }
 
 /* BOTONES PAGINACIÓN */
@@ -258,146 +241,3 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
 }
-
-.btn-pagination:active {
-  transform: translateY(0);
-}
-
-/* RESPONSIVE */
-@media (max-width: 992px) {
-  .servicios-section h2 {
-    font-size: 2rem;
-  }
-
-  .card-image-wrapper {
-    height: 220px;
-  }
-
-  .card-body {
-    padding: 1.3rem;
-  }
-
-  .card-title {
-    font-size: 1.15rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .servicios-section {
-    padding: 2.5rem 0;
-  }
-
-  .servicios-section h2 {
-    font-size: 1.8rem;
-  }
-
-  .card-image-wrapper {
-    height: 220px;
-  }
-
-  .card-body {
-    padding: 1.2rem;
-  }
-
-  .card-text {
-    font-size: 0.95rem;
-  }
-
-  .btn-pagination {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-
-  .pagination-wrapper {
-    gap: 0.5rem !important;
-  }
-}
-
-@media (max-width: 576px) {
-  .servicios-section h2 {
-    font-size: 1.6rem;
-  }
-
-  .card-image-wrapper {
-    height: 200px;
-  }
-
-  .card-body {
-    padding: 1.1rem;
-  }
-
-  .card-text {
-    font-size: 0.92rem;
-  }
-
-  .precio-highlight {
-    font-size: 1.2rem;
-  }
-
-  .btn-pagination {
-    padding: 0.55rem 1rem;
-    font-size: 0.88rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .servicios-section h2 {
-    font-size: 1.5rem;
-  }
-
-  .card-image-wrapper {
-    height: 180px;
-  }
-
-  .card-badge {
-    padding: 0.35rem 0.7rem;
-    font-size: 0.7rem;
-  }
-
-  .card-body {
-    padding: 1rem;
-  }
-
-  .precio-highlight {
-    font-size: 1.1rem;
-  }
-
-  .btn-pagination {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.85rem;
-  }
-}
-.card:hover .card-img-top { transform: scale(1.1); }
-
-
-.btn-pagination {
-  background-color: black !important;
-  color: white !important;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.95rem;
-  border-radius: 0.5rem;
-}
-
-.btn-pagination:hover {
-  background-color: #ff69b4 !important;
-  color: white !important;
-  box-shadow: 0 5px 15px rgba(255,105,180,0.3);
-}
-
-.btn-pagination:first-child,
-.btn-pagination:last-child {
-  background-color: black !important;
-  color: pink !important;
-}
-
-.btn-pagination:first-child:hover,
-.btn-pagination:last-child:hover {
-  background-color: #ff6ab4 !important;
-  color: rgb(0, 0, 0) !important;
-}
-
-
-
-
-

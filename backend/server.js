@@ -24,8 +24,11 @@ const app = express();
 aplicarMiddlewares(app);  // ← Esto configura cors, express.json, etc.
 
 
-// CONEXIÓN A MONGODB
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://admin:JLL89255!@peluqueriacluster.qpusqz6.mongodb.net/tfg_peluqueria?retryWrites=true&w=majority";
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('❌ Error: MONGODB_URI no está definida en .env');
+  process.exit(1);
+}
 
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Conectado a MongoDB Atlas'))

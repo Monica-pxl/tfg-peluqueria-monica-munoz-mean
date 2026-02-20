@@ -1,3 +1,11 @@
+/* Fondo general rosa clarito */
+:host {
+  display: block;
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #ffeef8 0%, #fff 100%);
+  padding: 20px 0;
+}
+
 /* Contenedor principal */
 .contenedor-notificaciones {
   max-width: 900px;

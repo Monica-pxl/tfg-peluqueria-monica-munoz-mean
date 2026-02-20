@@ -44,7 +44,7 @@ const Home = () => {
                   <div className="feature-icon-large mb-4">
                     <i className="bi bi-scissors"></i>
                   </div>
-                  <h3 className="h4 mb-3 card-title-custom">Servicios Variados</h3>
+                  <h3 className="h4 mb-3 card-title-custom">Servicios</h3>
                   <p className="text-muted card-text-custom">
                     Gestiona todos tus servicios de peluquería de forma profesional y organizada
                   </p>
@@ -60,13 +60,13 @@ const Home = () => {
                 <div className="card-badge">Disponible</div>
                 <div className="card-body text-center p-4">
                   <div className="feature-icon-large mb-4">
-                    <i className="bi bi-calendar-check"></i>
+                    <i className="bi bi-clock-history"></i>
                   </div>
-                  <h3 className="h4 mb-3 card-title-custom">Control de Citas</h3>
+                  <h3 className="h4 mb-3 card-title-custom">Horarios</h3>
                   <p className="text-muted card-text-custom">
-                    Administra las citas de tus clientes de manera eficiente y sin complicaciones
+                    Administra los horarios de tus profesionales de manera eficiente y flexible
                   </p>
-                  <Link to="/citas" className="btn btn-card-custom mt-3">
+                  <Link to="/horarios" className="btn btn-card-custom mt-3">
                     Ver más <i className="bi bi-arrow-right ms-2"></i>
                   </Link>
                 </div>
@@ -78,13 +78,13 @@ const Home = () => {
                 <div className="card-badge">Disponible</div>
                 <div className="card-body text-center p-4">
                   <div className="feature-icon-large mb-4">
-                    <i className="bi bi-people"></i>
+                    <i className="bi bi-building"></i>
                   </div>
-                  <h3 className="h4 mb-3 card-title-custom">Gestión de Usuarios</h3>
+                  <h3 className="h4 mb-3 card-title-custom">Centros</h3>
                   <p className="text-muted card-text-custom">
-                    Controla y administra los usuarios de tu plataforma de forma segura
+                    Gestiona tus centros de peluquería con información completa y actualizada
                   </p>
-                  <Link to="/usuarios" className="btn btn-card-custom mt-3">
+                  <Link to="/centros" className="btn btn-card-custom mt-3">
                     Ver más <i className="bi bi-arrow-right ms-2"></i>
                   </Link>
                 </div>

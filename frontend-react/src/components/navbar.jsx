@@ -41,11 +41,11 @@ const Navbar = () => {
             </li>
             <li className="nav-item mx-3 nav-item-animated">
               <Link
-                className={`nav-link nav-link-futuristic ${isActive('/citas') ? 'active' : ''}`}
-                to="/citas"
+                className={`nav-link nav-link-futuristic ${isActive('/horarios') ? 'active' : ''}`}
+                to="/horarios"
               >
-                <i className="bi bi-calendar-check me-2"></i>
-                <span>Citas</span>
+                <i className="bi bi-clock-fill me-2"></i>
+                <span>Horarios</span>
               </Link>
             </li>
             <li className="nav-item mx-3 nav-item-animated">

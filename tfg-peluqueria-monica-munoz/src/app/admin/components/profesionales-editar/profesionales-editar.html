@@ -6,12 +6,14 @@
       <p class="text-muted">Modifica la información del profesional</p>
     </div>
 
-    <div class="text-center py-5">
-      <div class="spinner-border text-pink" role="status">
-        <span class="visually-hidden">Cargando...</span>
+    @if(cargando) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-pink" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-3">Cargando datos del profesional...</p>
       </div>
-      <p class="text-muted mt-3">Cargando datos del profesional...</p>
-    </div>
+    }
 
     @if(error) {
       <div class="alert alert-danger" role="alert">

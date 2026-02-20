@@ -179,13 +179,13 @@ const CentroDetalle = () => {
 
               {/* Botones de acción */}
               <div className="detalle-actions-react">
-                <Link to="/centros" className="btn btn-secondary-detalle-react">
+                <Link to="/centros" className="btn btn-secondary me-2">
                   <i className="bi bi-arrow-left me-2"></i>
                   Volver
                 </Link>
                 <Link
                   to={`/centros/editar/${centro._id}`}
-                  className="btn btn-primary-detalle-react"
+                  className="btn btn-primary-react"
                 >
                   <i className="bi bi-pencil-square me-2"></i>
                   Editar Centro

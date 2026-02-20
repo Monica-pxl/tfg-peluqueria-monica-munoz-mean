@@ -49,9 +49,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/citas" className="text-white">
+                <Link to="/horarios" className="text-white">
                   <i className="bi bi-chevron-right me-2"></i>
-                  Citas
+                  Horarios
                 </Link>
               </li>
               <li>

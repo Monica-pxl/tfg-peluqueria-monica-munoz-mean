@@ -92,6 +92,15 @@ const ServiciosForm = () => {
     }
   };
 
+  // Validar URL de imagen (acepta URLs completas o rutas locales)
+  const validarImagenURL = (url) => {
+    if (!url || url.trim() === '') return true; // Imagen es opcional
+    // Acepta URLs completas (http/https) o rutas locales que empiecen con /
+    const urlPattern = /^https?:\/\/.+/;
+    const rutaLocalPattern = /^\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg)$/i;
+    return urlPattern.test(url) || rutaLocalPattern.test(url);
+  };
+
   // Validación completa
   const validar = () => {
     const nuevosErrores = {};
@@ -110,6 +119,11 @@ const ServiciosForm = () => {
 
     if (servicio.duracion && (isNaN(servicio.duracion) || Number(servicio.duracion) <= 0)) {
       nuevosErrores.duracion = 'La duración debe ser un número positivo';
+    }
+
+    // Validar URL de imagen
+    if (servicio.imagen && !validarImagenURL(servicio.imagen)) {
+      nuevosErrores.imagen = 'La imagen no es válida. Debe ser una URL (http/https) o una ruta local (/img/...)';
     }
 
     return nuevosErrores;
@@ -296,16 +310,17 @@ const ServiciosForm = () => {
               <i className="bi bi-image-fill me-2"></i>URL de la Imagen
             </label>
             <input
-              type="url"
-              className="form-control form-control-custom-react"
+              type="text"
+              className={`form-control form-control-custom-react ${errores.imagen ? 'is-invalid' : ''}`}
               name="imagen"
               value={servicio.imagen}
               onChange={handleChange}
-              placeholder="https://ejemplo.com/imagen.jpg"
+              placeholder="https://ejemplo.com/imagen.jpg o /img/servicio1.png"
               disabled={loading || guardando}
             />
+            {errores.imagen && <div className="invalid-feedback-react">{errores.imagen}</div>}
             <small className="text-muted-react d-block mt-2">
-              <i className="bi bi-info-circle me-1"></i>Opcional: URL de la imagen del servicio
+              <i className="bi bi-info-circle me-1"></i>Opcional: URL completa o ruta local (/img/...)
             </small>
           </div>
 

@@ -5,9 +5,9 @@ import Navbar from './components/navbar';
 import Home from './pages/Home';
 import ServiciosList from './pages/Servicios/ServiciosList.jsx';
 import ServiciosForm from './pages/Servicios/ServiciosForm.jsx';
-import CitasList from './pages/Citas/CitasList.jsx';
-import CitasForm from './pages/Citas/CitasForm.jsx';
-import CitaDetalle from './pages/Citas/CitaDetalle.jsx';
+import HorariosList from './pages/Horarios/HorariosList.jsx';
+import HorariosForm from './pages/Horarios/HorariosForm.jsx';
+import HorarioDetalle from './pages/Horarios/HorarioDetalle.jsx';
 import CentrosList from './pages/Centros/CentrosList.jsx';
 import CentrosForm from './pages/Centros/CentrosForm.jsx';
 import CentroDetalle from './pages/Centros/CentroDetalle.jsx';
@@ -29,10 +29,11 @@ const App = () => {
           <Route path="/servicios/nuevo" element={<ServiciosForm />} />
           <Route path="/servicios/editar/:id" element={<ServiciosForm />} />
 
-          {/* Rutas de Citas */}
-          <Route path="/citas" element={<CitasList />} />
-          <Route path="/citas/nueva" element={<CitasForm />} />
-          <Route path="/citas/:id" element={<CitaDetalle />} />
+          {/* Rutas de Horarios */}
+          <Route path="/horarios" element={<HorariosList />} />
+          <Route path="/horarios/nuevo" element={<HorariosForm />} />
+          <Route path="/horarios/editar/:id" element={<HorariosForm />} />
+          <Route path="/horarios/:id" element={<HorarioDetalle />} />
 
           {/* Rutas de Centros */}
           <Route path="/centros" element={<CentrosList />} />

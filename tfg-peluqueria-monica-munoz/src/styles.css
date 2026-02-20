@@ -51,6 +51,117 @@ app-root {
     box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
   }
   50% {
-    box-shadow: 0 2px 15px rgba(255, 107, 107, 0.5);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.6);
   }
+}
+
+/* ========== ESTILOS FUTURISTAS GLOBALES ========== */
+
+/* Botones con efectos futuristas */
+.btn-primary {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3) !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5) !important;
+}
+
+/* Cards futuristas */
+.card {
+  border: 1px solid rgba(255, 105, 180, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1) !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 105, 180, 0.05) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.2) !important;
+  border-color: rgba(255, 105, 180, 0.3) !important;
+}
+
+/* Tablas futuristas */
+.table thead {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4) !important;
+  color: white !important;
+}
+
+.table thead th {
+  border: none !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 105, 180, 0.1);
+}
+
+.table tbody tr:hover {
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.05) 0%, rgba(255, 137, 196, 0.05) 100%) !important;
+  transform: scale(1.01);
+}
+
+/* Badges futuristas */
+.badge {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+}
+
+.badge-primary, .bg-primary {
+  background: linear-gradient(135deg, #ff69b4, #ff89c4) !important;
+}
+
+/* Inputs futuristas */
+.form-control:focus {
+  border-color: #ff69b4 !important;
+  box-shadow: 0 0 0 0.2rem rgba(255, 105, 180, 0.25) !important;
+}
+
+/* Alerts futuristas */
+.alert {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
 }
