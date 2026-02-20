@@ -133,6 +133,80 @@ exports.createHorario = async (req, res) => {
         `Se ha añadido un nuevo horario a tu agenda: <strong>${diasTexto}</strong> de <strong>${hora_inicio}</strong> a <strong>${hora_fin}</strong>.`,
         'info'
       );
+
+      // Si se crearon fechas festivas, cancelar citas y notificar a clientes
+      if (fechas_festivas && fechas_festivas.length > 0) {
+        const Cita = require('../models/cita');
+        const nombreProfesional = `${profesionalDB.nombre} ${profesionalDB.apellidos}`;
+        const fechasTexto = fechas_festivas.map(f => formatearFecha(f)).join(', ');
+
+        // Notificar al profesional sobre las fechas festivas
+        await crearNotificacion(
+          profesionalDB.usuario._id || profesionalDB.usuario,
+          'profesional',
+          'Día marcado como no laborable',
+          `Se han añadido fechas festivas a tu horario: <strong>${fechasTexto}</strong>. No tendrás citas programadas en esos días.`,
+          'info'
+        );
+
+        // Cancelar citas de clientes en esas fechas festivas
+        for (const fechaFestiva of fechas_festivas) {
+          console.log(`🎄 Procesando fecha festiva al crear horario: ${fechaFestiva}`);
+
+          // Normalizar la fecha festiva para comparación (YYYY-MM-DD)
+          const fechaNormalizada = fechaFestiva.split('T')[0]; // Asegurarse de tener solo YYYY-MM-DD
+          console.log(`   📅 Fecha normalizada: ${fechaNormalizada}`);
+
+          // Buscar TODAS las citas del profesional primero para debug
+          const todasCitasProfesional = await Cita.find({
+            profesional: profesional
+          }).populate('usuario', 'nombre email');
+
+          console.log(`   📋 Total citas del profesional: ${todasCitasProfesional.length}`);
+          if (todasCitasProfesional.length > 0) {
+            console.log(`   📅 Fechas de citas del profesional:`, todasCitasProfesional.map(c => {
+              const fechaCita = typeof c.fecha === 'string' ? c.fecha : c.fecha.toISOString().split('T')[0];
+              return `${fechaCita} (estado: ${c.estado})`;
+            }));
+          }
+
+          // Buscar citas pendientes o confirmadas en esa fecha (comparar solo YYYY-MM-DD)
+          const citasAfectadas = todasCitasProfesional.filter(cita => {
+            const fechaCita = typeof cita.fecha === 'string'
+              ? cita.fecha.split('T')[0]
+              : cita.fecha.toISOString().split('T')[0];
+            return fechaCita === fechaNormalizada && ['pendiente', 'confirmada'].includes(cita.estado);
+          });
+
+          console.log(`   📋 Citas encontradas en esa fecha: ${citasAfectadas.length}`);
+
+          // Cancelar cada cita y notificar al cliente
+          for (const cita of citasAfectadas) {
+            if (!cita.usuario) continue;
+
+            const nombreServicio = cita.servicioNombre || 'Servicio';
+            const fechaFormateada = formatearFecha(cita.fecha);
+
+            // Actualizar estado de la cita
+            cita.estado = 'cancelada';
+            cita.canceladaPor = 'admin';
+            await cita.save();
+
+            console.log(`   ✅ Cita ${cita._id} cancelada`);
+
+            // Notificar al cliente
+            await crearNotificacion(
+              cita.usuario._id,
+              'cliente',
+              'Cita cancelada por festivo',
+              `Tu cita de <strong>${nombreServicio}</strong> con <strong>${nombreProfesional}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque ese día se marcó como festivo.`,
+              'advertencia'
+            );
+
+            console.log(`   📧 Cliente ${cita.usuario.nombre} notificado`);
+          }
+        }
+      }
     }
 
     res.status(201).json(horarioCompleto);
@@ -270,6 +344,67 @@ exports.updateHorario = async (req, res) => {
             `Se han añadido fechas festivas a tu horario: <strong>${fechasTexto}</strong>. No tendrás citas programadas en esos días.`,
             'info'
           );
+
+          // IMPORTANTE: Cancelar citas de los clientes en esas fechas festivas y notificarles
+          const Cita = require('../models/cita');
+          const nombreProfesional = `${profesionalDB.nombre} ${profesionalDB.apellidos}`;
+
+          for (const fechaFestiva of nuevasFechas) {
+            console.log(`🎄 Procesando fecha festiva: ${fechaFestiva}`);
+
+            // Normalizar la fecha festiva para comparación (YYYY-MM-DD)
+            const fechaNormalizada = fechaFestiva.split('T')[0]; // Asegurarse de tener solo YYYY-MM-DD
+            console.log(`   📅 Fecha normalizada: ${fechaNormalizada}`);
+
+            // Buscar TODAS las citas del profesional primero para debug
+            const todasCitasProfesional = await Cita.find({
+              profesional: horario.profesional._id
+            }).populate('usuario', 'nombre email');
+
+            console.log(`   📋 Total citas del profesional: ${todasCitasProfesional.length}`);
+            if (todasCitasProfesional.length > 0) {
+              console.log(`   📅 Fechas de citas del profesional:`, todasCitasProfesional.map(c => {
+                const fechaCita = typeof c.fecha === 'string' ? c.fecha : c.fecha.toISOString().split('T')[0];
+                return `${fechaCita} (estado: ${c.estado})`;
+              }));
+            }
+
+            // Buscar citas pendientes o confirmadas en esa fecha (comparar solo YYYY-MM-DD)
+            const citasAfectadas = todasCitasProfesional.filter(cita => {
+              const fechaCita = typeof cita.fecha === 'string'
+                ? cita.fecha.split('T')[0]
+                : cita.fecha.toISOString().split('T')[0];
+              return fechaCita === fechaNormalizada && ['pendiente', 'confirmada'].includes(cita.estado);
+            });
+
+            console.log(`   📋 Citas encontradas en esa fecha: ${citasAfectadas.length}`);
+
+            // Cancelar cada cita y notificar al cliente
+            for (const cita of citasAfectadas) {
+              if (!cita.usuario) continue;
+
+              const nombreServicio = cita.servicioNombre || 'Servicio';
+              const fechaFormateada = formatearFecha(cita.fecha);
+
+              // Actualizar estado de la cita
+              cita.estado = 'cancelada';
+              cita.canceladaPor = 'admin';
+              await cita.save();
+
+              console.log(`   ✅ Cita ${cita._id} cancelada`);
+
+              // Notificar al cliente
+              await crearNotificacion(
+                cita.usuario._id,
+                'cliente',
+                'Cita cancelada por festivo',
+                `Tu cita de <strong>${nombreServicio}</strong> con <strong>${nombreProfesional}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque ese día se marcó como festivo.`,
+                'advertencia'
+              );
+
+              console.log(`   📧 Cliente ${cita.usuario.nombre} notificado`);
+            }
+          }
         }
       }
     }

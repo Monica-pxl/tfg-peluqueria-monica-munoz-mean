@@ -102,9 +102,15 @@ const Footer = () => {
             </p>
           </div>
           <div className="col-md-6 text-center text-md-end">
-            <a href="#" className="text-white me-3 footer-legal-react">Política de Privacidad</a>
-            <a href="#" className="text-white me-3 footer-legal-react">Términos y Condiciones</a>
-            <a href="#" className="text-white footer-legal-react">Cookies</a>
+            <Link to="/politica-privacidad" className="text-white me-3 footer-legal-react">
+              Política de Privacidad
+            </Link>
+            <Link to="/terminos-condiciones" className="text-white me-3 footer-legal-react">
+              Términos y Condiciones
+            </Link>
+            <Link to="/cookies" className="text-white footer-legal-react">
+              Cookies
+            </Link>
           </div>
         </div>
       </div>

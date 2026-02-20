@@ -30,6 +30,7 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
     - Cliente cancela → Notifica a profesional y admins
     - Profesional cancela → Notifica a cliente y admins
     - Admin cancela → Notifica a cliente y profesional
+    - **Admin marca día festivo** → Cancela automáticamente citas pendientes y notifica a clientes
 - **Citas pasadas**: No se pueden modificar
 - **Datos históricos**: Al eliminar un usuario/profesional/servicio/centro, las citas conservan los nombres
 
@@ -46,12 +47,21 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
 - **Solapamiento**: No se permiten horarios que se solapen para el mismo profesional
 - **Días**: Array de días de la semana
 - **Festivos**: Se pueden marcar fechas específicas como no laborables
+- **Cancelación automática por festivo**: 
+    - Al marcar un día como festivo, se cancelan automáticamente las citas **pendientes** de ese día
+    - **No se permite** marcar como festivo si hay citas **confirmadas** (se debe cancelar manualmente primero)
+    - Se notifica automáticamente a los clientes afectados con el título: *"Cita cancelada por festivo"*
+    - Se notifica al profesional sobre el día festivo agregado
 
 ### 🔔 Notificaciones
 - **Automáticas**: Se crean en cada evento importante (reserva, cancelación, confirmación, etc.)
 - **Destinatarios**: Cliente, Profesional y/o Administradores según el caso
 - **Tipos**: info, éxito, advertencia, error
 - **Estado**: Leída/No leída
+- **Notificaciones especiales**:
+    - **Cliente**: "Cita cancelada por festivo" - Cuando el admin marca como festivo un día con cita pendiente
+    - **Profesional**: "Día marcado como no laborable" - Cuando se añaden fechas festivas a su horario
+    - **Cliente**: "Cita realizada" - Incluye puntos ganados y posible cambio de nivel
 
 ## 📊 Entidades y Campos
 
@@ -240,3 +250,4 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
 ![Fidelización](capturas/cuenta-cliente.png)
 ![Fidelización](capturas/cuenta-cliente2.png)
 ![Fidelización](capturas/cuenta-cliente3.png)
+

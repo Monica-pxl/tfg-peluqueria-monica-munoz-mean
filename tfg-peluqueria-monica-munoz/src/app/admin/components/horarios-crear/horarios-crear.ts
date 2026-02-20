@@ -174,49 +174,19 @@ export class HorariosCrear implements OnInit {
           return;
         }
 
-        // Cancelar citas pendientes y notificar
+        // Contar citas pendientes (solo para informar al usuario)
         const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente');
 
-        if (citasPendientes.length > 0) {
-          // Cancelar cada cita pendiente
-          citasPendientes.forEach(cita => {
-            if (!cita._id) return;
-
-            // Actualizar cita
-            this.citasService.actualizarCita(cita._id, {
-              estado: 'cancelada',
-              canceladaPor: 'admin'
-            }).subscribe();
-
-            // Notificar al cliente
-            const profesional = this.profesionales.find(p => p._id === this.id_profesional);
-            const nombreProfesional = profesional ? `${profesional.nombre} ${profesional.apellidos}` : 'el profesional';
-
-            // Obtener el _id del usuario
-            const usuarioId = typeof cita.usuario === 'object' && cita.usuario !== null
-              ? cita.usuario._id
-              : cita.usuario;
-
-            this.notificacionesService.crearNotificacion({
-              usuario: usuarioId,
-              rolDestino: 'cliente',
-              titulo: 'Cita cancelada por festivo',
-              mensaje: `Tu cita con <strong>${nombreProfesional}</strong> del ${this.formatearFecha(cita.fecha)} a las ${cita.hora} ha sido <strong>cancelada</strong> porque ese día se marcó como festivo.`,
-              tipo: 'advertencia'
-            }).subscribe();
-          });
-
-          this.alertService.warning(
-            `Se cancelaron ${citasPendientes.length} cita(s) pendiente(s) de ese día y se notificó a los clientes.`
-          );
-        }
-
-        // Agregar la fecha festiva
+        // Agregar la fecha festiva (el backend se encargará de cancelar citas y notificar)
         if (!this.fechasFestivas.includes(this.nuevaFechaFestiva)) {
           this.fechasFestivas.push(this.nuevaFechaFestiva);
           this.fechasFestivas.sort();
 
-          if (citasPendientes.length === 0) {
+          if (citasPendientes.length > 0) {
+            this.alertService.warning(
+              `Fecha festiva agregada. Se cancelarán automáticamente ${citasPendientes.length} cita(s) pendiente(s) y se notificará a los clientes.`
+            );
+          } else {
             this.alertService.success('Fecha festiva agregada correctamente');
           }
         }
