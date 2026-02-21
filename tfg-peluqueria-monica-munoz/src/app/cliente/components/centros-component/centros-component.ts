@@ -10,12 +10,13 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './centros-component.html',
   styleUrl: './centros-component.css',
+  standalone: true
 })
 export class CentrosComponent implements OnInit {
 
-  centros: CentrosInterface[] = []; 
+  centros: CentrosInterface[] = [];
   centrosFiltrados: CentrosInterface[] = [];
-  centrosPagina: CentrosInterface[] = []; 
+  centrosPagina: CentrosInterface[] = [];
   paginaActual: number = 1;
   cantidadPorPagina: number = 6;
   textoBusqueda: string = '';
@@ -23,6 +24,13 @@ export class CentrosComponent implements OnInit {
   constructor(private APIcentros: CentrosService) {}
 
   ngOnInit(): void {
+    // Scroll hacia arriba al cargar el componente
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+
     this.loadCentros();
   }
 
@@ -31,7 +39,7 @@ export class CentrosComponent implements OnInit {
       next: (data) => {
         this.centros = data;
         this.centrosFiltrados = data;
-        this.actualizarPagina(); 
+        this.actualizarPagina();
       },
       error: (err) => console.error('Error al cargar los centros', err)
     });
@@ -42,7 +50,7 @@ export class CentrosComponent implements OnInit {
       this.centrosFiltrados = this.centros;
     } else {
       const busqueda = this.textoBusqueda.toLowerCase();
-      this.centrosFiltrados = this.centros.filter(centro => 
+      this.centrosFiltrados = this.centros.filter(centro =>
         centro.nombre.toLowerCase().includes(busqueda) ||
         centro.direccion.toLowerCase().includes(busqueda) ||
         centro.telefono.toLowerCase().includes(busqueda)
@@ -82,5 +90,12 @@ export class CentrosComponent implements OnInit {
     }
 
     this.actualizarPagina();
+
+    // Scroll hacia arriba con múltiples estrategias para mayor fiabilidad
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
   }
 }

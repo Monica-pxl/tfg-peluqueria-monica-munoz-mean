@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import horariosService from '../../services/horariosService';
+import ConfirmModal from '../../components/ConfirmModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const HorarioDetalle = () => {
@@ -10,6 +11,7 @@ const HorarioDetalle = () => {
   const [horario, setHorario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchHorario = async () => {
@@ -28,9 +30,11 @@ const HorarioDetalle = () => {
     fetchHorario();
   }, [id]);
 
-  const handleDelete = async () => {
-    if (!window.confirm('¿Estás seguro de eliminar este horario?')) return;
+  const handleDelete = () => {
+    setShowModal(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       await horariosService.delete(id);
       navigate('/horarios');
@@ -213,6 +217,18 @@ const HorarioDetalle = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onConfirm={confirmDelete}
+        title="Eliminar Horario"
+        message={`¿Estás seguro de eliminar este horario${horario?.profesional ? ` de ${horario.profesional.nombre} ${horario.profesional.apellidos}` : ''}?`}
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </section>
   );
 };

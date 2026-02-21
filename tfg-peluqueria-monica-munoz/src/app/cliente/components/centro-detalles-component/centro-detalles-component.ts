@@ -42,6 +42,13 @@ export class CentroDetallesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Scroll hacia arriba al cargar el componente
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+
     const idCentro = this.route.snapshot.paramMap.get('id');
     if (idCentro) {
       this.cargarDetallesCentro(idCentro);

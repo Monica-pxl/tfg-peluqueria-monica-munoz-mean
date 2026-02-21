@@ -14,7 +14,7 @@ const Home = () => {
               Bienvenido a <span className="brand-name">HairGest</span>
             </h1>
             <p className="lead mb-5 hero-subtitle">
-              Sistema profesional de gestión de servicios de peluquería
+              Sistema profesional de gestión de citas de peluquería
             </p>
             <div className="d-flex justify-content-center gap-3 flex-wrap mt-4">
               <Link to="/servicios" className="btn btn-hero btn-hero-primary btn-lg">
@@ -27,7 +27,7 @@ const Home = () => {
       </section>
 
       {/* Sección de Funcionalidades */}
-      <section className="servicios-section py-5">
+      <section className="servicios-section">
         <div className="container">
           <div className="section-header mb-5">
             <h2 className="text-center mb-3">Nuestras Funcionalidades</h2>
@@ -95,7 +95,7 @@ const Home = () => {
       </section>
 
       {/* Sección de Ventajas */}
-      <section className="ventajas-section py-5">
+      <section className="ventajas-section">
         <div className="container">
           <div className="section-header mb-5">
             <h2 className="text-center mb-3">¿Por qué elegirnos?</h2>

@@ -289,7 +289,7 @@ const HorariosForm = () => {
               value={horario.profesional}
               onChange={handleChange}
               required
-              disabled={guardando}
+              disabled={guardando || id} // Deshabilitar si está guardando O si estamos editando
             >
               <option value="">Seleccionar profesional</option>
               {profesionales.map(prof => (
@@ -298,6 +298,13 @@ const HorariosForm = () => {
                 </option>
               ))}
             </select>
+            {id && (
+              <small className="text-muted mt-2 d-block">
+                <i className="bi bi-info-circle me-1"></i>
+                No se puede cambiar el profesional de un horario existente
+              </small>
+            )}
+            {errores.profesional && <div className="invalid-feedback-react">{errores.profesional}</div>}
             {errores.profesional && <div className="invalid-feedback-react">{errores.profesional}</div>}
           </div>
 

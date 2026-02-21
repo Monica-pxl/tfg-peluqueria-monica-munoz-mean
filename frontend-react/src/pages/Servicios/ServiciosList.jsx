@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import serviciosService from '../../services/serviciosService.js';
+import ConfirmModal from '../../components/ConfirmModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ServiciosList = () => {
@@ -11,6 +12,8 @@ const ServiciosList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [servicioToDelete, setServicioToDelete] = useState(null);
   const navigate = useNavigate();
 
   // Función para cargar los servicios desde la API
@@ -47,13 +50,18 @@ const ServiciosList = () => {
   }, [busqueda, servicios]);
 
   // Función para eliminar un servicio
-  const handleDelete = async (id, nombre) => {
-    if (!window.confirm(`¿Estás seguro de eliminar el servicio "${nombre}"?`)) return;
+  const handleDelete = (id, nombre) => {
+    setServicioToDelete({ id, nombre });
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!servicioToDelete) return;
 
     try {
-      await serviciosService.delete(id);
-      setServicios(servicios.filter(s => s._id !== id));
-      setSuccessMessage(`✅ Servicio "${nombre}" eliminado correctamente`);
+      await serviciosService.delete(servicioToDelete.id);
+      setServicios(servicios.filter(s => s._id !== servicioToDelete.id));
+      setSuccessMessage(`✅ Servicio "${servicioToDelete.nombre}" eliminado correctamente`);
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       console.error('❌ Error al eliminar servicio:', err);
@@ -198,6 +206,18 @@ const ServiciosList = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onConfirm={confirmDelete}
+        title="Eliminar Servicio"
+        message={servicioToDelete ? `¿Estás seguro de eliminar el servicio "${servicioToDelete.nombre}"?` : ''}
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </section>
   );
 };

@@ -26,6 +26,13 @@ export class ServiciosComponent implements OnInit {
   constructor(private APIservicios: ServiciosService) {}
 
   ngOnInit(): void {
+    // Scroll hacia arriba al cargar el componente
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+
     this.loadServicios();
   }
 
@@ -90,7 +97,13 @@ export class ServiciosComponent implements OnInit {
     }
 
     this.actualizarPagina();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Scroll hacia arriba con múltiples estrategias para mayor fiabilidad
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
   }
 }
 

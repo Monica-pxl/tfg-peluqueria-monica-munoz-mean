@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import horariosService from '../../services/horariosService';
+import ConfirmModal from '../../components/ConfirmModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const HorariosList = () => {
@@ -11,6 +12,8 @@ const HorariosList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [horarioToDelete, setHorarioToDelete] = useState(null);
 
   const fetchHorarios = async () => {
     try {
@@ -45,12 +48,17 @@ const HorariosList = () => {
     setHorariosFiltrados(filtrados);
   }, [busqueda, horarios]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('¿Estás seguro de eliminar este horario?')) return;
+  const handleDelete = (id, profesionalNombre) => {
+    setHorarioToDelete({ id, profesionalNombre });
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!horarioToDelete) return;
 
     try {
-      await horariosService.delete(id);
-      setHorarios(horarios.filter(h => h._id !== id));
+      await horariosService.delete(horarioToDelete.id);
+      setHorarios(horarios.filter(h => h._id !== horarioToDelete.id));
       setSuccessMessage('✅ Horario eliminado correctamente');
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
@@ -193,7 +201,7 @@ const HorariosList = () => {
                           <i className="bi bi-pencil"></i>
                         </Link>
                         <button
-                          onClick={() => handleDelete(horario._id)}
+                          onClick={() => handleDelete(horario._id, horario.profesional ? `${horario.profesional.nombre} ${horario.profesional.apellidos}` : 'este horario')}
                           className="btn btn-danger-react btn-sm"
                           title="Eliminar"
                         >
@@ -208,6 +216,18 @@ const HorariosList = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onConfirm={confirmDelete}
+        title="Eliminar Horario"
+        message={horarioToDelete ? `¿Estás seguro de eliminar el horario de ${horarioToDelete.profesionalNombre}?` : ''}
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </section>
   );
 };

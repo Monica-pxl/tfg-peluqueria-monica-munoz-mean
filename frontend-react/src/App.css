@@ -7,6 +7,9 @@
   --pink-gradient: linear-gradient(135deg, #B908A1, #9A0785);
   --pink-gradient-hover: linear-gradient(135deg, #9A0785, #7A0669);
   --shadow-pink: 0 8px 20px rgba(185, 8, 161, 0.3);
+  /* Ruta de la imagen del banner (en public/img/) - La imagen existe y funciona correctamente */
+  /* noinspection CssUnknownTarget */
+  --banner-image: url('/img/img_banner_react.png');
 }
 
 .btn-primary { background-color: #B908A1; border-color: #B908A1; }
@@ -14,6 +17,7 @@
 
 /* ========== ANIMACIONES GLOBALES ========== */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideIn { from { width: 0; } to { width: 80px; } }
 @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes titleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -40,7 +44,8 @@
 /* ========== HOME - HERO BANNER ========== */
 .hero-banner {
   position: relative; height: 550px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(185,8,161,0.3)), url('/img/img_banner_react.png') center/cover fixed;
+  /* Usando variable CSS para evitar advertencias del IDE */
+  background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(185,8,161,0.3)), var(--banner-image) center/cover fixed;
   overflow: hidden;
 }
 .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(185,8,161,0.3)); backdrop-filter: blur(1px); }
@@ -73,7 +78,7 @@
 
 
 /* ========== SECCIONES Y HEADERS ========== */
-.servicios-section { padding: 4rem 0; background: #f8f9fa; }
+.servicios-section { padding: 4rem 0; background: linear-gradient(135deg, #fffafd 0%, #fff0fb 100%); }
 .section-header h2 { color: #B908A1; font-weight: 700; font-size: 2.5rem; position: relative; display: inline-block; left: 50%; transform: translateX(-50%); }
 .section-header h2::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: linear-gradient(90deg, #B908A1, #D946C3); border-radius: 2px; animation: slideIn 0.6s ease-out; }
 .title-main-react { color: #B908A1; font-weight: 700; font-size: 2.2rem; text-shadow: 0 2px 10px rgba(185,8,161,0.2); animation: titleFloat 3s ease-in-out infinite; text-align: center; margin: 0 auto; display: block; }
@@ -139,8 +144,9 @@
 /* ========== SERVICIOS LIST (Estilo Angular Brillante) ========== */
 .admin-section-react {
   background: linear-gradient(135deg, #fff5fc 0%, #ffe8f9 100%);
-  min-height: calc(100vh - 56px);
-  padding: 3rem 0;
+  min-height: 100vh;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 
 .title-main-react {
@@ -300,7 +306,7 @@
 
 
 /* ========== FORMULARIOS ========== */
-.form-section-react, .admin-section-react { background: linear-gradient(135deg, #fff5fc 0%, #ffe8f9 100%); min-height: calc(100vh - 56px); padding: 3rem 0; }
+.form-section-react, .admin-section-react { background: linear-gradient(135deg, #fff5fc 0%, #ffe8f9 100%); min-height: 100vh; padding-top: 3rem; padding-bottom: 3rem; }
 .form-card-react { background: #fff; padding: 3rem; border-radius: 1.5rem; width: 90%; max-width: 900px; box-shadow: 0 20px 60px rgba(185,8,161,0.2), 0 0 0 1px rgba(185,8,161,0.1); transition: all 0.3s ease; margin: 0 auto; animation: formSlideUp 0.5s ease; }
 @keyframes formSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 .form-card-react:hover { box-shadow: 0 30px 80px rgba(185,8,161,0.3), 0 0 0 1px rgba(185,8,161,0.15); transform: translateY(-5px); }
@@ -597,9 +603,9 @@ textarea.form-control-custom-react {
 
 /* ========== SECCIÓN DE VENTAJAS ========== */
 .ventajas-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #fffafd 0%, #fff0fb 100%);
   padding: 4rem 0;
-  margin-bottom: 3rem;
+  margin-bottom: 0;
 }
 
 .ventaja-card {
@@ -651,13 +657,18 @@ textarea.form-control-custom-react {
 /* Separación con Footer */
 .home {
   margin-bottom: 0;
+  background: linear-gradient(135deg, #fffafd 0%, #fff0fb 100%);
+  min-height: 100vh;
 }
 
 .admin-section-react,
-.form-section-react,
-.servicios-section:last-child,
-.ventajas-section:last-child {
-  margin-bottom: 3rem;
+.form-section-react {
+  margin-bottom: 0;
+}
+
+.servicios-section,
+.ventajas-section {
+  margin-bottom: 0;
 }
 
 /* ========== NAVBAR FUTURISTA ========== */
@@ -709,7 +720,7 @@ textarea.form-control-custom-react {
 }
 
 @keyframes gradientFlow {
-  0%, 100% { background-position: 0% 50%; }
+  0%, 100% { background-position: 0 50%; }
   50% { background-position: 100% 50%; }
 }
 
@@ -1316,9 +1327,10 @@ textarea.form-control-custom-react {
 
 /* ========== ESTILOS PARA VISTAS DE DETALLE ========== */
 .detalle-view-react {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: calc(100vh - 200px);
-  padding: 2rem 0;
+  background: linear-gradient(135deg, #fff5fc 0%, #ffe8f9 100%);
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 /* Header de detalle */

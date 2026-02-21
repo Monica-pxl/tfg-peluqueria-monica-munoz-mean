@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import centrosService from '../../services/centrosService';
+import ConfirmModal from '../../components/ConfirmModal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CentrosList = () => {
@@ -11,6 +12,8 @@ const CentrosList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [centroToDelete, setCentroToDelete] = useState(null);
   const navigate = useNavigate();
 
   const fetchCentros = async () => {
@@ -44,13 +47,18 @@ const CentrosList = () => {
     }
   }, [busqueda, centros]);
 
-  const handleDelete = async (id, nombre) => {
-    if (!window.confirm(`¿Estás seguro de eliminar el centro "${nombre}"?`)) return;
+  const handleDelete = (id, nombre) => {
+    setCentroToDelete({ id, nombre });
+    setShowModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!centroToDelete) return;
 
     try {
-      await centrosService.delete(id);
-      setCentros(centros.filter(c => c._id !== id));
-      setSuccessMessage(`✅ Centro "${nombre}" eliminado correctamente`);
+      await centrosService.delete(centroToDelete.id);
+      setCentros(centros.filter(c => c._id !== centroToDelete.id));
+      setSuccessMessage(`✅ Centro "${centroToDelete.nombre}" eliminado correctamente`);
       setTimeout(() => setSuccessMessage(''), 4000);
     } catch (err) {
       console.error('❌ Error al eliminar centro:', err);
@@ -215,6 +223,18 @@ const CentrosList = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación */}
+      <ConfirmModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onConfirm={confirmDelete}
+        title="Eliminar Centro"
+        message={centroToDelete ? `¿Estás seguro de eliminar el centro "${centroToDelete.nombre}"?` : ''}
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </section>
   );
 };
