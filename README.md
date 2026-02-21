@@ -63,6 +63,17 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
     - **Profesional**: "Día marcado como no laborable" - Cuando se añaden fechas festivas a su horario
     - **Cliente**: "Cita realizada" - Incluye puntos ganados y posible cambio de nivel
 
+## 📊 Diagramas
+
+### Diagrama de Entidades
+![Diagrama de Entidades](capturas/diagrama-entidades.png)
+
+### Diagrama de Flujo de Cita
+![Flujo de Cita](capturas/diagrama-citas.png)
+
+### Diagrama de Estados de Usuario
+![Estados de Usuario](capturas/diagrama-autenticacion.png)
+
 ## 📊 Entidades y Campos
 
 ### 👤 Usuario
