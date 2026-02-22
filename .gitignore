@@ -28,3 +28,4 @@ backend/*.backup.js
 backend/seed*.js
 backend/mapeo_*.json
 backend/data_originales/
+.vercel

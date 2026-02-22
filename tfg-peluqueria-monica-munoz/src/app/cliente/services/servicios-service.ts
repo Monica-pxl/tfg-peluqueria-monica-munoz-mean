@@ -9,7 +9,7 @@ import { ServiciosInterface } from '../interfaces/servicios-interface';
 })
 export class ServiciosService {
 
-  private urlServicios = 'http://localhost:3001/api/servicios'
+  private urlServicios = 'https://hairgest-backend.vercel.app/api/servicios'
 
   constructor(private http : HttpClient){}
 

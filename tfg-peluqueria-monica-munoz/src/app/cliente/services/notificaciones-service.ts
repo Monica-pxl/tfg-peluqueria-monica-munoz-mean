@@ -21,7 +21,7 @@ export interface NotificacionInterface {
 })
 export class NotificacionesService {
 
-  private apiUrl = 'http://localhost:3001/api/notificaciones';
+  private apiUrl = 'https://hairgest-backend.vercel.app/api/notificaciones';
 
   // Subject para notificar cuando las notificaciones cambian
   private notificacionesActualizadas = new Subject<void>();

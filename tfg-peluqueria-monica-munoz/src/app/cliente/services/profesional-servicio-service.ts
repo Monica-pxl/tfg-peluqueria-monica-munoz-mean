@@ -13,7 +13,7 @@ export class ProfesionalServicioService {
     return this.http.delete(`${this.apiUrl}/profesional/${id}`);
   }
 
-  private apiUrl = 'http://localhost:3001/api/profesional_servicio';
+  private apiUrl = 'https://hairgest-backend.vercel.app/api/profesional_servicio';
 
   constructor(private http: HttpClient) {}
 

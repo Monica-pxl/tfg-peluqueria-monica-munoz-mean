@@ -1,4 +1,8 @@
-require('dotenv').config();
+// Cargar variables de entorno solo si no están ya cargadas (Vercel las inyecta)
+if (!process.env.MONGODB_URI) {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -26,15 +30,21 @@ aplicarMiddlewares(app);  // ← Esto configura cors, express.json, etc.
 
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
-  console.error('❌ Error: MONGODB_URI no está definida en .env');
-  process.exit(1);
+  console.error('❌ Error: MONGODB_URI no está definida en las variables de entorno');
+  // En desarrollo local, salir
+  if (process.env.NODE_ENV !== 'production') {
+    process.exit(1);
+  }
 }
 
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Conectado a MongoDB Atlas'))
     .catch(err => {
       console.error('❌ Error al conectar a MongoDB:', err);
-      process.exit(1);
+      // Solo salir del proceso en desarrollo local
+      if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+      }
     });
 
 

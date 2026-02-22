@@ -8,7 +8,7 @@ import { ProfesionalesInterface } from '../interfaces/profesionales-interface';
   providedIn: 'root'
 })
 export class ProfesionalesService {
-  private url = 'http://localhost:3001/api/profesionales';
+  private url = 'https://hairgest-backend.vercel.app/api/profesionales';
 
   constructor(private http: HttpClient) {}
 

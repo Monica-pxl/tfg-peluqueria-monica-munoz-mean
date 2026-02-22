@@ -8,9 +8,9 @@ import { UsuariosInterface } from '../interfaces/usuarios-interface';
 })
 export class UsuariosService {
 
-  private apiUrl = 'http://localhost:3001/api/usuarios';
-  private loginUrl = 'http://localhost:3001/api/login';
-  private registroUrl = 'http://localhost:3001/api/registro';
+  private apiUrl = 'https://hairgest-backend.vercel.app/api/usuarios';
+  private loginUrl = 'https://hairgest-backend.vercel.app/api/login';
+  private registroUrl = 'https://hairgest-backend.vercel.app/api/registro';
   usuarioLogueado: UsuariosInterface | null = null;
 
   constructor(private http: HttpClient) {}

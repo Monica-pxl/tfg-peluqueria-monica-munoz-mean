@@ -7,7 +7,7 @@ import { CentrosInterface } from '../interfaces/centros-interface';
   providedIn: 'root'
 })
 export class CentrosService {
-  private url = 'http://localhost:3001/api/centros';
+  private url = 'https://hairgest-backend.vercel.app/api/centros';
 
   constructor(private http: HttpClient) {}
 

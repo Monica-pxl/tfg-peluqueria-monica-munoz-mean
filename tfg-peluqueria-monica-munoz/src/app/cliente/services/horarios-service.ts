@@ -8,7 +8,7 @@ import { HorariosInterface } from '../interfaces/horarios-interface';
 })
 export class HorariosService {
 
-  private url = 'http://localhost:3001/api/horarios';
+  private url = 'https://hairgest-backend.vercel.app/api/horarios';
 
   constructor(private http: HttpClient) {}
 

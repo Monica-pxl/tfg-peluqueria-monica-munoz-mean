@@ -115,7 +115,11 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.x"
   },
   "keywords": [],
   "author": "",

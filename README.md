@@ -222,15 +222,16 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
 ### 🔗 URLs de la API
 - **Raíz de la API**: `http://localhost:3001` (mensaje de bienvenida)
 - **Base para endpoints**: `http://localhost:3001/api` (ej: /api/servicios, /api/usuarios...)
-- **Producción**: `[URL de tu API desplegada]`
+- **Producción**: `https://hairgest-backend.vercel.app`
+- **Producción para endpoints**: `https://hairgest-backend.vercel.app/api`
 
 ### 💻 Frontend Angular
 - **Local**: `http://localhost:4200`
-- **Producción**: `[URL de tu frontend Angular]`
+- **Producción**: `https://hairgest-angular.vercel.app`
 
 ### ⚛️ Frontend React
 - **Local**: `http://localhost:5173` (o el puerto que uses)
-- **Producción**: `[URL de tu frontend React]`
+- **Producción**: `https://frontend-react-delta-eight.vercel.app/`
 
 ## 📸 Capturas de Pantalla
 

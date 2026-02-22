@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class CitasService {
 
-  private apiUrl = 'http://localhost:3001/api/citas';
+  private apiUrl = 'https://hairgest-backend.vercel.app/api/citas';
 
   constructor(
     private http: HttpClient

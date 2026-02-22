@@ -163,7 +163,7 @@ export class UsuariosComponent implements OnInit {
     console.log('ID del admin:', this.usuarioLogueado._id);
 
     // Eliminar desde MongoDB enviando id_admin como query parameter
-    this.http.delete(`http://localhost:3001/api/usuarios/${usuario._id}?id_admin=${this.usuarioLogueado._id}`).subscribe({
+    this.http.delete(`https://hairgest-backend.vercel.app/api/usuarios/${usuario._id}?id_admin=${this.usuarioLogueado._id}`).subscribe({
       next: () => {
         this.alertService.success('Usuario eliminado correctamente');
         this.cargarUsuarios();

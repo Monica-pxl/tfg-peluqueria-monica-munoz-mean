@@ -7,7 +7,7 @@ import { CitasInterface } from '../interfaces/citas-interface';
   providedIn: 'root'
 })
 export class CitasService {
-  private urlCitas = 'http://localhost:3001/api/citas';
+  private urlCitas = 'https://hairgest-backend.vercel.app/api/citas';
 
   constructor(private http: HttpClient) {}
 
