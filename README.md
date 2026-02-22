@@ -230,7 +230,7 @@ Automatizar la gestión de una peluquería, permitiendo a los clientes reservar 
 - **Producción**: `https://hairgest-angular.vercel.app`
 
 ### ⚛️ Frontend React
-- **Local**: `http://localhost:5173` (o el puerto que uses)
+- **Local**: `http://localhost:5173`
 - **Producción**: `https://frontend-react-delta-eight.vercel.app/`
 
 ## 📸 Capturas de Pantalla
