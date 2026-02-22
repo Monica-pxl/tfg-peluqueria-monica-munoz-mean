@@ -1,3 +1,0 @@
-// backend/api.js
-const app = require('./server');
-module.exports = app;
