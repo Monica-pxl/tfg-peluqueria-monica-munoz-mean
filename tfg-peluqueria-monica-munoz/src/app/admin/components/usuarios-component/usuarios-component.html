@@ -69,9 +69,9 @@
         </thead>
         <tbody>
           <tr *ngFor="let usuario of usuariosFiltrados">
-            <td class="fw-bold">{{ usuario.nombre }}</td>
-            <td>{{ usuario.email }}</td>
-            <td>
+            <td class="fw-bold" data-label="Nombre">{{ usuario.nombre }}</td>
+            <td data-label="Email">{{ usuario.email }}</td>
+            <td data-label="Rol">
               <select
                 class="form-select form-select-sm select-rol"
                 [value]="usuario.rol"
@@ -82,7 +82,7 @@
                 <option value="administrador">Administrador</option>
               </select>
             </td>
-            <td>
+            <td data-label="Estado">
               <select
                 class="form-select form-select-sm select-estado"
                 [value]="usuario.estado"
@@ -92,8 +92,8 @@
                 <option value="inactivo">Inactivo</option>
               </select>
             </td>
-            <td>{{ formatearFecha(usuario.fecha_alta) }}</td>
-            <td>
+            <td data-label="Fecha alta">{{ formatearFecha(usuario.fecha_alta) }}</td>
+            <td data-label="Acciones">
               <button
                 class="btn btn-sm btn-danger"
                 (click)="eliminarUsuario(usuario)"

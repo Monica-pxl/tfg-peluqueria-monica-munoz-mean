@@ -165,3 +165,81 @@ app-root {
   border-radius: 12px !important;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* ========== TABLAS RESPONSIVE GLOBALES (ANGULAR) ========== */
+@media (max-width: 991.98px) {
+  .admin-section table.table-custom,
+  .mis-citas-section table.table-custom {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    white-space: normal !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .admin-section table.table-custom thead,
+  .mis-citas-section table.table-custom thead {
+    display: none !important;
+  }
+
+  .admin-section table.table-custom tbody,
+  .admin-section table.table-custom tr,
+  .admin-section table.table-custom td,
+  .mis-citas-section table.table-custom tbody,
+  .mis-citas-section table.table-custom tr,
+  .mis-citas-section table.table-custom td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .admin-section table.table-custom tbody tr,
+  .mis-citas-section table.table-custom tbody tr {
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 105, 180, 0.2) !important;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.1);
+    overflow: hidden;
+  }
+
+  .admin-section table.table-custom tbody tr td,
+  .mis-citas-section table.table-custom tbody tr td {
+    position: relative;
+    text-align: right !important;
+    padding: 0.75rem 1rem 0.75rem 8.5rem !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 105, 180, 0.1) !important;
+    white-space: normal !important;
+    min-height: 44px;
+  }
+
+  .admin-section table.table-custom tbody tr td:last-child,
+  .mis-citas-section table.table-custom tbody tr td:last-child {
+    border-bottom: none !important;
+  }
+
+  .admin-section table.table-custom tbody tr td::before,
+  .mis-citas-section table.table-custom tbody tr td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7rem;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    white-space: normal;
+  }
+
+  .admin-section table.table-custom .btn,
+  .mis-citas-section table.table-custom .btn,
+  .admin-section table.table-custom .status-select,
+  .mis-citas-section table.table-custom .status-select,
+  .admin-section table.table-custom .form-select,
+  .mis-citas-section table.table-custom .form-select {
+    max-width: 100%;
+  }
+}

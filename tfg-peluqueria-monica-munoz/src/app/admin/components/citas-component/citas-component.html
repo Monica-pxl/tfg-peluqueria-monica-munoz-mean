@@ -53,13 +53,13 @@
         <tbody>
           @for (cita of citasFiltradas; track cita._id) {
             <tr>
-              <td>{{ nombreUsuario(cita) }}</td>
-              <td>{{ nombreServicio(cita) }}</td>
-              <td>{{ nombreProfesional(cita) }}</td>
-              <td>{{ nombreCentro(cita) }}</td>
-              <td>{{ cita.fecha }}</td>
-              <td><span class="badge-hora">{{ cita.hora }}</span></td>
-              <td>
+              <td data-label="Usuario">{{ nombreUsuario(cita) }}</td>
+              <td data-label="Servicio">{{ nombreServicio(cita) }}</td>
+              <td data-label="Profesional">{{ nombreProfesional(cita) }}</td>
+              <td data-label="Centro">{{ nombreCentro(cita) }}</td>
+              <td data-label="Fecha">{{ cita.fecha }}</td>
+              <td data-label="Hora"><span class="badge-hora">{{ cita.hora }}</span></td>
+              <td data-label="Estado">
                 <select
                   [ngModel]="cita.estado"
                   (ngModelChange)="cambiarEstado(cita, $event)"
@@ -74,7 +74,7 @@
                   }
                 </select>
               </td>
-              <td>
+              <td data-label="Acciones">
                 <button class="btn btn-sm btn-danger" (click)="borrarCita(cita)">
                   <i class="bi bi-trash3"></i>
                 </button>

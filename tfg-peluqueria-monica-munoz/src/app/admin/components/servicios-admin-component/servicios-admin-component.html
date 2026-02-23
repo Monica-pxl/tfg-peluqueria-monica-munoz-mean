@@ -73,25 +73,25 @@
         </thead>
         <tbody>
           <tr *ngFor="let servicio of serviciosFiltrados">
-            <td class="fw-bold">{{ servicio.nombre }}</td>
-            <td>{{ servicio.descripcion }}</td>
-            <td><span class="badge-hora">{{ servicio.duracion }} min</span></td>
-            <td class="text-success fw-bold">{{ servicio.precio }}€</td>
-            <td>
+            <td class="fw-bold" data-label="Nombre">{{ servicio.nombre }}</td>
+            <td data-label="Descripción">{{ servicio.descripcion }}</td>
+            <td data-label="Duración"><span class="badge-hora">{{ servicio.duracion }} min</span></td>
+            <td class="text-success fw-bold" data-label="Precio">{{ servicio.precio }}€</td>
+            <td data-label="Centro">
               @if(nombreCentro(servicio) === 'Sin centro') {
                 <span class="sin-datos">Sin centro</span>
               } @else {
                 {{ nombreCentro(servicio) }}
               }
             </td>
-            <td>
+            <td data-label="Profesionales">
               @if(profesionalesDelServicio(servicio) === 'Sin profesionales') {
                 <span class="sin-datos">Sin profesionales</span>
               } @else {
                 {{ profesionalesDelServicio(servicio) }}
               }
             </td>
-            <td>
+            <td data-label="Acciones">
               <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/servicios/editar', servicio._id]">
                 <i class="bi bi-pencil"></i>
               </button>

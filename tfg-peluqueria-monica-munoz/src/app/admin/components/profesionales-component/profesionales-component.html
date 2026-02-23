@@ -70,22 +70,22 @@
         <tbody>
           @for (p of profesionalesFiltrados; track p._id) {
             <tr>
-              <td class="fw-bold">{{ p.nombre }} {{ p.apellidos }}</td>
-              <td>
+              <td class="fw-bold" data-label="Profesional">{{ p.nombre }} {{ p.apellidos }}</td>
+              <td data-label="Centro">
                 @if(nombreCentro(p) === 'Sin centro') {
                   <span class="sin-datos">Sin centro</span>
                 } @else {
                   {{ nombreCentro(p) }}
                 }
               </td>
-              <td>
+              <td data-label="Servicios">
                 @if(serviciosDelProfesional(p) === 'Sin servicios') {
                   <span class="sin-datos">Sin servicios</span>
                 } @else {
                   {{ serviciosDelProfesional(p) }}
                 }
               </td>
-              <td>
+              <td data-label="Acciones">
                 <button class="btn btn-sm btn-primary me-1" [routerLink]="['/admin/profesionales/editar', p._id]">
                   <i class="bi bi-pencil"></i>
                 </button>

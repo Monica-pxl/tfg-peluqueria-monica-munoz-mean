@@ -42,17 +42,17 @@
           <tbody>
             @for(cita of citasUsuario; track $index) {
               <tr>
-                <td>{{ cita.centro }}</td>
-                <td>{{ cita.servicio }}</td>
-                <td>{{ cita.profesional }}</td>
-                <td>{{ cita.fecha }}</td>
-                <td><span class="badge-hora">{{ cita.hora }}</span></td>
-                <td>
+                <td data-label="Centro">{{ cita.centro }}</td>
+                <td data-label="Servicio">{{ cita.servicio }}</td>
+                <td data-label="Profesional">{{ cita.profesional }}</td>
+                <td data-label="Fecha">{{ cita.fecha }}</td>
+                <td data-label="Hora"><span class="badge-hora">{{ cita.hora }}</span></td>
+                <td data-label="Estado">
                   <span [class]="getEstadoClase(cita.estado || 'pendiente')">
                     {{ cita.estado || 'pendiente' }}
                   </span>
                 </td>
-                <td>
+                <td data-label="Acciones">
                   @if(puedeSerCancelada(cita)) {
                     <button
                       class="btn btn-danger btn-sm"
