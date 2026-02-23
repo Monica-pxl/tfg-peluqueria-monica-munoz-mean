@@ -31,21 +31,57 @@ aplicarMiddlewares(app);  // ← Esto configura cors, express.json, etc.
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) {
   console.error('❌ Error: MONGODB_URI no está definida en las variables de entorno');
-  // En desarrollo local, salir
-  if (process.env.NODE_ENV !== 'production') {
-    process.exit(1);
-  }
 }
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('✅ Conectado a MongoDB Atlas'))
-    .catch(err => {
-      console.error('❌ Error al conectar a MongoDB:', err);
-      // Solo salir del proceso en desarrollo local
-      if (process.env.NODE_ENV !== 'production') {
-        process.exit(1);
-      }
+let mongoConnectionPromise = null;
+
+const conectarMongo = async () => {
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI no está definida');
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (!mongoConnectionPromise) {
+    mongoConnectionPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000
     });
+  }
+
+  try {
+    await mongoConnectionPromise;
+    return mongoose.connection;
+  } catch (error) {
+    mongoConnectionPromise = null;
+    throw error;
+  }
+};
+
+conectarMongo()
+  .then(() => console.log('✅ Conectado a MongoDB Atlas'))
+  .catch(err => {
+    console.error('❌ Error al conectar a MongoDB:', err);
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
+  });
+
+app.use(async (req, res, next) => {
+  if (!req.path.startsWith('/api')) {
+    return next();
+  }
+
+  try {
+    await conectarMongo();
+    return next();
+  } catch (error) {
+    console.error('❌ Error de conexión a MongoDB en petición API:', error);
+    return res.status(500).json({ error: 'Error de conexión con la base de datos' });
+  }
+});
 
 
 // RUTAS DE LA API
