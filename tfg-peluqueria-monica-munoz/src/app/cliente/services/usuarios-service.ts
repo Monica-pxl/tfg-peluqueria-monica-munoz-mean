@@ -36,6 +36,16 @@ export class UsuariosService {
     localStorage.setItem('usuarioLogueado', JSON.stringify(usuario));
   }
 
+  // Guardar token JWT
+  setToken(token: string) {
+    localStorage.setItem('token', token);
+  }
+
+  // Obtener token JWT
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
   //Obtener el usuario logueado:
   getUsuarioLogueado(): UsuariosInterface | null{
     // Si no está en memoria, intentar recuperar de localStorage
@@ -59,6 +69,7 @@ export class UsuariosService {
   cerrarSesion(){
     this.usuarioLogueado = null;
     localStorage.removeItem('usuarioLogueado');
+    localStorage.removeItem('token');
   }
 
   // Actualizar usuario (solo rol y estado)

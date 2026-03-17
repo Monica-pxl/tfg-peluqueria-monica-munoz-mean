@@ -57,6 +57,9 @@ export class RegisterComponent {
         const usuario = response.usuario;
 
         this.usuariosService.setUsuarioLogueado(usuario);
+        if (response.token) {
+          this.usuariosService.setToken(response.token);
+        }
 
         this.alertService.success('¡Registro exitoso! Bienvenido ' + usuario.nombre);
         this.router.navigate(['/home']);

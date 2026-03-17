@@ -39,6 +39,9 @@ export class LoginComponent {
         const usuario = response.usuario;
 
         this.usuariosService.setUsuarioLogueado(usuario);
+        if (response.token) {
+          this.usuariosService.setToken(response.token);
+        }
 
         this.alertService.success('¡Bienvenido ' + usuario.nombre + '!');
 
