@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const citaController = require('../controllers/cita.controller');
 const auth = require('../middlewares/auth');
+const soloAdmin = require('../middlewares/soloAdmin');
 
 // CRUD de citas
-router.get('/', citaController.getAllCitas);
+router.get('/', auth, soloAdmin, citaController.getAllCitas);
 router.get('/:id', auth, citaController.getCitaById);
-router.post('/', citaController.createCita);
+router.post('/', auth, citaController.createCita);
 router.put('/:id', auth, citaController.updateCita);
 router.delete('/:id', auth, citaController.deleteCita);
 
