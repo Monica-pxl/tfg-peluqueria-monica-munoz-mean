@@ -22,6 +22,11 @@ exports.getNotificacionesByUsuario = async (req, res) => {
 // Obtener notificaciones no leídas por usuario
 exports.getNotificacionesNoLeidas = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
+    }
+
     const notificaciones = await Notificacion.find({
       usuario: req.params.id,
       leida: false
@@ -36,6 +41,11 @@ exports.getNotificacionesNoLeidas = async (req, res) => {
 // Contar notificaciones no leídas
 exports.contarNotificacionesNoLeidas = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
+    }
+
     const count = await Notificacion.countDocuments({
       usuario: req.params.id,
       leida: false
@@ -78,17 +88,23 @@ exports.createNotificacion = async (req, res) => {
 // Marcar notificación como leída
 exports.marcarComoLeida = async (req, res) => {
   try {
-    const notificacion = await Notificacion.findByIdAndUpdate(
+    const notificacion = await Notificacion.findById(req.params.id);
+    if (!notificacion) {
+      return res.status(404).json({ error: 'Notificación no encontrada' });
+    }
+
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'admin' && id_usuario.toString() !== notificacion.usuario.toString()) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar esta notificación' });
+    }
+
+    const notificacionActualizada = await Notificacion.findByIdAndUpdate(
       req.params.id,
       { leida: true },
       { new: true }
     ).populate('usuario', 'nombre email');
 
-    if (!notificacion) {
-      return res.status(404).json({ error: 'Notificación no encontrada' });
-    }
-
-    res.json(notificacion);
+    res.json(notificacionActualizada);
   } catch (error) {
     console.error('Error al marcar notificación como leída:', error);
     res.status(500).json({ error: 'Error al marcar notificación como leída' });
@@ -98,6 +114,11 @@ exports.marcarComoLeida = async (req, res) => {
 // Marcar todas las notificaciones de un usuario como leídas
 exports.marcarTodasComoLeidas = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar notificaciones de otro usuario' });
+    }
+
     const result = await Notificacion.updateMany(
       { usuario: req.params.id, leida: false },
       { leida: true }
@@ -126,6 +147,11 @@ exports.deleteNotificacion = async (req, res) => {
 // Eliminar todas las notificaciones de un usuario
 exports.deleteNotificacionesByUsuario = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar notificaciones de otro usuario' });
+    }
+
     const result = await Notificacion.deleteMany({ usuario: req.params.id });
     res.json({ mensaje: `${result.deletedCount} notificaciones eliminadas` });
   } catch (error) {

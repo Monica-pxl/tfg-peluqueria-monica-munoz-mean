@@ -292,6 +292,18 @@ exports.updateCita = async (req, res) => {
       return res.status(404).json({ error: 'Cita no encontrada' });
     }
 
+    const { rol, id_usuario } = req.usuario;
+    if (rol === 'cliente') {
+      if (!cita.usuario || cita.usuario._id.toString() !== id_usuario.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para modificar esta cita' });
+      }
+    } else if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional || !cita.profesional || cita.profesional._id.toString() !== profesional._id.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para modificar esta cita' });
+      }
+    }
+
     const estadoAnterior = cita.estado;
 
     // Si se cambia fecha u hora, verificar disponibilidad
@@ -484,10 +496,24 @@ exports.updateCita = async (req, res) => {
 // Eliminar una cita
 exports.deleteCita = async (req, res) => {
   try {
-    const cita = await Cita.findByIdAndDelete(req.params.id);
+    const { rol, id_usuario } = req.usuario;
+    const cita = await Cita.findById(req.params.id);
     if (!cita) {
       return res.status(404).json({ error: 'Cita no encontrada' });
     }
+
+    if (rol === 'cliente') {
+      if (cita.usuario.toString() !== id_usuario.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para eliminar esta cita' });
+      }
+    } else if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional || cita.profesional.toString() !== profesional._id.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para eliminar esta cita' });
+      }
+    }
+
+    await cita.deleteOne();
     res.json({ mensaje: 'Cita eliminada exitosamente' });
   } catch (error) {
     console.error('Error al eliminar cita:', error);
@@ -508,6 +534,16 @@ exports.marcarRealizada = async (req, res) => {
 
     if (!cita) {
       return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+
+    const { rol, id_usuario } = req.usuario;
+    if (rol === 'cliente') {
+      return res.status(403).json({ error: 'No tienes permiso para marcar citas como realizadas' });
+    } else if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional || cita.profesional._id.toString() !== profesional._id.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para marcar esta cita como realizada' });
+      }
     }
 
     if (cita.estado === 'realizada') {

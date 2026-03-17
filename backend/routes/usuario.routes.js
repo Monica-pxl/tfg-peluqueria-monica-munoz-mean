@@ -6,6 +6,6 @@ const auth = require('../middlewares/auth');
 // Endpoints de usuarios
 router.get('/', usuarioController.getAllUsuarios);
 router.put('/:id', auth, usuarioController.updateUsuario);
-router.delete('/:id', usuarioController.deleteUsuario);
+router.delete('/:id', auth, usuarioController.deleteUsuario);
 
 module.exports = router;
