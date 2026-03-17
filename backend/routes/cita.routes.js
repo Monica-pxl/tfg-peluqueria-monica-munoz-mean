@@ -12,7 +12,7 @@ router.delete('/:id', citaController.deleteCita);
 
 // Rutas especiales
 router.get('/usuario/:usuarioId', auth, citaController.getCitasByUsuario);
-router.get('/profesional/:profesionalId', citaController.getCitasByProfesional);
+router.get('/profesional/:profesionalId', auth, citaController.getCitasByProfesional);
 router.put('/:id/marcar-realizada', citaController.marcarRealizada);
 router.get('/disponibilidad/:profesionalId/:fecha/:hora', citaController.verificarDisponibilidad);
 

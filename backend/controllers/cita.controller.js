@@ -108,6 +108,19 @@ exports.getCitasByUsuario = async (req, res) => {
 // Obtener citas por profesional
 exports.getCitasByProfesional = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+
+    // Un profesional solo puede ver sus propias citas
+    if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional) {
+        return res.status(404).json({ error: 'Profesional no encontrado' });
+      }
+      if (profesional._id.toString() !== req.params.profesionalId) {
+        return res.status(403).json({ error: 'No tienes permiso para ver las citas de otro profesional' });
+      }
+    }
+
     const citas = await Cita.find({ profesional: req.params.profesionalId })
       .populate('usuario', 'nombre email')
       .populate('servicio', 'nombre duracion precio')
