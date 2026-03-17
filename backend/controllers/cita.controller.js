@@ -64,6 +64,33 @@ exports.getAllCitas = async (req, res) => {
 // Obtener citas por usuario
 exports.getCitasByUsuario = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+
+    // Cliente: solo puede ver sus propias citas
+    if (rol === 'cliente') {
+      if (id_usuario.toString() !== req.params.usuarioId) {
+        return res.status(403).json({ error: 'No tienes permiso para ver las citas de otro usuario' });
+      }
+    }
+
+    // Profesional: ve las citas en las que él/ella aparece como profesional
+    if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional) {
+        return res.status(404).json({ error: 'Profesional no encontrado' });
+      }
+      const citas = await Cita.find({ profesional: profesional._id })
+        .populate('usuario', 'nombre email')
+        .populate('profesional', 'nombre apellidos')
+        .populate('servicio', 'nombre duracion precio')
+        .populate('centro', 'nombre direccion')
+        .sort({ fecha: -1, hora: -1 });
+
+      const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
+      return res.json(citasConHistorico);
+    }
+
+    // Administrador (o cliente ya validado arriba): busca por usuarioId del parámetro
     const citas = await Cita.find({ usuario: req.params.usuarioId })
       .populate('profesional', 'nombre apellidos')
       .populate('servicio', 'nombre duracion precio')
