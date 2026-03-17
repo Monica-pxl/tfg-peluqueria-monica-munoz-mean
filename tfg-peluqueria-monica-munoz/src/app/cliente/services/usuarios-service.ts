@@ -19,6 +19,10 @@ export class UsuariosService {
     return this.http.get<UsuariosInterface[]>(this.apiUrl);
   }
 
+  getUsuarioById(id: string): Observable<UsuariosInterface> {
+    return this.http.get<UsuariosInterface>(`${this.apiUrl}/${id}`);
+  }
+
   // LOGIN - Usar el endpoint del backend que valida contraseña
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(this.loginUrl, { email, password });

@@ -69,37 +69,18 @@ export class DashboardComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.usuariosService.getAllUsuarios().subscribe({
-      next: usuarios => {
-        this.usuarios = usuarios;
-        this.serviciosService.getAllServices().subscribe(servicios => {
-          this.centrosService.getAllCentros().subscribe(centros => {
-            this.cargarEstadisticas();
-          });
-        });
-      },
-      error: () => console.error('Error al cargar datos')
+    this.serviciosService.getAllServices().subscribe(() => {
+      this.centrosService.getAllCentros().subscribe(() => {
+        this.cargarEstadisticas();
+      });
     });
   }
 
   cargarEstadisticas() {
     if (!this.idProfesional) return;
 
-    // Cargar citas del profesional usando el servicio adaptado a MongoDB
-    this.citasService.getAllCitasFromDB().subscribe({
-      next: (todasLasCitas) => {
-        console.log('Todas las citas:', todasLasCitas);
-
-        // Filtrar citas del profesional actual
-        const misCitas = todasLasCitas.filter(c => {
-          // Si profesional está poblado
-          if (typeof c.profesional === 'object' && c.profesional !== null) {
-            return c.profesional._id === this.idProfesional;
-          }
-          // Si profesional es string (ObjectId)
-          return c.profesional === this.idProfesional;
-        });
-
+    this.citasService.getCitasPorProfesional(this.idProfesional).subscribe({
+      next: (misCitas) => {
         console.log('Mis citas (profesional ' + this.idProfesional + '):', misCitas);
 
         // Fecha de hoy

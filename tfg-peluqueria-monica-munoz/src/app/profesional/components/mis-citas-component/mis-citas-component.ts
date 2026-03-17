@@ -83,38 +83,20 @@ export class MisCitasComponent implements OnInit {
   }
 
   cargarDatos(): void {
-    this.usuariosService.getAllUsuarios().subscribe({
-      next: usuarios => {
-        this.usuarios = usuarios;
-        this.serviciosService.getAllServices().subscribe(servicios => {
-          this.servicios = servicios;
-          this.centrosService.getAllCentros().subscribe(centros => {
-            this.centros = centros;
-            this.cargarCitas();
-          });
-        });
-      },
-      error: () => this.alertService.error('Error al cargar usuarios')
+    this.serviciosService.getAllServices().subscribe(servicios => {
+      this.servicios = servicios;
+      this.centrosService.getAllCentros().subscribe(centros => {
+        this.centros = centros;
+        this.cargarCitas();
+      });
     });
   }
 
   cargarCitas(): void {
-    this.citasService.getAllCitasFromDB().subscribe({
+    if (!this.idProfesional) return;
+    this.citasService.getCitasPorProfesional(this.idProfesional).subscribe({
       next: (citas: CitasInterface[]) => {
-        // Filtrar solo las citas del profesional logueado
-        this.citas = citas
-          .filter(c => {
-            // Si profesional está poblado
-            if (typeof c.profesional === 'object' && c.profesional !== null) {
-              return c.profesional._id === this.idProfesional;
-            }
-            // Si profesional es string (ObjectId)
-            return c.profesional === this.idProfesional;
-          })
-          .map(c => ({
-            ...c,
-            estado: c.estado || 'pendiente'
-          }));
+        this.citas = citas.map(c => ({ ...c, estado: c.estado || 'pendiente' }));
         this.citasFiltradas = this.citas;
       },
       error: () => this.alertService.error('Error al cargar citas')

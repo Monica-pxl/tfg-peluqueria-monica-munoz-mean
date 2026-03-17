@@ -44,34 +44,17 @@ export class MisCitasComponent implements OnInit{
 
     }else{
       this.cargarCitas();
-      // Actualizar datos del usuario desde el backend para reflejar los puntos actualizados
-      this.usuariosService.getAllUsuarios().subscribe({
-        next: usuarios => {
-          const usuarioActualizado = usuarios.find(u => u._id === this.usuarioLogueado?._id);
-          if (usuarioActualizado) {
-            this.usuariosService.setUsuarioLogueado(usuarioActualizado);
-          }
-        }
-      });
     }
 
   }
 
   cargarCitas(): void {
-    if (!this.usuarioLogueado?._id) return;
+    const userId = this.usuarioLogueado?._id;
+    if (!userId) return;
 
-    // Cargar las citas desde MongoDB filtrando por el usuario logueado
-    this.citasService.getAllCitasFromDB().subscribe({
+    this.citasService.getCitasPorUsuario(userId).subscribe({
       next: (citas: any[]) => {
-        this.citasUsuario = citas
-          .filter(cita => {
-            // Filtrar por usuario logueado (puede ser string _id u objeto)
-            const usuarioId = typeof cita.usuario === 'object' && cita.usuario?._id
-              ? cita.usuario._id
-              : cita.usuario;
-            return usuarioId === this.usuarioLogueado?._id;
-          })
-          .map(cita => ({
+        this.citasUsuario = citas.map(cita => ({
             _id: cita._id,
             centro: typeof cita.centro === 'object' ? cita.centro.nombre : 'Desconocido',
             servicio: typeof cita.servicio === 'object' ? cita.servicio.nombre : 'Desconocido',

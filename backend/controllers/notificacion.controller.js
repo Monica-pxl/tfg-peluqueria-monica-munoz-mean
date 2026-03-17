@@ -6,7 +6,7 @@ exports.getNotificacionesByUsuario = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
 
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -23,7 +23,7 @@ exports.getNotificacionesByUsuario = async (req, res) => {
 exports.getNotificacionesNoLeidas = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -42,7 +42,7 @@ exports.getNotificacionesNoLeidas = async (req, res) => {
 exports.contarNotificacionesNoLeidas = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -94,7 +94,7 @@ exports.marcarComoLeida = async (req, res) => {
     }
 
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== notificacion.usuario.toString()) {
+    if (rol !== 'administrador' && id_usuario.toString() !== notificacion.usuario.toString()) {
       return res.status(403).json({ error: 'No tienes permiso para modificar esta notificación' });
     }
 
@@ -115,7 +115,7 @@ exports.marcarComoLeida = async (req, res) => {
 exports.marcarTodasComoLeidas = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para modificar notificaciones de otro usuario' });
     }
 
@@ -148,7 +148,7 @@ exports.deleteNotificacion = async (req, res) => {
 exports.deleteNotificacionesByUsuario = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para eliminar notificaciones de otro usuario' });
     }
 

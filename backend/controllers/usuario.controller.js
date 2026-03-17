@@ -22,7 +22,7 @@ exports.updateUsuario = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
 
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para modificar el perfil de otro usuario' });
     }
 
@@ -54,7 +54,7 @@ exports.updateUsuario = async (req, res) => {
 exports.deleteUsuario = async (req, res) => {
   try {
     const { rol, id_usuario } = req.usuario;
-    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para eliminar este usuario' });
     }
 

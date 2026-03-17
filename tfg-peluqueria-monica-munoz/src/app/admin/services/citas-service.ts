@@ -19,6 +19,16 @@ export class CitasService {
     return this.http.get<CitasInterface[]>(this.apiUrl);
   }
 
+  // Obtener citas de un profesional concreto
+  getCitasPorProfesional(profesionalId: string): Observable<CitasInterface[]> {
+    return this.http.get<CitasInterface[]>(`${this.apiUrl}/profesional/${profesionalId}`);
+  }
+
+  // Obtener citas de un usuario concreto
+  getCitasPorUsuario(usuarioId: string): Observable<CitasInterface[]> {
+    return this.http.get<CitasInterface[]>(`${this.apiUrl}/usuario/${usuarioId}`);
+  }
+
   // Método para actualizar cita en MongoDB
   actualizarCita(id: string, datos: Partial<CitasInterface>): Observable<{ mensaje: string; cita: CitasInterface }> {
     return this.http.put<{ mensaje: string; cita: CitasInterface }>(`${this.apiUrl}/${id}`, datos);
