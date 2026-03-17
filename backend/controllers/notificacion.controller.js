@@ -4,6 +4,12 @@ const Notificacion = require('../models/notificacion');
 // Obtener notificaciones por usuario
 exports.getNotificacionesByUsuario = async (req, res) => {
   try {
+    const { rol, id_usuario } = req.usuario;
+
+    if (rol !== 'admin' && id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
+    }
+
     const notificaciones = await Notificacion.find({ usuario: req.params.id })
       .sort({ createdAt: -1 });
     res.json(notificaciones);

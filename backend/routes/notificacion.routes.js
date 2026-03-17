@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const notificacionController = require('../controllers/notificacion.controller');
+const auth = require('../middlewares/auth');
 
 // CRUD de notificaciones
 router.post('/', notificacionController.createNotificacion);
 router.delete('/:id', notificacionController.deleteNotificacion);
 
 // Rutas especiales
-router.get('/usuario/:id', notificacionController.getNotificacionesByUsuario);
+router.get('/usuario/:id', auth, notificacionController.getNotificacionesByUsuario);
 router.get('/usuario/:id/no-leidas', notificacionController.getNotificacionesNoLeidas);
 router.get('/usuario/:id/contar-no-leidas', notificacionController.contarNotificacionesNoLeidas);
 router.put('/:id/marcar-leida', notificacionController.marcarComoLeida);

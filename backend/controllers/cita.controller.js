@@ -148,6 +148,22 @@ exports.getCitaById = async (req, res) => {
       return res.status(404).json({ error: 'Cita no encontrada' });
     }
 
+    const { rol, id_usuario } = req.usuario;
+
+    if (rol === 'cliente') {
+      if (!cita.usuario || cita.usuario._id.toString() !== id_usuario.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para ver esta cita' });
+      }
+    } else if (rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: id_usuario });
+      if (!profesional) {
+        return res.status(404).json({ error: 'Profesional no encontrado' });
+      }
+      if (!cita.profesional || cita.profesional._id.toString() !== profesional._id.toString()) {
+        return res.status(403).json({ error: 'No tienes permiso para ver esta cita' });
+      }
+    }
+
     const citaConHistorico = agregarNombresHistoricos(cita);
     res.json(citaConHistorico);
   } catch (error) {
