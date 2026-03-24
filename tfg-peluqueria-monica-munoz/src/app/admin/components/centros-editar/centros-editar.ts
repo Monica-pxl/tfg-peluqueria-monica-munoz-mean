@@ -63,9 +63,20 @@ export class CentrosEditar implements OnInit {
       return;
     }
 
-    // Validar formato de teléfono (9 dígitos)
+    // Validar formato de teléfono (9 dígitos, solo números)
+    if (/[^0-9]/.test(this.centro.telefono)) {
+      this.alertService.error('El teléfono solo debe contener números');
+      return;
+    }
     if (!this.validarTelefono(this.centro.telefono)) {
       this.alertService.error('El teléfono debe tener exactamente 9 dígitos');
+      return;
+    }
+
+    // Validar que el horario de cierre sea posterior al de apertura
+    if (this.centro.horario_apertura && this.centro.horario_cierre &&
+        this.centro.horario_cierre <= this.centro.horario_apertura) {
+      this.alertService.error('El horario de cierre debe ser posterior al de apertura');
       return;
     }
 

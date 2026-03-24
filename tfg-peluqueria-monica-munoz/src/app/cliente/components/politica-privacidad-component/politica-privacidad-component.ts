@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-politica-privacidad-component',
@@ -6,4 +6,12 @@ import { Component } from '@angular/core';
   templateUrl: './politica-privacidad-component.html',
   styleUrl: './politica-privacidad-component.css',
 })
-export class PoliticaPrivacidadComponent {}
+export class PoliticaPrivacidadComponent implements OnInit {
+  ngOnInit(): void {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+  }
+}

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-terminos-condiciones-component',
@@ -6,4 +6,12 @@ import { Component } from '@angular/core';
   templateUrl: './terminos-condiciones-component.html',
   styleUrl: './terminos-condiciones-component.css',
 })
-export class TerminosCondicionesComponent {}
+export class TerminosCondicionesComponent implements OnInit {
+  ngOnInit(): void {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 0);
+  }
+}

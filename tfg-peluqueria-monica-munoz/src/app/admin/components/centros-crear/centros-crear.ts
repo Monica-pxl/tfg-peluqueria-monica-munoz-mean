@@ -39,9 +39,19 @@ export class CentrosCrear {
       return;
     }
 
-    // Validar formato de teléfono (9 dígitos)
+    // Validar formato de teléfono (9 dígitos, solo números)
+    if (/[^0-9]/.test(this.telefono)) {
+      this.alertService.error('El teléfono solo debe contener números');
+      return;
+    }
     if (!this.validarTelefono(this.telefono)) {
       this.alertService.error('El teléfono debe tener exactamente 9 dígitos');
+      return;
+    }
+
+    // Validar que el horario de cierre sea posterior al de apertura
+    if (this.horario_apertura && this.horario_cierre && this.horario_cierre <= this.horario_apertura) {
+      this.alertService.error('El horario de cierre debe ser posterior al de apertura');
       return;
     }
 
