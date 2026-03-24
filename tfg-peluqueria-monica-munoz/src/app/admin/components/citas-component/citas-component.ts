@@ -32,6 +32,7 @@ export class CitasComponent implements OnInit {
   centros: CentrosInterface[] = [];
   estados = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
   busquedaTexto: string = '';
+  cargando = false;
 
   constructor(
     private citasService: CitasService,
@@ -45,6 +46,7 @@ export class CitasComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cargando = true;
     this.usuariosService.getAllUsuarios().subscribe({
       next: usuarios => {
         this.usuarios = usuarios;
@@ -59,20 +61,27 @@ export class CitasComponent implements OnInit {
           });
         });
       },
-      error: () => this.alertService.error('Error al cargar usuarios')
+      error: () => {
+        this.cargando = false;
+        this.alertService.error('Error al cargar usuarios');
+      }
     });
   }
 
   cargarCitas(): void {
     this.citasService.getAllCitasFromDB().subscribe({
       next: (citas: CitasInterface[]) => {
+        this.cargando = false;
         this.citas = citas.map(c => ({
           ...c,
           estado: c.estado || 'pendiente'
         }));
         this.citasFiltradas = this.citas;
       },
-      error: () => this.alertService.error('Error al cargar citas')
+      error: () => {
+        this.cargando = false;
+        this.alertService.error('Error al cargar citas');
+      }
     });
   }
 
@@ -229,13 +238,9 @@ export class CitasComponent implements OnInit {
       return ['realizada'];
     }
 
-    // Si la cita ya está cancelada, solo puede marcar como realizada o mantener cancelada
+    // Si la cita ya está cancelada, no se puede cambiar a ningún otro estado
     if (cita.estado === 'cancelada') {
-      if (yaPaso) {
-        return ['cancelada', 'realizada'];
-      } else {
-        return ['cancelada'];
-      }
+      return ['cancelada'];
     }
 
     // Si la cita está confirmada

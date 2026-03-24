@@ -19,6 +19,7 @@ import { ConfirmService } from '../../../shared/services/confirm-service';
 export class MisCitasComponent implements OnInit{
 
   citasUsuario: any[] = [];
+  cargando = false;
 
   usuarioLogueado: UsuariosInterface | null = null;
   mensaje: string = "";
@@ -52,8 +53,10 @@ export class MisCitasComponent implements OnInit{
     const userId = this.usuarioLogueado?._id;
     if (!userId) return;
 
+    this.cargando = true;
     this.citasService.getCitasPorUsuario(userId).subscribe({
       next: (citas: any[]) => {
+        this.cargando = false;
         this.citasUsuario = citas.map(cita => ({
             _id: cita._id,
             centro: typeof cita.centro === 'object' ? cita.centro.nombre : 'Desconocido',
@@ -68,6 +71,7 @@ export class MisCitasComponent implements OnInit{
           }));
       },
       error: () => {
+        this.cargando = false;
         this.alertService.error('Error al cargar tus citas');
         this.citasUsuario = [];
       }

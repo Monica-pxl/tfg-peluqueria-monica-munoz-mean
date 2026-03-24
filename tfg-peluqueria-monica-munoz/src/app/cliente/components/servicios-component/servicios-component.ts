@@ -22,6 +22,7 @@ export class ServiciosComponent implements OnInit {
   paginaActual: number = 1;
   cantidadPorPagina: number = 9;
   textoBusqueda: string = '';
+  cargando = false;
 
   constructor(private APIservicios: ServiciosService) {}
 
@@ -39,15 +40,20 @@ export class ServiciosComponent implements OnInit {
 
 
   loadServicios(): void {
+    this.cargando = true;
     this.APIservicios.getAllServices().subscribe({
       next: (data) => {
+        this.cargando = false;
         // Los servicios ya vienen ordenados del backend
         this.servicios = data;
         this.serviciosFiltrados = this.servicios;
         this.actualizarPagina();
         console.log('Servicios cargados:', this.servicios);
       },
-      error: (err) => console.error('Error al cargar los servicios', err)
+      error: (err) => {
+        this.cargando = false;
+        console.error('Error al cargar los servicios', err);
+      }
     });
   }
 

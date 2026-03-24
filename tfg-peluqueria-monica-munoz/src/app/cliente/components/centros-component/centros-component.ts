@@ -20,6 +20,7 @@ export class CentrosComponent implements OnInit {
   paginaActual: number = 1;
   cantidadPorPagina: number = 6;
   textoBusqueda: string = '';
+  cargando = false;
 
   constructor(private APIcentros: CentrosService) {}
 
@@ -35,13 +36,18 @@ export class CentrosComponent implements OnInit {
   }
 
   loadCentros(): void {
+    this.cargando = true;
     this.APIcentros.getAllCentros().subscribe({
       next: (data) => {
+        this.cargando = false;
         this.centros = data;
         this.centrosFiltrados = data;
         this.actualizarPagina();
       },
-      error: (err) => console.error('Error al cargar los centros', err)
+      error: (err) => {
+        this.cargando = false;
+        console.error('Error al cargar los centros', err);
+      }
     });
   }
 

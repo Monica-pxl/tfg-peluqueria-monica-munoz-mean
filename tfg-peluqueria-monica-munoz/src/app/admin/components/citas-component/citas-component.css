@@ -191,6 +191,14 @@
   font-weight: 600;
 }
 
+.status-select:disabled {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: default;
+  opacity: 0.9;
+}
+
 /* Botones */
 .btn-danger {
   background: linear-gradient(135deg, #dc3545, #c82333);

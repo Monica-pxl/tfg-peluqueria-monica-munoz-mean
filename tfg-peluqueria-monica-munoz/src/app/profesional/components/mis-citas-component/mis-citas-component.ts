@@ -32,6 +32,7 @@ export class MisCitasComponent implements OnInit {
   busquedaTexto: string = '';
   idUsuario: number = 0;
   idProfesional: string | undefined = undefined;
+  cargando = false;
 
   constructor(
     private citasService: CitasService,
@@ -54,6 +55,7 @@ export class MisCitasComponent implements OnInit {
     }
 
     // Primero obtener el id_profesional a partir del _id del usuario
+    this.cargando = true;
     this.profesionalesService.getAllProfesionales().subscribe({
       next: profesionales => {
         console.log('Buscando profesional para usuario:', usuarioLogueado);
@@ -78,7 +80,10 @@ export class MisCitasComponent implements OnInit {
           this.alertService.error('No se encontró el profesional asociado a tu usuario');
         }
       },
-      error: () => this.alertService.error('Error al cargar datos del profesional')
+      error: () => {
+        this.cargando = false;
+        this.alertService.error('Error al cargar datos del profesional');
+      }
     });
   }
 
@@ -96,10 +101,14 @@ export class MisCitasComponent implements OnInit {
     if (!this.idProfesional) return;
     this.citasService.getCitasPorProfesional(this.idProfesional).subscribe({
       next: (citas: CitasInterface[]) => {
+        this.cargando = false;
         this.citas = citas.map(c => ({ ...c, estado: c.estado || 'pendiente' }));
         this.citasFiltradas = this.citas;
       },
-      error: () => this.alertService.error('Error al cargar citas')
+      error: () => {
+        this.cargando = false;
+        this.alertService.error('Error al cargar citas');
+      }
     });
   }
 
@@ -240,13 +249,9 @@ export class MisCitasComponent implements OnInit {
       return ['realizada'];
     }
 
-    // Si la cita ya está cancelada, solo puede marcar como realizada o mantener cancelada
+    // Si la cita ya está cancelada, no se puede cambiar a ningún otro estado
     if (cita.estado === 'cancelada') {
-      if (yaPaso) {
-        return ['cancelada', 'realizada'];
-      } else {
-        return ['cancelada'];
-      }
+      return ['cancelada'];
     }
 
     // Si la cita está confirmada

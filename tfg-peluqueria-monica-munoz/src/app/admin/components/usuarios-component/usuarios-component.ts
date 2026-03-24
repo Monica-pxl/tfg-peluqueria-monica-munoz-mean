@@ -18,6 +18,7 @@ export class UsuariosComponent implements OnInit {
   usuarios: UsuariosInterface[] = [];
   usuariosFiltrados: UsuariosInterface[] = [];
   usuarioLogueado: UsuariosInterface | null = null;
+  cargando = false;
 
   filtroRol: string = 'todos';
   filtroEstado: string = 'todos';
@@ -36,8 +37,10 @@ export class UsuariosComponent implements OnInit {
   }
 
   cargarUsuarios() {
+    this.cargando = true;
     this.usuariosService.getAllUsuarios().subscribe({
       next: (data) => {
+        this.cargando = false;
         this.usuarios = data.map(u => ({
           ...u,
           estado: u.estado || 'activo',
@@ -45,7 +48,10 @@ export class UsuariosComponent implements OnInit {
         }));
         this.aplicarFiltros();
       },
-      error: (error) => console.error('Error al cargar usuarios:', error)
+      error: (error) => {
+        this.cargando = false;
+        console.error('Error al cargar usuarios:', error);
+      }
     });
   }
 

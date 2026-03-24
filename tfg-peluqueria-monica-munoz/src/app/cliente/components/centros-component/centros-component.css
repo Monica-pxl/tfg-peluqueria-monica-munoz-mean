@@ -3,6 +3,20 @@
   padding: 4rem 0;
 }
 
+.spinner-wrapper {
+  text-align: center;
+  padding: 60px 20px;
+  color: #ff69b4;
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+
+.spinner-pink {
+  color: #ff69b4;
+  width: 3rem;
+  height: 3rem;
+}
+
 .centros-section h2 {
   color: #ff69b4;
   font-weight: 700;
