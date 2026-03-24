@@ -72,3 +72,24 @@ export const clienteGuard: CanActivateFn = (route, state) => {
   
   return true;
 };
+
+/**
+ * Redirige automáticamente al dashboard propio según el rol.
+ * - Administrador → /admin/dashboard
+ * - Profesional   → /profesional/dashboard
+ * - Cliente / sin sesión → deja pasar (muestra el home)
+ */
+export const rolRedirectGuard: CanActivateFn = () => {
+  const usuario = inject(UsuariosService).getUsuarioLogueado();
+  const router = inject(Router);
+
+  if (usuario?.rol === 'administrador') {
+    router.navigate(['/admin/dashboard']);
+    return false;
+  }
+  if (usuario?.rol === 'profesional') {
+    router.navigate(['/profesional/dashboard']);
+    return false;
+  }
+  return true;
+};

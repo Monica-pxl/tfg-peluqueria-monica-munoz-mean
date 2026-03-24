@@ -7,14 +7,25 @@
         <h1 class="display-3 fw-bold hero-title">Bienvenido a <span class="brand-name">HairGest</span></h1>
         <p class="lead mb-5 hero-subtitle">Reserva en cualquier peluquería de forma fácil y rápida</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
-          <a [routerLink]="'/servicios'" class="btn btn-hero btn-hero-primary btn-lg">
-            <i class="bi bi-grid-3x3-gap me-2"></i>
-            Ver Servicios
-          </a>
-          <a [routerLink]="'/registrarse'" class="btn btn-hero btn-hero-secondary btn-lg">
-            <i class="bi bi-person-plus me-2"></i>
-            Crear cuenta
-          </a>
+          @if(usuariosService.getUsuarioLogueado()?.rol === 'cliente'){
+            <a [routerLink]="'/reservar-cita'" class="btn btn-hero btn-hero-primary btn-lg">
+              <i class="bi bi-calendar-plus me-2"></i>
+              Reservar Cita
+            </a>
+            <a [routerLink]="'/mis-citas'" class="btn btn-hero btn-hero-secondary btn-lg">
+              <i class="bi bi-calendar-check me-2"></i>
+              Mis Citas
+            </a>
+          } @else {
+            <a [routerLink]="'/servicios'" class="btn btn-hero btn-hero-primary btn-lg">
+              <i class="bi bi-grid-3x3-gap me-2"></i>
+              Ver Servicios
+            </a>
+            <a [routerLink]="'/registrarse'" class="btn btn-hero btn-hero-secondary btn-lg">
+              <i class="bi bi-person-plus me-2"></i>
+              Crear cuenta
+            </a>
+          }
         </div>
       </div>
     </div>

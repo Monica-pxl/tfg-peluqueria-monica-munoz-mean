@@ -6,6 +6,7 @@ import { ServiciosInterface } from "../../interfaces/servicios-interface";
 import { CentrosInterface } from "../../interfaces/centros-interface";
 import { ServiciosService } from "../../services/servicios-service";
 import { CentrosService } from "../../services/centros-service";
+import { UsuariosService } from "../../services/usuarios-service";
 
 @Component({
   selector: 'app-home-component',
@@ -25,7 +26,8 @@ export class HomeComponent implements OnInit {
 
     constructor(
       private APIservicios: ServiciosService,
-      private APIcentros: CentrosService
+      private APIcentros: CentrosService,
+      public usuariosService: UsuariosService
     ) {}
 
 

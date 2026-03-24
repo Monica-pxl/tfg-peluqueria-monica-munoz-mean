@@ -31,7 +31,7 @@ import { ProfesionalNotificacionesComponent } from './profesional/components/pro
 import { PoliticaPrivacidadComponent } from './cliente/components/politica-privacidad-component/politica-privacidad-component';
 import { TerminosCondicionesComponent } from './cliente/components/terminos-condiciones-component/terminos-condiciones-component';
 import { CookiesComponent } from './cliente/components/cookies-component/cookies-component';
-import { authGuard, adminGuard, profesionalGuard, clienteGuard } from './shared/guards/auth.guard';
+import { authGuard, adminGuard, profesionalGuard, clienteGuard, rolRedirectGuard } from './shared/guards/auth.guard';
 import { NotFoundComponent } from './errores/not-found-component/not-found-component';
 import { Error404Component } from './errores/error404-component/error404-component';
 import { Error500Component } from './errores/error500-component/error500-component';
@@ -41,7 +41,7 @@ import { HorariosProfesionalComponent } from './profesional/components/horarios-
 export const routes: Routes = [
     // Rutas públicas
     { path: '', redirectTo: '/home', pathMatch: 'full' },
-    { path: 'home', component: HomeComponent },
+    { path: 'home', component: HomeComponent, canActivate: [rolRedirectGuard] },
     { path: 'servicios', component: ServiciosComponent},
     {path: 'centros', component: CentrosClienteComponent},
     {path: 'centro-detalles/:id', component: CentroDetallesComponent},

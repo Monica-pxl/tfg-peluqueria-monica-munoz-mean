@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { UsuariosInterface } from '../interfaces/usuarios-interface';
 
 @Injectable({
@@ -11,9 +12,28 @@ export class UsuariosService {
   private apiUrl = 'https://hairgest-backend.vercel.app/api/usuarios';
   private loginUrl = 'https://hairgest-backend.vercel.app/api/login';
   private registroUrl = 'https://hairgest-backend.vercel.app/api/registro';
-  usuarioLogueado: UsuariosInterface | null = null;
 
-  constructor(private http: HttpClient) {}
+  private readonly platformId = inject(PLATFORM_ID);
+
+  /** Signal reactivo con el usuario actualmente autenticado. Se inicializa
+   *  leyendo localStorage al arrancar la app, por lo que el estado correcto
+   *  está disponible desde el primer ciclo de renderizado.
+   */
+  readonly usuarioLogueado = signal<UsuariosInterface | null>(null);
+
+  constructor(private http: HttpClient) {
+    // Restaurar sesión desde localStorage al iniciar la aplicación (sólo en navegador)
+    if (isPlatformBrowser(this.platformId)) {
+      const guardado = localStorage.getItem('usuarioLogueado');
+      if (guardado) {
+        try {
+          this.usuarioLogueado.set(JSON.parse(guardado));
+        } catch {
+          localStorage.removeItem('usuarioLogueado');
+        }
+      }
+    }
+  }
 
   getAllUsuarios(): Observable<UsuariosInterface[]> {
     return this.http.get<UsuariosInterface[]>(this.apiUrl);
@@ -35,45 +55,44 @@ export class UsuariosService {
 
   // Guardar usuario logueado
   setUsuarioLogueado(usuario: UsuariosInterface) {
-    this.usuarioLogueado = usuario;
-    // También guardar en localStorage para persistencia
-    localStorage.setItem('usuarioLogueado', JSON.stringify(usuario));
+    this.usuarioLogueado.set(usuario);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('usuarioLogueado', JSON.stringify(usuario));
+    }
   }
 
   // Guardar token JWT
   setToken(token: string) {
-    localStorage.setItem('token', token);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('token', token);
+    }
   }
 
   // Obtener token JWT
   getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-  //Obtener el usuario logueado:
-  getUsuarioLogueado(): UsuariosInterface | null{
-    // Si no está en memoria, intentar recuperar de localStorage
-    if (!this.usuarioLogueado) {
-      const usuarioGuardado = localStorage.getItem('usuarioLogueado');
-      if (usuarioGuardado) {
-        this.usuarioLogueado = JSON.parse(usuarioGuardado);
-      }
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('token');
     }
-    return this.usuarioLogueado;
+    return null;
   }
 
-
-  //Comprobar si hay un usuario logueado:
-  comprobarLogueado(): boolean{
-    return this.getUsuarioLogueado() !== null;
+  // Obtener el usuario logueado (lee el signal — reactivo en templates)
+  getUsuarioLogueado(): UsuariosInterface | null {
+    return this.usuarioLogueado();
   }
 
+  // Comprobar si hay un usuario logueado
+  comprobarLogueado(): boolean {
+    return this.usuarioLogueado() !== null;
+  }
 
-  //Si el usuario está logueado, cerrar sesión:
-  cerrarSesion(){
-    this.usuarioLogueado = null;
-    localStorage.removeItem('usuarioLogueado');
-    localStorage.removeItem('token');
+  // Cerrar sesión
+  cerrarSesion() {
+    this.usuarioLogueado.set(null);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('usuarioLogueado');
+      localStorage.removeItem('token');
+    }
   }
 
   // Actualizar usuario (solo rol y estado)
