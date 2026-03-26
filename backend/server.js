@@ -61,7 +61,17 @@ const conectarMongo = async () => {
 };
 
 conectarMongo()
-  .then(() => console.log('✅ Conectado a MongoDB Atlas'))
+  .then(async () => {
+    console.log('✅ Conectado a MongoDB Atlas');
+    // Elimina el índice único antiguo que impedía guardar citas
+    // en horarios de citas ya canceladas. Sin esto el fix no funciona.
+    try {
+      await mongoose.connection.collection('citas').dropIndex('profesional_1_fecha_1_hora_1');
+      console.log('✅ Índice único de citas eliminado');
+    } catch (e) {
+      // El índice ya no existe, no hay nada que hacer
+    }
+  })
   .catch(err => {
     console.error('❌ Error al conectar a MongoDB:', err);
     if (process.env.NODE_ENV !== 'production') {

@@ -202,6 +202,21 @@ exports.createCita = async (req, res) => {
       return res.status(404).json({ error: 'Centro no encontrado' });
     }
 
+    // Verificar que no existe cita activa (pendiente/confirmada) en ese horario
+    const citaDuplicada = await Cita.findOne({
+      profesional,
+      fecha,
+      hora,
+      estado: { $in: ['pendiente', 'confirmada'] }
+    });
+    if (citaDuplicada) {
+      return res.status(400).json({ error: 'Ya existe una cita en ese horario para ese profesional' });
+    }
+
+    // Eliminar citas canceladas en ese hueco para que el índice único de MongoDB
+    // no bloquee la inserción de la nueva cita
+    await Cita.deleteMany({ profesional, fecha, hora, estado: 'cancelada' });
+
     const nuevaCita = new Cita({
       usuario,
       profesional,
@@ -315,7 +330,8 @@ exports.updateCita = async (req, res) => {
         profesional: cita.profesional._id,
         fecha: nuevaFecha,
         hora: nuevaHora,
-        _id: { $ne: req.params.id }
+        _id: { $ne: req.params.id },
+        estado: { $in: ['pendiente', 'confirmada'] }
       });
 
       if (citaExistente) {

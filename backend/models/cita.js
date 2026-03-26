@@ -59,7 +59,7 @@ const citaSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Índice compuesto para evitar duplicados
-citaSchema.index({ profesional: 1, fecha: 1, hora: 1 }, { unique: true });
+// La unicidad se gestiona en el controlador para permitir reutilizar
+// horarios de citas canceladas (sin unique index en MongoDB)
 
 module.exports = mongoose.model('Cita', citaSchema);
