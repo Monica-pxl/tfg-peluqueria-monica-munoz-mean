@@ -672,7 +672,7 @@ exports.marcarRealizada = async (req, res) => {
       puntosSumados: 10,
       puntosActuales: puntosNuevos,
       subioNivel,
-      nivelActual: Math.floor(puntosNuevos / 100)
+      nivelActual: nivelNuevo
     });
   } catch (error) {
     console.error('Error al marcar cita como realizada:', error);
