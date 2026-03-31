@@ -9,7 +9,7 @@ router.get('/', auth, soloAdmin, citaController.getAllCitas);
 router.get('/:id', auth, citaController.getCitaById);
 router.post('/', auth, citaController.createCita);
 router.put('/:id', auth, citaController.updateCita);
-router.delete('/:id', auth, citaController.deleteCita);
+router.delete('/:id', auth, soloAdmin, citaController.deleteCita);
 
 // Rutas especiales
 router.get('/usuario/:usuarioId', auth, citaController.getCitasByUsuario);
