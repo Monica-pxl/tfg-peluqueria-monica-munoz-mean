@@ -4,9 +4,9 @@ const Notificacion = require('../models/notificacion');
 // Obtener notificaciones por usuario
 exports.getNotificacionesByUsuario = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
 
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
+    if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -22,8 +22,8 @@ exports.getNotificacionesByUsuario = async (req, res) => {
 // Obtener notificaciones no leídas por usuario
 exports.getNotificacionesNoLeidas = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -41,8 +41,8 @@ exports.getNotificacionesNoLeidas = async (req, res) => {
 // Contar notificaciones no leídas
 exports.contarNotificacionesNoLeidas = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
     }
 
@@ -93,9 +93,9 @@ exports.marcarComoLeida = async (req, res) => {
       return res.status(404).json({ error: 'Notificación no encontrada' });
     }
 
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== notificacion.usuario.toString()) {
-      return res.status(403).json({ error: 'No tienes permiso para modificar esta notificación' });
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== notificacion.usuario.toString()) {
+      return res.status(403).json({ error: 'No tienes permiso para modificar esta notifiacion' });
     }
 
     const notificacionActualizada = await Notificacion.findByIdAndUpdate(
@@ -114,8 +114,8 @@ exports.marcarComoLeida = async (req, res) => {
 // Marcar todas las notificaciones de un usuario como leídas
 exports.marcarTodasComoLeidas = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para modificar notificaciones de otro usuario' });
     }
 
@@ -138,9 +138,9 @@ exports.deleteNotificacion = async (req, res) => {
       return res.status(404).json({ error: 'Notificación no encontrada' });
     }
 
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== notificacion.usuario.toString()) {
-      return res.status(403).json({ error: 'No tienes permiso para eliminar esta notificación' });
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== notificacion.usuario.toString()) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar notificaciones de otro usuario' });
     }
 
     await notificacion.deleteOne();
@@ -154,9 +154,9 @@ exports.deleteNotificacion = async (req, res) => {
 // Eliminar todas las notificaciones de un usuario
 exports.deleteNotificacionesByUsuario = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
-      return res.status(403).json({ error: 'No tienes permiso para eliminar notificaciones de otro usuario' });
+    const { id_usuario } = req.usuario;
+    if (id_usuario.toString() !== req.params.id) {
+      return res.status(403).json({ error: 'No tienes permiso para operar sobre este recurso' });
     }
 
     const result = await Notificacion.deleteMany({ usuario: req.params.id });
