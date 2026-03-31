@@ -175,6 +175,12 @@ exports.getCitaById = async (req, res) => {
 // Crear una cita
 exports.createCita = async (req, res) => {
   try {
+    const { rol } = req.usuario;
+
+    if (rol !== 'cliente') {
+      return res.status(403).json({ error: 'Solo los clientes pueden crear citas' });
+    }
+
     const { usuario, profesional, servicio, centro, fecha, hora } = req.body;
 
     if (!usuario || !profesional || !servicio || !centro || !fecha || !hora) {
@@ -320,6 +326,33 @@ exports.updateCita = async (req, res) => {
     }
 
     const estadoAnterior = cita.estado;
+
+    // Validar máquina de estados
+    if (estado && estado !== estadoAnterior) {
+      // No se puede cambiar una cita ya realizada o cancelada
+      if (estadoAnterior === 'realizada') {
+        return res.status(400).json({ error: 'No se puede modificar una cita ya realizada' });
+      }
+      if (estadoAnterior === 'cancelada') {
+        return res.status(400).json({ error: 'No se puede modificar una cita cancelada' });
+      }
+      // El estado "realizada" solo se puede poner desde /marcar-realizada
+      if (estado === 'realizada') {
+        return res.status(400).json({ error: 'Para marcar una cita como realizada usa el endpoint correspondiente' });
+      }
+      // No se puede volver a "pendiente"
+      if (estado === 'pendiente') {
+        return res.status(400).json({ error: 'No se puede revertir una cita a pendiente' });
+      }
+      // El cliente solo puede cancelar
+      if (rol === 'cliente' && estado !== 'cancelada') {
+        return res.status(403).json({ error: 'Los clientes solo pueden cancelar citas' });
+      }
+      // Profesional/admin: pendiente→confirmada o pendiente/confirmada→cancelada
+      if ((rol === 'profesional' || rol === 'administrador') && estado === 'confirmada' && estadoAnterior !== 'pendiente') {
+        return res.status(400).json({ error: 'Solo se puede confirmar una cita pendiente' });
+      }
+    }
 
     // Si se cambia fecha u hora, verificar disponibilidad
     if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
@@ -509,24 +542,12 @@ exports.updateCita = async (req, res) => {
   }
 };
 
-// Eliminar una cita
+// Eliminar una cita (solo admin, protegido por soloAdmin en las rutas)
 exports.deleteCita = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
     const cita = await Cita.findById(req.params.id);
     if (!cita) {
       return res.status(404).json({ error: 'Cita no encontrada' });
-    }
-
-    if (rol === 'cliente') {
-      if (cita.usuario.toString() !== id_usuario.toString()) {
-        return res.status(403).json({ error: 'No tienes permiso para eliminar esta cita' });
-      }
-    } else if (rol === 'profesional') {
-      const profesional = await Profesional.findOne({ usuario: id_usuario });
-      if (!profesional || cita.profesional.toString() !== profesional._id.toString()) {
-        return res.status(403).json({ error: 'No tienes permiso para eliminar esta cita' });
-      }
     }
 
     await cita.deleteOne();
@@ -564,6 +585,22 @@ exports.marcarRealizada = async (req, res) => {
 
     if (cita.estado === 'realizada') {
       return res.status(400).json({ error: 'La cita ya fue marcada como realizada' });
+    }
+
+    if (cita.estado === 'cancelada') {
+      return res.status(400).json({ error: 'No se puede marcar como realizada una cita cancelada' });
+    }
+
+    if (cita.estado === 'pendiente') {
+      return res.status(400).json({ error: 'No se puede marcar como realizada una cita pendiente. Debe estar confirmada primero' });
+    }
+
+    // Verificar que la fecha y hora de la cita ya han pasado
+    const [anio, mes, dia] = cita.fecha.split('-').map(Number);
+    const [hh, mm] = cita.hora.split(':').map(Number);
+    const fechaHoraCita = new Date(anio, mes - 1, dia, hh, mm);
+    if (fechaHoraCita > new Date()) {
+      return res.status(400).json({ error: 'No se puede marcar como realizada una cita que aún no ha llegado' });
     }
 
     // Actualizar estado de la cita
