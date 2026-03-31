@@ -133,10 +133,17 @@ exports.marcarTodasComoLeidas = async (req, res) => {
 // Eliminar una notificación
 exports.deleteNotificacion = async (req, res) => {
   try {
-    const notificacion = await Notificacion.findByIdAndDelete(req.params.id);
+    const notificacion = await Notificacion.findById(req.params.id);
     if (!notificacion) {
       return res.status(404).json({ error: 'Notificación no encontrada' });
     }
+
+    const { rol, id_usuario } = req.usuario;
+    if (rol !== 'administrador' && id_usuario.toString() !== notificacion.usuario.toString()) {
+      return res.status(403).json({ error: 'No tienes permiso para eliminar esta notificación' });
+    }
+
+    await notificacion.deleteOne();
     res.json({ mensaje: 'Notificación eliminada exitosamente' });
   } catch (error) {
     console.error('Error al eliminar notificación:', error);

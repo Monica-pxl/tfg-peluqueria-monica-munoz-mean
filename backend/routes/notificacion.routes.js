@@ -5,7 +5,7 @@ const auth = require('../middlewares/auth');
 
 // CRUD de notificaciones
 router.post('/', notificacionController.createNotificacion);
-router.delete('/:id', notificacionController.deleteNotificacion);
+router.delete('/:id', auth, notificacionController.deleteNotificacion);
 
 // Rutas especiales
 router.get('/usuario/:id', auth, notificacionController.getNotificacionesByUsuario);
