@@ -70,6 +70,11 @@ export class ServiciosEditar implements OnInit{
           return;
         }
 
+        // Normalizar centro a string _id para que el select lo seleccione correctamente
+        if (this.servicio.centro && typeof this.servicio.centro === 'object') {
+          this.servicio.centro = (this.servicio.centro as any)._id;
+        }
+
         // cargar relaciones actuales usando _id del servicio
         this.profesionalServicioService.getAllProfesionalServicio().subscribe({
           next: relaciones => {
@@ -124,6 +129,12 @@ export class ServiciosEditar implements OnInit{
   }
 
   actualizarServicio(): void {
+    // Validar campos obligatorios
+    if (!this.servicio.nombre || !this.servicio.descripcion || !this.servicio.duracion || !this.servicio.precio || !this.servicio.centro) {
+      this.alertService.error('Por favor, completa todos los campos obligatorios (nombre, descripción, duración, precio y centro).');
+      return;
+    }
+
     // Validar URL de imagen si se proporciona (acepta URLs y rutas locales)
     if (this.servicio.imagen && !this.validarImagenURL(this.servicio.imagen)) {
       this.alertService.error('La imagen no es válida. Debe ser una URL (http/https) o una ruta local (/img/...)');

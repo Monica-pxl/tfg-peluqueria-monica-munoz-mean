@@ -6,7 +6,7 @@
       <p class="text-muted">Añade un nuevo servicio al catálogo de la peluquería</p>
     </div>
 
-    <form (ngSubmit)="crearServicio()">
+    <form (ngSubmit)="crearServicio()" #servicioForm="ngForm" novalidate>
       <div class="mb-4">
         <label class="form-label">
           <i class="bi bi-scissors me-2"></i>Nombre del Servicio
@@ -14,10 +14,15 @@
         <input
           type="text"
           class="form-control form-control-custom"
+          [class.is-invalid]="nombreInput.invalid && nombreInput.touched"
           [(ngModel)]="nombre"
           name="nombre"
+          #nombreInput="ngModel"
           placeholder="Ej: Corte de pelo, Tinte, Manicura..."
           required>
+        <div class="invalid-feedback" *ngIf="nombreInput.invalid && nombreInput.touched">
+          El nombre es obligatorio.
+        </div>
       </div>
 
       <div class="mb-4">
@@ -26,11 +31,16 @@
         </label>
         <textarea
           class="form-control form-control-custom"
+          [class.is-invalid]="descripcionInput.invalid && descripcionInput.touched"
           [(ngModel)]="descripcion"
           name="descripcion"
+          #descripcionInput="ngModel"
           rows="3"
           placeholder="Describe brevemente el servicio..."
           required></textarea>
+        <div class="invalid-feedback" *ngIf="descripcionInput.invalid && descripcionInput.touched">
+          La descripción es obligatoria.
+        </div>
       </div>
 
       <div class="row mb-4">
@@ -41,11 +51,16 @@
           <input
             type="number"
             class="form-control form-control-custom"
+            [class.is-invalid]="duracionInput.invalid && duracionInput.touched"
             [(ngModel)]="duracion"
             name="duracion"
+            #duracionInput="ngModel"
             placeholder="30"
             min="1"
             required>
+          <div class="invalid-feedback" *ngIf="duracionInput.invalid && duracionInput.touched">
+            La duración es obligatoria y debe ser al menos 1 minuto.
+          </div>
         </div>
         <div class="col-md-4 mb-3 mb-md-0">
           <label class="form-label">
@@ -54,21 +69,35 @@
           <input
             type="number"
             class="form-control form-control-custom"
+            [class.is-invalid]="precioInput.invalid && precioInput.touched"
             [(ngModel)]="precio"
             name="precio"
+            #precioInput="ngModel"
             placeholder="25.00"
             min="0.01"
             step="0.01"
             required>
+          <div class="invalid-feedback" *ngIf="precioInput.invalid && precioInput.touched">
+            El precio es obligatorio y debe ser mayor a 0.
+          </div>
         </div>
         <div class="col-md-4">
           <label class="form-label">
             <i class="bi bi-geo-alt-fill me-2"></i>Centro
           </label>
-          <select class="form-select form-control-custom" [(ngModel)]="id_centro" name="id_centro" (change)="onCentroChange()" required>
+          <select class="form-select form-control-custom"
+            [class.is-invalid]="centroInput.invalid && centroInput.touched"
+            [(ngModel)]="id_centro"
+            name="id_centro"
+            #centroInput="ngModel"
+            (change)="onCentroChange()"
+            required>
             <option value="" disabled selected>Selecciona centro</option>
             <option [value]="c._id" *ngFor="let c of centros">{{ c.nombre }}</option>
           </select>
+          <div class="invalid-feedback" *ngIf="centroInput.invalid && centroInput.touched">
+            El centro es obligatorio.
+          </div>
         </div>
       </div>
 
@@ -95,15 +124,14 @@
 
       <div class="mb-4">
         <label class="form-label">
-          <i class="bi bi-image-fill me-2"></i>URL de la Imagen
+          <i class="bi bi-image-fill me-2"></i>URL de la Imagen <small class="text-muted">(opcional)</small>
         </label>
         <input
-          type="url"
+          type="text"
           class="form-control form-control-custom"
           [(ngModel)]="imagen"
           name="imagen"
-          placeholder="https://ejemplo.com/imagen.jpg"
-          pattern="https?://.+">
+          placeholder="https://ejemplo.com/imagen.jpg o /img/imagen.jpg">
       </div>
 
       <div class="form-actions">
@@ -117,7 +145,7 @@
         <button
           type="submit"
           class="btn btn-create"
-          [disabled]="guardando">
+          [disabled]="guardando || servicioForm.invalid">
           <i class="bi bi-check-circle me-2"></i>
           {{ guardando ? 'Guardando...' : 'Crear Servicio' }}
         </button>

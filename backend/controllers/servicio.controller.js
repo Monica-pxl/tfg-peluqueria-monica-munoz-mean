@@ -19,8 +19,16 @@ exports.createServicio = async (req, res) => {
   try {
     const { nombre, descripcion, duracion, precio, centro, imagen } = req.body;
 
-    if (!nombre || !centro) {
-      return res.status(400).json({ error: 'Nombre y centro son obligatorios' });
+    if (!nombre || !descripcion || !duracion || !precio || !centro) {
+      return res.status(400).json({ error: 'Nombre, descripción, duración, precio y centro son obligatorios' });
+    }
+
+    if (Number(duracion) < 1) {
+      return res.status(400).json({ error: 'La duración debe ser al menos 1 minuto' });
+    }
+
+    if (Number(precio) < 0.01) {
+      return res.status(400).json({ error: 'El precio debe ser mayor a 0' });
     }
 
     const nuevoServicio = new Servicio({
@@ -45,6 +53,25 @@ exports.createServicio = async (req, res) => {
 // Actualizar un servicio
 exports.updateServicio = async (req, res) => {
   try {
+    const { nombre, descripcion, duracion, precio, centro } = req.body;
+
+    // Si se envían campos obligatorios, validarlos
+    if (nombre !== undefined && !nombre) {
+      return res.status(400).json({ error: 'El nombre no puede estar vacío' });
+    }
+    if (descripcion !== undefined && !descripcion) {
+      return res.status(400).json({ error: 'La descripción no puede estar vacía' });
+    }
+    if (duracion !== undefined && Number(duracion) < 1) {
+      return res.status(400).json({ error: 'La duración debe ser al menos 1 minuto' });
+    }
+    if (precio !== undefined && Number(precio) < 0.01) {
+      return res.status(400).json({ error: 'El precio debe ser mayor a 0' });
+    }
+    if (centro !== undefined && !centro) {
+      return res.status(400).json({ error: 'El centro no puede estar vacío' });
+    }
+
     const servicio = await Servicio.findByIdAndUpdate(
       req.params.id,
       req.body,

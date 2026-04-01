@@ -76,7 +76,10 @@ export class ServiciosCrear implements OnInit{
     return;
   }
 
-  if (!this.nombre || !this.descripcion || !this.duracion || !this.precio || !this.id_centro) return;
+  if (!this.nombre || !this.descripcion || !this.duracion || !this.precio || !this.id_centro) {
+    this.alertService.error('Por favor, completa todos los campos obligatorios (nombre, descripción, duración, precio y centro).');
+    return;
+  }
 
   // Validar URL de imagen si se proporciona (acepta URLs y rutas locales)
   if (this.imagen && !this.validarImagenURL(this.imagen)) {
