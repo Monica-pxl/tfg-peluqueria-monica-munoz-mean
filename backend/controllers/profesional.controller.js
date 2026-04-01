@@ -91,6 +91,11 @@ exports.updateProfesional = async (req, res) => {
       return res.status(400).json({ error: 'El nombre no puede estar vacío' });
     }
 
+    // No se permite cambiar el centro de un profesional
+    if (req.body.centro !== undefined) {
+      return res.status(400).json({ error: 'El centro de un profesional no puede modificarse una vez asignado' });
+    }
+
     // Excluir centro y usuario de los campos actualizables
     const { centro, usuario, id_usuario, ...datosActualizables } = req.body;
 

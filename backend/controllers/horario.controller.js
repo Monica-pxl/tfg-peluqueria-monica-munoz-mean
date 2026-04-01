@@ -42,6 +42,11 @@ exports.createHorario = async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
+    // No se permite asignar el domingo
+    if (dias.includes('Domingo')) {
+      return res.status(400).json({ error: 'El domingo no es un día laborable válido' });
+    }
+
     // Obtener el profesional y su centro
     const profesionalDB = await Profesional.findById(profesional).populate('centro');
     if (!profesionalDB) {
@@ -109,6 +114,24 @@ exports.createHorario = async (req, res) => {
     }
 
     console.log('✅ No hay solapamiento con otros horarios');
+
+    // Bloquear si hay citas confirmadas en alguna de las fechas festivas
+    if (fechas_festivas && fechas_festivas.length > 0) {
+      const Cita = require('../models/cita');
+      for (const fecha of fechas_festivas) {
+        const fechaNorm = fecha.split('T')[0];
+        const todasCitas = await Cita.find({ profesional, estado: 'confirmada' });
+        const enFecha = todasCitas.filter(c => {
+          const f = typeof c.fecha === 'string' ? c.fecha.split('T')[0] : c.fecha.toISOString().split('T')[0];
+          return f === fechaNorm;
+        });
+        if (enFecha.length > 0) {
+          return res.status(400).json({
+            error: `No se puede marcar como festiva la fecha ${fechaNorm}: hay ${enFecha.length} cita(s) confirmada(s). Primero cancela o reagenda esas citas.`
+          });
+        }
+      }
+    }
 
     const nuevoHorario = new Horario({
       profesional,
@@ -226,7 +249,15 @@ exports.updateHorario = async (req, res) => {
 
     const { dias, hora_inicio, hora_fin, fechas_festivas } = req.body;
 
-    // Si se están actualizando las horas, validar contra el horario del centro
+    // No se permite cambiar el profesional de un horario
+    if (req.body.profesional !== undefined) {
+      return res.status(400).json({ error: 'El profesional de un horario no puede modificarse una vez asignado' });
+    }
+
+    // No se permite asignar el domingo
+    if (dias && dias.includes('Domingo')) {
+      return res.status(400).json({ error: 'El domingo no es un día laborable válido' });
+    }
     if (hora_inicio || hora_fin) {
       const horaInicioNueva = hora_inicio || horarioAnterior.hora_inicio;
       const horaFinNueva = hora_fin || horarioAnterior.hora_fin;
@@ -309,6 +340,25 @@ exports.updateHorario = async (req, res) => {
 
     const fechasFestivasAntiguas = horarioAnterior.fechas_festivas || [];
     const fechasFestivasNuevas = fechas_festivas || fechasFestivasAntiguas;
+
+    // Bloquear si hay citas confirmadas en alguna de las NUEVAS fechas festivas
+    const nuevasFechasAValidar = fechasFestivasNuevas.filter(f => !fechasFestivasAntiguas.includes(f));
+    if (nuevasFechasAValidar.length > 0) {
+      const Cita = require('../models/cita');
+      for (const fecha of nuevasFechasAValidar) {
+        const fechaNorm = fecha.split('T')[0];
+        const todasCitas = await Cita.find({ profesional: horarioAnterior.profesional._id, estado: 'confirmada' });
+        const enFecha = todasCitas.filter(c => {
+          const f = typeof c.fecha === 'string' ? c.fecha.split('T')[0] : c.fecha.toISOString().split('T')[0];
+          return f === fechaNorm;
+        });
+        if (enFecha.length > 0) {
+          return res.status(400).json({
+            error: `No se puede marcar como festiva la fecha ${fechaNorm}: hay ${enFecha.length} cita(s) confirmada(s). Primero cancela o reagenda esas citas.`
+          });
+        }
+      }
+    }
 
     const horario = await Horario.findByIdAndUpdate(
       req.params.id,

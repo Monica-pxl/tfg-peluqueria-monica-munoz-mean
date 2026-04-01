@@ -33,8 +33,10 @@ export class HorariosEditar implements OnInit {
   error = false;
   nuevaFechaFestiva = '';
 
-  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   fechaMinima = new Date().toISOString().split('T')[0];
+  formSubmitted = false;
+  guardando = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -88,6 +90,10 @@ export class HorariosEditar implements OnInit {
         }
 
         this.horario = horarioEncontrado;
+        // Normalizar profesional a string _id para que el select lo muestre correctamente
+        if (typeof this.horario.profesional === 'object' && this.horario.profesional !== null) {
+          this.horario.profesional = (this.horario.profesional as any)._id;
+        }
         // Guardar copia profunda del horario original
         this.horarioOriginal = JSON.parse(JSON.stringify(horarioEncontrado));
         this.cargando = false;
@@ -262,32 +268,10 @@ export class HorariosEditar implements OnInit {
     return `${centro.horario_apertura} - ${centro.horario_cierre}`;
   }
 
-  validarFormulario(): boolean {
-    if (!this.horario.profesional) {
-      this.alertService.warning('Por favor selecciona un profesional');
-      return false;
-    }
-
-    if (this.horario.dias.length === 0) {
-      this.alertService.warning('Por favor selecciona al menos un día');
-      return false;
-    }
-
-    if (!this.horario.hora_inicio || !this.horario.hora_fin) {
-      this.alertService.warning('Por favor completa las horas de inicio y fin');
-      return false;
-    }
-
-    if (this.horario.hora_inicio >= this.horario.hora_fin) {
-      this.alertService.warning('La hora de inicio debe ser menor que la hora de fin');
-      return false;
-    }
-
-    return true;
-  }
-
   actualizarHorario(): void {
-    if (!this.validarFormulario()) {
+    this.formSubmitted = true;
+
+    if (!this.horario.profesional || this.horario.dias.length === 0 || !this.horario.hora_inicio || !this.horario.hora_fin || this.horario.hora_inicio >= this.horario.hora_fin) {
       return;
     }
 
@@ -299,13 +283,16 @@ export class HorariosEditar implements OnInit {
       return;
     }
 
+    this.guardando = true;
     this.horariosService.updateHorario(id, this.horario).subscribe({
       next: () => {
+        this.guardando = false;
         // Las notificaciones se crean automáticamente en el backend
         this.alertService.success('Horario actualizado exitosamente');
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
       error: (err: any) => {
+        this.guardando = false;
         const mensaje = err.error?.error || 'Error al actualizar el horario';
         this.alertService.error(mensaje);
       }

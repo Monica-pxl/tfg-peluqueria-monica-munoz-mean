@@ -6,7 +6,7 @@
       <p class="text-muted">Define el horario de trabajo de un profesional</p>
     </div>
 
-    <form (ngSubmit)="crearHorario()">
+    <form (ngSubmit)="crearHorario()" #horarioForm="ngForm" novalidate>
       <div class="mb-4">
         <label class="form-label">
           <i class="bi bi-person-fill me-2"></i>Profesional
@@ -41,8 +41,10 @@
           <!-- Select de profesionales -->
           <select
             class="form-select form-control-custom"
+            [class.is-invalid]="profesionalInput.invalid && (profesionalInput.touched || formSubmitted)"
             [(ngModel)]="id_profesional"
             name="id_profesional"
+            #profesionalInput="ngModel"
             required>
             <option [value]="null">Selecciona un profesional ({{ profesionalesFiltrados.length }} disponibles)</option>
             @for (prof of profesionalesFiltrados; track prof._id) {
@@ -51,6 +53,9 @@
               </option>
             }
           </select>
+          <div class="invalid-feedback" *ngIf="profesionalInput.invalid && (profesionalInput.touched || formSubmitted)">
+            El profesional es obligatorio.
+          </div>
           @if(busquedaProfesional) {
             <small class="text-muted d-block mt-2">
               <i class="bi bi-funnel"></i> Mostrando {{ profesionalesFiltrados.length }} de {{ profesionales.length }} profesionales
@@ -75,6 +80,9 @@
           }
         </div>
         <small class="text-muted ms-2">Selecciona los días que trabaja el profesional</small>
+        <div class="text-danger small ms-2 mt-1" *ngIf="diasSeleccionados.length === 0 && formSubmitted">
+          Selecciona al menos un día de la semana.
+        </div>
       </div>
 
       @if(diasSeleccionados.length > 0) {
@@ -131,9 +139,14 @@
           <input
             type="time"
             class="form-control form-control-custom"
+            [class.is-invalid]="horaInicioInput.invalid && horaInicioInput.touched"
             [(ngModel)]="hora_inicio"
             name="hora_inicio"
+            #horaInicioInput="ngModel"
             required>
+          <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && horaInicioInput.touched">
+            La hora de inicio es obligatoria.
+          </div>
         </div>
         <div class="col-md-6">
           <label class="form-label">
@@ -142,29 +155,28 @@
           <input
             type="time"
             class="form-control form-control-custom"
+            [class.is-invalid]="(horaFinInput.invalid && horaFinInput.touched) || (hora_inicio && hora_fin && hora_inicio >= hora_fin && horaFinInput.touched)"
             [(ngModel)]="hora_fin"
             name="hora_fin"
+            #horaFinInput="ngModel"
             required>
+          <div class="invalid-feedback" *ngIf="horaFinInput.invalid && horaFinInput.touched && !hora_fin">
+            La hora de fin es obligatoria.
+          </div>
+          <div class="invalid-feedback" *ngIf="hora_inicio && hora_fin && hora_inicio >= hora_fin && horaFinInput.touched" style="display:block">
+            La hora de fin debe ser posterior a la hora de inicio.
+          </div>
         </div>
       </div>
 
 
 
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        <strong>Nota:</strong> El sistema validará automáticamente que:
-        <ul class="mb-0 mt-2">
-          <li>La hora de inicio sea menor que la hora de fin</li>
-          <li>El horario esté dentro de la jornada del centro</li>
-          <li>No haya solapamiento con otros horarios del mismo profesional</li>
-        </ul>
-      </div>
-
       <div class="form-actions">
         <button type="button" class="btn btn-cancel" (click)="cancelar()">
           <i class="bi bi-x-circle me-2"></i>Cancelar
         </button>
-        <button type="submit" class="btn btn-create">
+        <button type="submit" class="btn btn-create"
+          [disabled]="guardando || horarioForm.invalid || diasSeleccionados.length === 0 || (hora_inicio && hora_fin && hora_inicio >= hora_fin)">
           <i class="bi bi-check-circle me-2"></i>Crear Horario
         </button>
       </div>

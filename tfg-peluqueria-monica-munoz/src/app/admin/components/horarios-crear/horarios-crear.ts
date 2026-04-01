@@ -37,8 +37,10 @@ export class HorariosCrear implements OnInit {
   usuarios: UsuariosInterface[] = [];
   cargandoProfesionales = false;
 
-  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   fechaMinima = new Date().toISOString().split('T')[0];
+  formSubmitted = false;
+  guardando = false;
 
   constructor(
     private horariosService: HorariosService,
@@ -216,32 +218,10 @@ export class HorariosCrear implements OnInit {
     return `${day}/${month}/${year}`;
   }
 
-  validarFormulario(): boolean {
-    if (!this.id_profesional) {
-      this.alertService.warning('Por favor selecciona un profesional');
-      return false;
-    }
-
-    if (this.diasSeleccionados.length === 0) {
-      this.alertService.warning('Por favor selecciona al menos un día');
-      return false;
-    }
-
-    if (!this.hora_inicio || !this.hora_fin) {
-      this.alertService.warning('Por favor completa las horas de inicio y fin');
-      return false;
-    }
-
-    if (this.hora_inicio >= this.hora_fin) {
-      this.alertService.warning('La hora de inicio debe ser menor que la hora de fin');
-      return false;
-    }
-
-    return true;
-  }
-
   crearHorario(): void {
-    if (!this.validarFormulario()) {
+    this.formSubmitted = true;
+
+    if (!this.id_profesional || this.diasSeleccionados.length === 0 || !this.hora_inicio || !this.hora_fin || this.hora_inicio >= this.hora_fin) {
       return;
     }
 
@@ -261,13 +241,16 @@ export class HorariosCrear implements OnInit {
       fechas_festivas: this.fechasFestivas
     };
 
+    this.guardando = true;
     this.horariosService.createHorario(nuevoHorario).subscribe({
       next: () => {
+        this.guardando = false;
         this.alertService.success('Horario creado exitosamente');
         // Las notificaciones se crean automáticamente en el backend
         this.router.navigate(['/admin/horarios'], { queryParams: { recargar: true } });
       },
       error: (err) => {
+        this.guardando = false;
         const mensaje = err.error?.error || 'Error al crear el horario';
         this.alertService.error(mensaje);
       }

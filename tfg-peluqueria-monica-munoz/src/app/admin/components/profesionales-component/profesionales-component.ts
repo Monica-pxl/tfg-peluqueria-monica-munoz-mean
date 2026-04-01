@@ -12,6 +12,8 @@ import { CentrosService } from '../../../cliente/services/centros-service';
 import { CentrosInterface } from '../../../cliente/interfaces/centros-interface';
 import { ServiciosService } from '../../../cliente/services/servicios-service';
 import { ServiciosInterface } from '../../../cliente/interfaces/servicios-interface';
+import { HorariosService } from '../../../cliente/services/horarios-service';
+import { HorariosInterface } from '../../../cliente/interfaces/horarios-interface';
 import { AlertService } from '../../../shared/services/alert-service';
 import { ConfirmService } from '../../../shared/services/confirm-service';
 
@@ -30,6 +32,7 @@ export class ProfesionalesComponent implements OnInit {
   centros: CentrosInterface[] = [];
   servicios: ServiciosInterface[] = [];
   rels: ProfesionalServicioInterface[] = [];
+  horarios: HorariosInterface[] = [];
   busquedaTexto: string = '';
 
   cargando = true;
@@ -40,6 +43,7 @@ export class ProfesionalesComponent implements OnInit {
     private centrosService: CentrosService,
     private serviciosService: ServiciosService,
     private relService: ProfesionalServicioService,
+    private horariosService: HorariosService,
     private router: Router,
     private alertService: AlertService,
     private confirmService: ConfirmService
@@ -54,13 +58,15 @@ export class ProfesionalesComponent implements OnInit {
       profesionales: this.profesionalesService.getAllProfesionales(),
       centros: this.centrosService.getAllCentros(),
       servicios: this.serviciosService.getAllServices(),
-      rels: this.relService.getAllProfesionalServicio()
+      rels: this.relService.getAllProfesionalServicio(),
+      horarios: this.horariosService.getAllHorarios()
     }).subscribe({
       next: (res) => {
         this.profesionales = res.profesionales;
         this.centros = res.centros;
         this.servicios = res.servicios;
         this.rels = res.rels;
+        this.horarios = res.horarios;
         this.profesionalesFiltrados = this.profesionales;
         this.cargando = false;
       },
@@ -80,7 +86,14 @@ export class ProfesionalesComponent implements OnInit {
       return cumpleBusqueda;
     });
   }
-
+  cantidadHorarios(id_profesional: string): number {
+    return this.horarios.filter(h => {
+      if (typeof h.profesional === 'object' && h.profesional !== null) {
+        return h.profesional._id === id_profesional;
+      }
+      return h.profesional === id_profesional;
+    }).length;
+  }
 
   nombreCentro(profesional: ProfesionalesInterface): string {
     // Si centro está poblado (es un objeto)

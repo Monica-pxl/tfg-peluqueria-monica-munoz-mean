@@ -19,6 +19,7 @@ export class CentrosCrear {
   email = '';
   horario_apertura = '';
   horario_cierre = '';
+  guardando = false;
 
   constructor(
     private centrosService: CentrosService,
@@ -27,34 +28,6 @@ export class CentrosCrear {
   ) {}
 
   crearCentro(): void {
-    if (!this.nombre || !this.direccion || !this.telefono || !this.email || 
-        !this.horario_apertura || !this.horario_cierre) {
-      this.alertService.warning('Por favor completa todos los campos');
-      return;
-    }
-
-    // Validar formato de email
-    if (!this.validarEmail(this.email)) {
-      this.alertService.error('El formato del email no es válido');
-      return;
-    }
-
-    // Validar formato de teléfono (9 dígitos, solo números)
-    if (/[^0-9]/.test(this.telefono)) {
-      this.alertService.error('El teléfono solo debe contener números');
-      return;
-    }
-    if (!this.validarTelefono(this.telefono)) {
-      this.alertService.error('El teléfono debe tener exactamente 9 dígitos');
-      return;
-    }
-
-    // Validar que el horario de cierre sea posterior al de apertura
-    if (this.horario_apertura && this.horario_cierre && this.horario_cierre <= this.horario_apertura) {
-      this.alertService.error('El horario de cierre debe ser posterior al de apertura');
-      return;
-    }
-
     const nuevoCentro = {
       nombre: this.nombre,
       direccion: this.direccion,
@@ -64,12 +37,15 @@ export class CentrosCrear {
       horario_cierre: this.horario_cierre
     };
 
+    this.guardando = true;
     this.centrosService.crearCentro(nuevoCentro).subscribe({
       next: () => {
+        this.guardando = false;
         this.alertService.success('Centro creado exitosamente');
         this.router.navigate(['/admin/centros'], { queryParams: { recargar: true } });
       },
       error: (err) => {
+        this.guardando = false;
         const mensaje = err.error?.error || 'Error al crear el centro';
         this.alertService.error(mensaje);
       }
@@ -78,15 +54,5 @@ export class CentrosCrear {
 
   cancelar(): void {
     this.router.navigate(['/admin/centros']);
-  }
-
-  private validarEmail(email: string): boolean {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(email);
-  }
-
-  private validarTelefono(telefono: string): boolean {
-    const pattern = /^[0-9]{9}$/;
-    return pattern.test(telefono);
   }
 }

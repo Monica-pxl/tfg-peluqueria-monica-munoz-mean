@@ -16,7 +16,7 @@
         <p class="text-muted">Modifica el horario de {{ getNombreProfesional() }}</p>
       </div>
 
-      <form (ngSubmit)="actualizarHorario()">
+      <form (ngSubmit)="actualizarHorario()" #horarioForm="ngForm" novalidate>
         <div class="mb-4">
           <label class="form-label">
             <i class="bi bi-person-fill me-2"></i>Profesional
@@ -33,8 +33,8 @@
               </option>
             }
           </select>
-          <small class="text-muted mt-2 d-block">
-            <i class="bi bi-info-circle me-1"></i>No se puede cambiar el profesional de un horario existente
+          <small class="text-muted d-block mt-1">
+            <i class="bi bi-lock-fill me-1"></i>El profesional no se puede modificar una vez asignado.
           </small>
         </div>
 
@@ -54,6 +54,9 @@
             }
           </div>
           <small class="text-muted ms-2">Selecciona los días que trabaja el profesional</small>
+          <div class="text-danger small ms-2 mt-1" *ngIf="horario.dias.length === 0 && formSubmitted">
+            Selecciona al menos un día de la semana.
+          </div>
         </div>
 
         @if(horario.dias.length > 0) {
@@ -110,9 +113,14 @@
             <input
               type="time"
               class="form-control form-control-custom"
+              [class.is-invalid]="horaInicioInput.invalid && horaInicioInput.touched"
               [(ngModel)]="horario.hora_inicio"
               name="hora_inicio"
+              #horaInicioInput="ngModel"
               required>
+            <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && horaInicioInput.touched">
+              La hora de inicio es obligatoria.
+            </div>
           </div>
           <div class="col-md-6">
             <label class="form-label">
@@ -121,29 +129,28 @@
             <input
               type="time"
               class="form-control form-control-custom"
+              [class.is-invalid]="(horaFinInput.invalid && horaFinInput.touched) || (horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && horaFinInput.touched)"
               [(ngModel)]="horario.hora_fin"
               name="hora_fin"
+              #horaFinInput="ngModel"
               required>
+            <div class="invalid-feedback" *ngIf="horaFinInput.invalid && horaFinInput.touched && !horario.hora_fin">
+              La hora de fin es obligatoria.
+            </div>
+            <div class="invalid-feedback" *ngIf="horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && horaFinInput.touched" style="display:block">
+              La hora de fin debe ser posterior a la hora de inicio.
+            </div>
           </div>
         </div>
 
 
 
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle-fill me-2"></i>
-          <strong>Nota:</strong> El sistema validará automáticamente que:
-          <ul class="mb-0 mt-2">
-            <li>La hora de inicio sea menor que la hora de fin</li>
-            <li>El horario esté dentro de la jornada del centro</li>
-            <li>No haya solapamiento con otros horarios del mismo profesional</li>
-          </ul>
-        </div>
-
         <div class="form-actions">
           <button type="button" class="btn btn-cancel" (click)="cancelar()">
             <i class="bi bi-x-circle me-2"></i>Cancelar
           </button>
-          <button type="submit" class="btn btn-create">
+          <button type="submit" class="btn btn-create"
+            [disabled]="guardando || horarioForm.invalid || horario.dias.length === 0 || (horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin)">
             <i class="bi bi-check-circle me-2"></i>Actualizar Horario
           </button>
         </div>

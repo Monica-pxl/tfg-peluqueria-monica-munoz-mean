@@ -67,6 +67,7 @@
             <th><i class="bi bi-envelope"></i> Email</th>
             <th><i class="bi bi-clock"></i> Horario</th>
             <th><i class="bi bi-people"></i> Profesionales</th>
+            <th><i class="bi bi-scissors"></i> Servicios</th>
             <th><i class="bi bi-gear"></i> Acciones</th>
           </tr>
         </thead>
@@ -86,6 +87,13 @@
                 <span class="sin-datos">Sin profesionales</span>
               }
             </td>
+            <td data-label="Servicios">
+              @if(cantidadServicios(centro._id!) > 0) {
+                <span class="badge bg-info">{{ cantidadServicios(centro._id!) }} servicio(s)</span>
+              } @else {
+                <span class="sin-datos">Sin servicios</span>
+              }
+            </td>
             <td data-label="Acciones">
               <button class="btn btn-sm btn-primary me-1" (click)="editarCentro(centro._id!)" title="Editar centro">
                 <i class="bi bi-pencil"></i>
@@ -93,8 +101,8 @@
               <button
                 class="btn btn-sm btn-danger"
                 (click)="borrarCentro(centro)"
-                [disabled]="cantidadProfesionales(centro._id!) > 0"
-                [title]="cantidadProfesionales(centro._id!) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : 'Eliminar centro'">
+                [disabled]="cantidadProfesionales(centro._id!) > 0 || cantidadServicios(centro._id!) > 0"
+                [title]="cantidadProfesionales(centro._id!) > 0 ? 'No se puede eliminar: tiene profesionales asignados' : cantidadServicios(centro._id!) > 0 ? 'No se puede eliminar: tiene servicios asignados' : 'Eliminar centro'">
                 <i class="bi bi-trash3"></i>
               </button>
             </td>
