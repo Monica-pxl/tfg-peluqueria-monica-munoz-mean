@@ -112,6 +112,7 @@
 /* Tarjetas principales mejoradas */
 .card-hover {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  cursor: pointer;
   transform: translateY(0);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 2px solid rgba(255, 105, 180, 0.2) !important;
@@ -341,6 +342,7 @@
   background-color: #ffffff;
   color: #111111;
   border: 2px solid #ff6fbf;
+  cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-weight: 600;
   position: relative;
