@@ -3,6 +3,8 @@ const Profesional = require('../models/profesional');
 const ProfesionalServicio = require('../models/profesionalServicio');
 const Horario = require('../models/horario');
 const Cita = require('../models/cita');
+const Usuario = require('../models/usuario');
+const Centro = require('../models/centro');
 
 // Obtener todos los profesionales
 exports.getAllProfesionales = async (req, res) => {
@@ -44,9 +46,19 @@ exports.createProfesional = async (req, res) => {
 
     console.log('📝 Creando profesional con datos:', { nombre, apellidos, usuario: usuarioId, centro });
 
-    if (!nombre || !usuarioId) {
-      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, usuario: !!usuarioId });
-      return res.status(400).json({ error: 'Nombre y usuario son obligatorios' });
+    if (!nombre || !usuarioId || !centro) {
+      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, usuario: !!usuarioId, centro: !!centro });
+      return res.status(400).json({ error: 'Nombre, usuario y centro son obligatorios' });
+    }
+
+    const usuarioExiste = await Usuario.findById(usuarioId);
+    if (!usuarioExiste) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const centroExiste = await Centro.findById(centro);
+    if (!centroExiste) {
+      return res.status(404).json({ error: 'Centro no encontrado' });
     }
 
     const nuevoProfesional = new Profesional({
@@ -73,9 +85,18 @@ exports.createProfesional = async (req, res) => {
 // Actualizar un profesional
 exports.updateProfesional = async (req, res) => {
   try {
+    const { nombre } = req.body;
+
+    if (nombre !== undefined && !nombre) {
+      return res.status(400).json({ error: 'El nombre no puede estar vacío' });
+    }
+
+    // Excluir centro y usuario de los campos actualizables
+    const { centro, usuario, id_usuario, ...datosActualizables } = req.body;
+
     const profesional = await Profesional.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      datosActualizables,
       { new: true, runValidators: true }
     )
       .populate('usuario', 'nombre email')

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Servicio = require('../models/servicio');
 const ProfesionalServicio = require('../models/profesionalServicio');
+const Centro = require('../models/centro');
 
 // Obtener todos los servicios
 exports.getAllServicios = async (req, res) => {
@@ -29,6 +30,11 @@ exports.createServicio = async (req, res) => {
 
     if (Number(precio) < 0.01) {
       return res.status(400).json({ error: 'El precio debe ser mayor a 0' });
+    }
+
+    const centroExiste = await Centro.findById(centro);
+    if (!centroExiste) {
+      return res.status(404).json({ error: 'Centro no encontrado' });
     }
 
     const nuevoServicio = new Servicio({
@@ -70,6 +76,12 @@ exports.updateServicio = async (req, res) => {
     }
     if (centro !== undefined && !centro) {
       return res.status(400).json({ error: 'El centro no puede estar vacío' });
+    }
+    if (centro) {
+      const centroExiste = await Centro.findById(centro);
+      if (!centroExiste) {
+        return res.status(404).json({ error: 'Centro no encontrado' });
+      }
     }
 
     const servicio = await Servicio.findByIdAndUpdate(

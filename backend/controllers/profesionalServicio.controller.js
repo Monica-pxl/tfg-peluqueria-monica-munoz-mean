@@ -1,4 +1,6 @@
 const ProfesionalServicio = require('../models/profesionalServicio');
+const Profesional = require('../models/profesional');
+const Servicio = require('../models/servicio');
 
 // Obtener todas las relaciones
 exports.getAllRelaciones = async (req, res) => {
@@ -21,6 +23,16 @@ exports.createRelacion = async (req, res) => {
 
     if (!profesional || !servicio) {
       return res.status(400).json({ error: 'Profesional y servicio son obligatorios' });
+    }
+
+    const profesionalExiste = await Profesional.findById(profesional);
+    if (!profesionalExiste) {
+      return res.status(404).json({ error: 'Profesional no encontrado' });
+    }
+
+    const servicioExiste = await Servicio.findById(servicio);
+    if (!servicioExiste) {
+      return res.status(404).json({ error: 'Servicio no encontrado' });
     }
 
     // Verificar si ya existe la relación

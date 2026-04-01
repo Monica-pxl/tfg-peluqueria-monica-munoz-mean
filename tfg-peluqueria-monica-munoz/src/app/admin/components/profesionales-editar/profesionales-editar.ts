@@ -123,11 +123,15 @@ export class ProfesionalesEditar implements OnInit {
       return;
     }
 
-    // Preparar datos para actualizar (solo campos editables) usando centroSeleccionado
+    if (!this.profesional.nombre) {
+      this.alertService.error('El nombre es obligatorio.');
+      return;
+    }
+
+    // Solo nombre y apellidos son editables; el centro no se puede cambiar
     const datosActualizar = {
       nombre: this.profesional.nombre,
-      apellidos: this.profesional.apellidos,
-      centro: this.centroSeleccionado
+      apellidos: this.profesional.apellidos || ''
     };
 
     console.log('Actualizando profesional con datos:', datosActualizar);

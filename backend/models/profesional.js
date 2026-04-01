@@ -13,7 +13,7 @@ const profesionalSchema = new mongoose.Schema({
     required: true
   },
   nombre: { type: String, required: true },
-  apellidos: { type: String, required: true }
+  apellidos: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Profesional', profesionalSchema);

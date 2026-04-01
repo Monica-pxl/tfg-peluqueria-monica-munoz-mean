@@ -130,7 +130,7 @@ export class ProfesionalesComponent implements OnInit {
   async borrarProfesional(p: ProfesionalesInterface): Promise<void> {
     const confirmed = await this.confirmService.confirm(
       'Eliminar Profesional',
-      `¿Seguro que deseas eliminar al profesional ${p.nombre} ${p.apellidos}? Esto eliminará también sus relaciones con servicios.`,
+      `¿Seguro que deseas eliminar al profesional ${p.nombre} ${p.apellidos}? Esta acción eliminará sus horarios y relaciones con servicios, lo desvinculará del centro y cancelará sus citas activas.`,
       'Sí, eliminar',
       'Cancelar'
     );

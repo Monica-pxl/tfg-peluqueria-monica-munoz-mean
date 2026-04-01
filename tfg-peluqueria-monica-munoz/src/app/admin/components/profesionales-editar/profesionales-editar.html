@@ -21,7 +21,7 @@
       </div>
     }
 
-    <form (ngSubmit)="actualizarProfesional()">
+    <form (ngSubmit)="actualizarProfesional()" #profForm="ngForm" novalidate>
       <div class="row mb-4">
         <div class="col-md-6 mb-3 mb-md-0">
           <label class="form-label">
@@ -30,23 +30,27 @@
           <input
             type="text"
             class="form-control form-control-custom"
+            [class.is-invalid]="nombreInput.invalid && nombreInput.touched"
             [(ngModel)]="profesional.nombre"
             name="nombre"
+            #nombreInput="ngModel"
             placeholder="Nombre del profesional"
             required>
+          <div class="invalid-feedback" *ngIf="nombreInput.invalid && nombreInput.touched">
+            El nombre es obligatorio.
+          </div>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">
-            <i class="bi bi-person-badge me-2"></i>Apellidos
+            <i class="bi bi-person-badge me-2"></i>Apellidos <small class="text-muted">(opcional)</small>
           </label>
           <input
             type="text"
             class="form-control form-control-custom"
             [(ngModel)]="profesional.apellidos"
             name="apellidos"
-            placeholder="Apellidos del profesional"
-            required>
+            placeholder="Apellidos del profesional">
         </div>
       </div>
 
@@ -58,16 +62,18 @@
           class="form-select form-control-custom"
           [(ngModel)]="centroSeleccionado"
           name="centro"
-          (change)="onCentroChange()"
-          required>
+          disabled>
           <option value="" disabled>Selecciona un centro</option>
           <option [value]="c._id" *ngFor="let c of centros">{{ c.nombre }}</option>
         </select>
+        <small class="text-muted d-block mt-1">
+          <i class="bi bi-lock-fill me-1"></i>El centro no se puede modificar una vez asignado.
+        </small>
       </div>
 
       <div class="mb-4">
         <label class="form-label">
-          <i class="bi bi-scissors me-2"></i>Servicios que Ofrece
+          <i class="bi bi-scissors me-2"></i>Servicios que Ofrece <small class="text-muted">(opcional)</small>
         </label>
         <select
           class="form-select form-control-custom multi-select"
@@ -88,7 +94,7 @@
         <button type="button" class="btn btn-cancel" (click)="cancelar()">
           <i class="bi bi-x-circle me-2"></i>Cancelar
         </button>
-        <button type="submit" class="btn btn-update">
+        <button type="submit" class="btn btn-update" [disabled]="profForm.invalid">
           <i class="bi bi-check-circle me-2"></i>Actualizar Profesional
         </button>
       </div>
