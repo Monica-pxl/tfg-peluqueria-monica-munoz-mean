@@ -17,21 +17,14 @@ exports.getAllUsuarios = async (req, res) => {
 };
 
 
-// Actualizar un usuario
+// Actualizar un usuario (solo admin, solo rol y estado)
 exports.updateUsuario = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
+    const { rol: nuevoRol, estado } = req.body;
+    const datosActualizados = {};
 
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
-      return res.status(403).json({ error: 'No tienes permiso para modificar el perfil de otro usuario' });
-    }
-
-    const { password, ...datosActualizados } = req.body;
-
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      datosActualizados.password = await bcrypt.hash(password, salt);
-    }
+    if (nuevoRol !== undefined) datosActualizados.rol = nuevoRol;
+    if (estado !== undefined) datosActualizados.estado = estado;
 
     const usuario = await Usuario.findByIdAndUpdate(
       req.params.id,
@@ -50,15 +43,12 @@ exports.updateUsuario = async (req, res) => {
   }
 };
 
-// Eliminar un usuario
+// Eliminar un usuario (solo admin, no puede eliminarse a sí mismo)
 exports.deleteUsuario = async (req, res) => {
   try {
-    const { rol, id_usuario } = req.usuario;
-    if (rol !== 'administrador' && id_usuario.toString() !== req.params.id) {
-      return res.status(403).json({ error: 'No tienes permiso para eliminar este usuario' });
-    }
+    const { id_usuario } = req.usuario;
 
-    if (rol === 'administrador' && id_usuario.toString() === req.params.id) {
+    if (id_usuario.toString() === req.params.id) {
       return res.status(403).json({ error: 'Un administrador no puede eliminarse a sí mismo' });
     }
 

@@ -6,7 +6,7 @@ const soloAdmin = require('../middlewares/soloAdmin');
 
 // Endpoints de usuarios
 router.get('/', auth, soloAdmin, usuarioController.getAllUsuarios);
-router.put('/:id', auth, usuarioController.updateUsuario);
-router.delete('/:id', auth, usuarioController.deleteUsuario);
+router.put('/:id', auth, soloAdmin, usuarioController.updateUsuario);
+router.delete('/:id', auth, soloAdmin, usuarioController.deleteUsuario);
 
 module.exports = router;
