@@ -20,6 +20,12 @@ exports.getAllUsuarios = async (req, res) => {
 // Actualizar un usuario (solo admin, solo rol y estado)
 exports.updateUsuario = async (req, res) => {
   try {
+    const { id_usuario } = req.usuario;
+
+    if (id_usuario.toString() === req.params.id) {
+      return res.status(403).json({ error: 'Un administrador no puede editarse a sí mismo' });
+    }
+
     const { rol: nuevoRol, estado } = req.body;
     const datosActualizados = {};
 
