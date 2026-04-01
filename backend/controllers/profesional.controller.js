@@ -44,9 +44,9 @@ exports.createProfesional = async (req, res) => {
 
     console.log('📝 Creando profesional con datos:', { nombre, apellidos, usuario: usuarioId, centro });
 
-    if (!nombre || !apellidos || !usuarioId) {
-      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, apellidos: !!apellidos, usuario: !!usuarioId });
-      return res.status(400).json({ error: 'Nombre, apellidos y usuario son obligatorios' });
+    if (!nombre || !usuarioId) {
+      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, usuario: !!usuarioId });
+      return res.status(400).json({ error: 'Nombre y usuario son obligatorios' });
     }
 
     const nuevoProfesional = new Profesional({

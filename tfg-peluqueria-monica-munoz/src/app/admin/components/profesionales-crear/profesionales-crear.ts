@@ -150,7 +150,7 @@ export class ProfesionalesCrear implements OnInit {
     // Separar el nombre completo en nombre y apellidos
     const nombreCompleto = usuario.nombre.trim().split(' ');
     const nombre = nombreCompleto[0] || 'Sin nombre';
-    const apellidos = nombreCompleto.slice(1).join(' ') || 'Sin apellidos';
+    const apellidos = nombreCompleto.slice(1).join(' ') || '';
 
     const nuevoProfesional = {
       usuario: this.id_usuario,  // Backend espera 'usuario' con el _id del usuario
@@ -203,7 +203,7 @@ export class ProfesionalesCrear implements OnInit {
       error: (err) => {
         console.error('Error completo:', err);
         const mensaje = err.error?.error || err.message || 'Error al crear el profesional';
-        this.alertService.error('Error: ' + mensaje);
+        this.alertService.error(mensaje);
       }
     });
   }
