@@ -51,12 +51,12 @@ exports.createHorario = async (req, res) => {
       return res.status(400).json({ error: 'La hora de fin es obligatoria' });
     }
 
-    // No se permite asignar el domingo
-    if (dias.includes('Domingo')) {
-      return res.status(400).json({ error: 'El domingo no es un día laborable válido' });
+    // Validar que los días son nombres válidos (lunes–sábado)
+    const DIAS_VALIDOS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diasInvalidos = dias.filter(d => !DIAS_VALIDOS.includes(d));
+    if (diasInvalidos.length > 0) {
+      return res.status(400).json({ error: `Los siguientes días no son válidos: ${diasInvalidos.join(', ')}. Los días válidos son: Lunes, Martes, Miércoles, Jueves, Viernes, Sábado` });
     }
-
-    // Obtener el profesional y su centro
     const profesionalDB = await Profesional.findById(profesional).populate('centro');
     if (!profesionalDB) {
       return res.status(404).json({ error: 'Profesional no encontrado' });
@@ -276,9 +276,13 @@ exports.updateHorario = async (req, res) => {
       return res.status(400).json({ error: 'El profesional de un horario no puede modificarse una vez asignado' });
     }
 
-    // No se permite asignar el domingo
-    if (dias && dias.includes('Domingo')) {
-      return res.status(400).json({ error: 'El domingo no es un día laborable válido' });
+    // Validar que los días son nombres válidos (lunes–sábado)
+    const DIAS_VALIDOS_UPDATE = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    if (dias) {
+      const diasInvalidosUpdate = dias.filter(d => !DIAS_VALIDOS_UPDATE.includes(d));
+      if (diasInvalidosUpdate.length > 0) {
+        return res.status(400).json({ error: `Los siguientes días no son válidos: ${diasInvalidosUpdate.join(', ')}. Los días válidos son: Lunes, Martes, Miércoles, Jueves, Viernes, Sábado` });
+      }
     }
     if (hora_inicio || hora_fin) {
       const horaInicioNueva = hora_inicio || horarioAnterior.hora_inicio;

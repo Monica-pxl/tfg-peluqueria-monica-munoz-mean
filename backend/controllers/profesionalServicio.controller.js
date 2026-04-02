@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const ProfesionalServicio = require('../models/profesionalServicio');
 const Profesional = require('../models/profesional');
 const Servicio = require('../models/servicio');
@@ -21,8 +22,14 @@ exports.createRelacion = async (req, res) => {
   try {
     const { profesional, servicio } = req.body;
 
-    if (!profesional || !servicio) {
-      return res.status(400).json({ error: 'Profesional y servicio son obligatorios' });
+    if (!profesional) return res.status(400).json({ error: 'El profesional es obligatorio' });
+    if (!servicio) return res.status(400).json({ error: 'El servicio es obligatorio' });
+
+    if (!mongoose.Types.ObjectId.isValid(profesional)) {
+      return res.status(400).json({ error: 'El ID del profesional no es válido' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(servicio)) {
+      return res.status(400).json({ error: 'El ID del servicio no es válido' });
     }
 
     const profesionalExiste = await Profesional.findById(profesional);

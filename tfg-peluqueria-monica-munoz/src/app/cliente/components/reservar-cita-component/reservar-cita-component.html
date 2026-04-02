@@ -9,32 +9,55 @@
 
     <div class="mb-4">
       <label class="form-label">Centro</label>
-      <select class="form-select form-control-custom" #selectCentro (change)="seleccionarCentro(selectCentro.value)">
-        <option selected disabled>Selecciona un centro</option>
+      <select class="form-select form-control-custom"
+        [class.is-invalid]="formularioEnviado && !centroSeleccionado"
+        #selectCentro (change)="seleccionarCentro(selectCentro.value)">
+        <option selected disabled value="">Selecciona un centro</option>
         <option *ngFor="let centro of centros" [value]="centro._id">
           {{ centro.nombre }} ({{ centro.direccion }})
         </option>
       </select>
+      @if (formularioEnviado && !centroSeleccionado) {
+        <div class="invalid-feedback d-block">Por favor, selecciona un centro.</div>
+      }
     </div>
 
     <div class="mb-4">
       <label class="form-label">Servicio</label>
-      <select class="form-select form-control-custom" #selectServicio (change)="seleccionarServicio(selectServicio.value)">
-        <option selected disabled>Selecciona un servicio</option>
+      <select class="form-select form-control-custom"
+        [class.is-invalid]="formularioEnviado && !servicioSeleccionado"
+        [disabled]="!centroSeleccionado"
+        #selectServicio (change)="seleccionarServicio(selectServicio.value)">
+        <option selected disabled value="">Selecciona un servicio</option>
         <option *ngFor="let servicio of serviciosFiltrados" [value]="servicio._id">
           {{ servicio.nombre }} - {{ servicio.precio + ' EUR' }}
         </option>
       </select>
+      @if (!centroSeleccionado) {
+        <small class="text-muted">Selecciona primero un centro.</small>
+      }
+      @if (formularioEnviado && !servicioSeleccionado) {
+        <div class="invalid-feedback d-block">Por favor, selecciona un servicio.</div>
+      }
     </div>
 
     <div class="mb-4">
       <label class="form-label">Profesional</label>
-      <select class="form-select form-control-custom" #selectProf (change)="seleccionarProfesional(selectProf.value)">
-        <option selected disabled>Selecciona un profesional</option>
+      <select class="form-select form-control-custom"
+        [class.is-invalid]="formularioEnviado && !profesionalSeleccionado"
+        [disabled]="!servicioSeleccionado"
+        #selectProf (change)="seleccionarProfesional(selectProf.value)">
+        <option selected disabled value="">Selecciona un profesional</option>
         <option *ngFor="let profesional of profesionalesFiltrados" [value]="profesional._id">
           {{ profesional.nombre }} {{ profesional.apellidos }}
         </option>
       </select>
+      @if (!servicioSeleccionado) {
+        <small class="text-muted">Selecciona primero un servicio.</small>
+      }
+      @if (formularioEnviado && !profesionalSeleccionado) {
+        <div class="invalid-feedback d-block">Por favor, selecciona un profesional.</div>
+      }
     </div>
 
     <div class="mb-4">
@@ -42,15 +65,19 @@
         <input
             type="date"
             class="form-control form-control-custom"
+            [class.is-invalid]="formularioEnviado && !fechaSeleccionada"
             [(ngModel)]="fechaSeleccionada"
             (change)="seleccionarFecha(fechaSeleccionada)"
             name="fecha"
             [attr.min]="fechaMinima"
             [disabled]="!profesionalSeleccionado"
         />
-        <small class="text-muted" *ngIf="!profesionalSeleccionado">
-          Selecciona primero un profesional.
-        </small>
+        @if (!profesionalSeleccionado) {
+          <small class="text-muted">Selecciona primero un profesional.</small>
+        }
+        @if (formularioEnviado && !fechaSeleccionada) {
+          <div class="invalid-feedback d-block">Por favor, selecciona una fecha.</div>
+        }
 
 
         <div class="mt-2" *ngIf="profesionalSeleccionado">
@@ -125,17 +152,32 @@
 
     <div class="mb-4">
       <label class="form-label">Hora</label>
-      <select class="form-select form-control-custom" [(ngModel)]="horaSeleccionada" name="hora" [disabled]="!horasDisponibles.length">
-        <option selected disabled>Selecciona una hora</option>
+      <select class="form-select form-control-custom"
+        [class.is-invalid]="formularioEnviado && !horaSeleccionada"
+        [(ngModel)]="horaSeleccionada" name="hora" [disabled]="!fechaSeleccionada || !horasDisponibles.length">
+        <option selected disabled value="">Selecciona una hora</option>
         <option *ngFor="let hora of horasDisponibles" [value]="hora">{{hora}}</option>
       </select>
+      @if (!fechaSeleccionada) {
+        <small class="text-muted">Selecciona primero una fecha.</small>
+      }
+      @if (formularioEnviado && !horaSeleccionada) {
+        <div class="invalid-feedback d-block">Por favor, selecciona una hora.</div>
+      }
     </div>
 
     <div class="text-center mt-5">
-      <button type="submit" class="btn btn-reservar px-5 py-2 fw-bold">
+      <button type="submit" class="btn btn-reservar px-5 py-2 fw-bold"
+        [disabled]="!centroSeleccionado || !servicioSeleccionado || !profesionalSeleccionado || !fechaSeleccionada || !horaSeleccionada">
         Reservar Cita
       </button>
     </div>
+
+    @if (errorServidor) {
+      <div class="alert alert-danger mt-3 text-center" style="max-width: 700px; margin-left: auto; margin-right: auto;">
+        {{ errorServidor }}
+      </div>
+    }
   </form>
 
   <div *ngIf="mensajeConfirmacion" class="alert alert-success mt-4" style="max-width: 700px; margin-left: auto; margin-right: auto;">

@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 // Registrar nuevo usuario
 exports.register = async (req, res) => {
   try {
-    const { nombre, email, password, rol = 'cliente' } = req.body;
+    const { nombre, email, password } = req.body;
+    const rol = 'cliente'; // El registro público siempre crea usuarios con rol cliente; no se acepta desde fuera
 
     // Validar campos obligatorios individualmente
     if (!nombre) {

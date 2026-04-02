@@ -58,6 +58,8 @@ export class ReservarCitaComponent implements OnInit {
 
   fechaMinima: string = new Date().toISOString().split('T')[0];
   mensajeConfirmacion: string = '';
+  formularioEnviado: boolean = false;
+  errorServidor: string = '';
 
   constructor(
     private serviciosAPI: ServiciosService,
@@ -455,8 +457,10 @@ export class ReservarCitaComponent implements OnInit {
       return;
     }
 
+    this.formularioEnviado = true;
+    this.errorServidor = '';
+
     if (!this.centroSeleccionado || !this.servicioSeleccionado || !this.profesionalSeleccionado || !this.fechaSeleccionada || !this.horaSeleccionada) {
-      this.alertService.warning('Completa todos los campos antes de reservar.');
       return;
     }
 
@@ -483,6 +487,8 @@ export class ReservarCitaComponent implements OnInit {
         this.alertService.success(this.mensajeConfirmacion);
 
         // Resetear formulario
+        this.formularioEnviado = false;
+        this.errorServidor = '';
         this.centroSeleccionado = null;
         this.servicioSeleccionado = null;
         this.profesionalSeleccionado = null;
@@ -496,7 +502,7 @@ export class ReservarCitaComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al crear cita:', err);
-        this.alertService.error(err.error?.error || 'Error al reservar la cita. Inténtalo de nuevo.');
+        this.errorServidor = err.error?.error || 'Error al reservar la cita. Inténtalo de nuevo.';
       }
     });
   }

@@ -27,10 +27,32 @@ exports.updateUsuario = async (req, res) => {
     }
 
     const { rol: nuevoRol, estado } = req.body;
+
+    // Validar valores de rol y estado
+    const ROLES_VALIDOS = ['cliente', 'profesional', 'administrador'];
+    const ESTADOS_VALIDOS = ['activo', 'inactivo'];
+    if (nuevoRol !== undefined && !ROLES_VALIDOS.includes(nuevoRol)) {
+      return res.status(400).json({ error: `El rol '${nuevoRol}' no es válido. Los roles válidos son: cliente, profesional, administrador` });
+    }
+    if (estado !== undefined && !ESTADOS_VALIDOS.includes(estado)) {
+      return res.status(400).json({ error: `El estado '${estado}' no es válido. Los estados válidos son: activo, inactivo` });
+    }
+
     const datosActualizados = {};
 
     if (nuevoRol !== undefined) datosActualizados.rol = nuevoRol;
     if (estado !== undefined) datosActualizados.estado = estado;
+
+    // Proteger: no dejar el sistema sin ningún administrador activo
+    if (estado === 'inactivo') {
+      const usuarioAfectado = await Usuario.findById(req.params.id).select('rol');
+      if (usuarioAfectado && usuarioAfectado.rol === 'administrador') {
+        const adminsActivos = await Usuario.countDocuments({ rol: 'administrador', estado: 'activo' });
+        if (adminsActivos <= 1) {
+          return res.status(400).json({ error: 'No se puede desactivar al último administrador activo del sistema' });
+        }
+      }
+    }
 
     const usuario = await Usuario.findByIdAndUpdate(
       req.params.id,

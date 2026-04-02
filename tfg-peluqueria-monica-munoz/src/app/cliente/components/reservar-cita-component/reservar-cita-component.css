@@ -330,6 +330,15 @@
   transform: translateY(0);
 }
 
+.btn-reservar:disabled {
+  background: linear-gradient(135deg, #f4b8d4, #f9cfe2);
+  color: #fff;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.65;
+}
+
 /* MENSAJE DE CONFIRMACIÓN */
 .alert-success {
   background: linear-gradient(135deg, #d4edda, #c3e6cb);

@@ -62,8 +62,13 @@ exports.createNotificacion = async (req, res) => {
   try {
     const { usuario, titulo, mensaje, tipo } = req.body;
 
-    if (!usuario || !titulo || !mensaje) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    if (!usuario) return res.status(400).json({ error: 'El usuario es obligatorio' });
+    if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
+    if (!mensaje) return res.status(400).json({ error: 'El mensaje es obligatorio' });
+
+    const TIPOS_VALIDOS = ['info', 'exito', 'advertencia', 'error'];
+    if (tipo !== undefined && !TIPOS_VALIDOS.includes(tipo)) {
+      return res.status(400).json({ error: `El tipo '${tipo}' no es válido. Los tipos válidos son: info, exito, advertencia, error` });
     }
 
     const nuevaNotificacion = new Notificacion({

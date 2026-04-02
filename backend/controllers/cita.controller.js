@@ -3,6 +3,7 @@ const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
 const Servicio = require('../models/servicio');
 const Centro = require('../models/centro');
+const Horario = require('../models/horario');
 const { crearNotificacion, obtenerAdministradores, getNivelFidelidad, formatearFecha } = require('../helpers/notificaciones.helper');
 
 // Helper para agregar nombres históricos cuando las referencias son null
@@ -183,9 +184,12 @@ exports.createCita = async (req, res) => {
 
     const { usuario, profesional, servicio, centro, fecha, hora } = req.body;
 
-    if (!usuario || !profesional || !servicio || !centro || !fecha || !hora) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
+    if (!usuario) return res.status(400).json({ error: 'El usuario es obligatorio' });
+    if (!profesional) return res.status(400).json({ error: 'El profesional es obligatorio' });
+    if (!servicio) return res.status(400).json({ error: 'El servicio es obligatorio' });
+    if (!centro) return res.status(400).json({ error: 'El centro es obligatorio' });
+    if (!fecha) return res.status(400).json({ error: 'La fecha es obligatoria' });
+    if (!hora) return res.status(400).json({ error: 'La hora es obligatoria' });
 
     // Obtener los datos completos para guardar información histórica
     const usuarioDB = await Usuario.findById(usuario);
@@ -206,6 +210,59 @@ exports.createCita = async (req, res) => {
     const centroDB = await Centro.findById(centro);
     if (!centroDB) {
       return res.status(404).json({ error: 'Centro no encontrado' });
+    }
+
+    // Validar formato de fecha (YYYY-MM-DD)
+    const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexFecha.test(fecha)) {
+      return res.status(400).json({ error: 'El formato de la fecha no es válido (YYYY-MM-DD)' });
+    }
+
+    // Validar formato de hora (HH:MM)
+    const regexHora = /^([01]\d|2[0-3]):[0-5]\d$/;
+    if (!regexHora.test(hora)) {
+      return res.status(400).json({ error: 'El formato de la hora no es válido (HH:MM)' });
+    }
+
+    // Validar que la fecha no sea pasada
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaReserva = new Date(fecha + 'T00:00:00');
+    if (fechaReserva < hoy) {
+      return res.status(400).json({ error: 'No se puede reservar una cita en una fecha pasada' });
+    }
+
+    // Obtener horarios del profesional para validar disponibilidad
+    const horariosProf = await Horario.find({ profesional: profesional });
+    if (horariosProf.length === 0) {
+      return res.status(400).json({ error: 'El profesional no tiene horarios configurados' });
+    }
+
+    // Verificar si la fecha es un día festivo para el profesional
+    const esFestivo = horariosProf.some(h => h.fechas_festivas && h.fechas_festivas.includes(fecha));
+    if (esFestivo) {
+      return res.status(400).json({ error: 'El profesional no atiende ese día (día festivo)' });
+    }
+
+    // Verificar que el profesional trabaja ese día de la semana
+    const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diaSemana = nombresDias[new Date(fecha + 'T00:00:00').getDay()];
+    const horarioDia = horariosProf.find(h => h.dias.map(d => d.toLowerCase()).includes(diaSemana.toLowerCase()));
+    if (!horarioDia) {
+      return res.status(400).json({ error: `El profesional no trabaja los ${diaSemana}` });
+    }
+
+    // Verificar que la hora está dentro del horario laboral del profesional
+    const [horaH, horaM] = hora.split(':').map(Number);
+    const [inicioH, inicioM] = horarioDia.hora_inicio.split(':').map(Number);
+    const [finH, finM] = horarioDia.hora_fin.split(':').map(Number);
+    const horaMin = horaH * 60 + horaM;
+    const inicioMin = inicioH * 60 + inicioM;
+    const finMin = finH * 60 + finM;
+    if (horaMin < inicioMin || horaMin >= finMin) {
+      return res.status(400).json({
+        error: `La hora ${hora} está fuera del horario laboral del profesional (${horarioDia.hora_inicio} - ${horarioDia.hora_fin})`
+      });
     }
 
     // Verificar que no existe cita activa (pendiente/confirmada) en ese horario
@@ -302,6 +359,12 @@ exports.createCita = async (req, res) => {
 exports.updateCita = async (req, res) => {
   try {
     const { estado, fecha, hora, actualizadoPor, rolActualizador } = req.body;
+
+    // Validar estado si se proporciona
+    const ESTADOS_VALIDOS_CITA = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
+    if (estado !== undefined && !ESTADOS_VALIDOS_CITA.includes(estado)) {
+      return res.status(400).json({ error: `El estado '${estado}' no es válido. Los estados válidos son: pendiente, confirmada, cancelada, realizada` });
+    }
 
     const cita = await Cita.findById(req.params.id)
       .populate('usuario', 'nombre email')
