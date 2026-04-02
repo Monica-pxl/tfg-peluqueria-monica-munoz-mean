@@ -17,7 +17,7 @@
       Accede con tu cuenta para gestionar tus citas y servicios.
     </p>
 
-    <form (ngSubmit)="iniciarSesion()">
+    <form (ngSubmit)="iniciarSesion()" #loginForm="ngForm" novalidate>
       <div class="mb-4">
         <label for="email" class="form-label">Correo electrónico</label>
         <input
@@ -25,10 +25,19 @@
           id="email"
           [(ngModel)]="email"
           name="email"
+          #emailInput="ngModel"
           class="form-control form-control-custom"
+          [class.is-invalid]="emailInput.invalid && emailInput.touched"
           placeholder="Introduce tu correo electrónico"
           required
+          email
         >
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+          El email es obligatorio.
+        </div>
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && emailInput.touched">
+          El formato del email no es válido.
+        </div>
       </div>
 
       <div class="mb-5">
@@ -38,18 +47,29 @@
           id="password"
           [(ngModel)]="password"
           name="contraseña"
+          #passwordInput="ngModel"
           class="form-control form-control-custom"
+          [class.is-invalid]="passwordInput.invalid && passwordInput.touched"
           placeholder="Introduce tu contraseña"
           required
         >
+        <div class="invalid-feedback" *ngIf="passwordInput.invalid && passwordInput.touched">
+          La contraseña es obligatoria.
+        </div>
+      </div>
+
+      <div *ngIf="errorServidor" class="alert alert-danger py-2 mb-3" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>{{ errorServidor }}
       </div>
 
       <div class="text-center mt-5">
         <button
           type="submit"
           class="btn btn-login w-100"
+          [disabled]="cargando || loginForm.invalid"
         >
-          Entrar
+          <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ cargando ? 'Entrando...' : 'Entrar' }}
         </button>
       </div>
     </form>
@@ -60,9 +80,5 @@
     </p>
   </div>
 </section>
-
-
-
-
 
 

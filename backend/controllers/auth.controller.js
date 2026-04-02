@@ -7,9 +7,26 @@ exports.register = async (req, res) => {
   try {
     const { nombre, email, password, rol = 'cliente' } = req.body;
 
-    // Validar campos obligatorios
-    if (!nombre || !email || !password) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    // Validar campos obligatorios individualmente
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+    }
+    if (!email) {
+      return res.status(400).json({ error: 'El email es obligatorio' });
+    }
+    if (!password) {
+      return res.status(400).json({ error: 'La contraseña es obligatoria' });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'El formato del email no es válido' });
+    }
+
+    // Validar longitud mínima de contraseña
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
     // Verificar si el email ya existe
@@ -67,9 +84,18 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validar campos obligatorios
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+    // Validar campos obligatorios individualmente
+    if (!email) {
+      return res.status(400).json({ error: 'El email es obligatorio' });
+    }
+    if (!password) {
+      return res.status(400).json({ error: 'La contraseña es obligatoria' });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'El formato del email no es válido' });
     }
 
     // Buscar usuario por email

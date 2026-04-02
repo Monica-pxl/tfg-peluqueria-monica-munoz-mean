@@ -36,8 +36,23 @@ exports.createCentro = async (req, res) => {
 
     console.log('📝 Creando centro con datos:', { nombre, direccion, telefono, email, horario_apertura, horario_cierre });
 
-    if (!nombre || !direccion || !telefono || !email || !horario_apertura || !horario_cierre) {
-      return res.status(400).json({ error: 'Nombre, dirección, teléfono, email, horario de apertura y horario de cierre son obligatorios' });
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+    }
+    if (!direccion) {
+      return res.status(400).json({ error: 'La dirección es obligatoria' });
+    }
+    if (!telefono) {
+      return res.status(400).json({ error: 'El teléfono es obligatorio' });
+    }
+    if (!email) {
+      return res.status(400).json({ error: 'El email es obligatorio' });
+    }
+    if (!horario_apertura) {
+      return res.status(400).json({ error: 'El horario de apertura es obligatorio' });
+    }
+    if (!horario_cierre) {
+      return res.status(400).json({ error: 'El horario de cierre es obligatorio' });
     }
 
     // Validar formato de email

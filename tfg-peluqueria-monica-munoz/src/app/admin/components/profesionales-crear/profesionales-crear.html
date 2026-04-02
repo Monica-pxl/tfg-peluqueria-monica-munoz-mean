@@ -32,7 +32,7 @@
     }
 
     @if(!cargando && usuariosProfesionales.length > 0) {
-      <form (ngSubmit)="crearProfesional()">
+      <form (ngSubmit)="crearProfesional()" #profesionalForm="ngForm" novalidate>
 
         <div class="mb-4">
           <label for="id_usuario" class="form-label">
@@ -42,13 +42,20 @@
             id="id_usuario"
             [(ngModel)]="id_usuario"
             name="id_usuario"
+            #usuarioInput="ngModel"
             class="form-select form-control-custom"
+            [class.is-invalid]="usuarioInput.invalid && usuarioInput.touched"
             required>
             <option value="" disabled selected>Selecciona un usuario...</option>
             @for(usuario of usuariosProfesionales; track usuario._id) {
               <option [value]="usuario._id">{{ usuario.nombre }} ({{ usuario.email }})</option>
             }
           </select>
+          @if(usuarioInput.invalid && usuarioInput.touched) {
+            <div class="invalid-feedback d-block">
+              El usuario es obligatorio.
+            </div>
+          }
           <small class="text-muted d-block mt-2">
             <i class="bi bi-info-circle me-1"></i>Solo se muestran usuarios con rol "profesional" sin asignar
           </small>
@@ -62,7 +69,9 @@
             id="id_centro"
             [(ngModel)]="id_centro"
             name="id_centro"
+            #centroInput="ngModel"
             class="form-select form-control-custom"
+            [class.is-invalid]="centroInput.invalid && centroInput.touched"
             (change)="onCentroChange()"
             required>
             <option value="" disabled selected>Selecciona un centro...</option>
@@ -70,6 +79,11 @@
               <option [value]="centro._id">{{ centro.nombre }} - {{ centro.direccion }}</option>
             }
           </select>
+          @if(centroInput.invalid && centroInput.touched) {
+            <div class="invalid-feedback d-block">
+              El centro es obligatorio.
+            </div>
+          }
         </div>
 
         <div class="mb-4">
@@ -104,7 +118,7 @@
         </div>
 
         <div class="d-flex gap-3 mt-4 justify-content-center">
-          <button type="submit" class="btn-submit">
+          <button type="submit" class="btn-submit" [disabled]="profesionalForm.invalid">
             <i class="bi bi-check-circle-fill me-2"></i>Crear Profesional
           </button>
           <button type="button" class="btn-cancel" (click)="cancelar()">

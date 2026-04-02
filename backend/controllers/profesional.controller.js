@@ -46,9 +46,14 @@ exports.createProfesional = async (req, res) => {
 
     console.log('📝 Creando profesional con datos:', { nombre, apellidos, usuario: usuarioId, centro });
 
-    if (!nombre || !usuarioId || !centro) {
-      console.log('❌ Faltan campos obligatorios:', { nombre: !!nombre, usuario: !!usuarioId, centro: !!centro });
-      return res.status(400).json({ error: 'Nombre, usuario y centro son obligatorios' });
+    if (!usuarioId) {
+      return res.status(400).json({ error: 'El usuario es obligatorio' });
+    }
+    if (!centro) {
+      return res.status(400).json({ error: 'El centro es obligatorio' });
+    }
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
     }
 
     const usuarioExiste = await Usuario.findById(usuarioId);

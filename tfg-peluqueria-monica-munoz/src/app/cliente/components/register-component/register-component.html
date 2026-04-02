@@ -17,7 +17,7 @@
       Regístrate para poder reservar tus citas y acceder a nuestros servicios.
     </p>
 
-    <form (ngSubmit)="registro()">
+    <form (ngSubmit)="registro()" #registerForm="ngForm" novalidate>
       <div class="mb-4">
         <label for="nombre" class="form-label">Nombre completo</label>
         <input
@@ -25,10 +25,15 @@
           id="nombre"
           [(ngModel)]="nombre"
           name="nombre"
+          #nombreInput="ngModel"
           class="form-control form-control-custom"
+          [class.is-invalid]="nombreInput.invalid && nombreInput.touched"
           placeholder="Tu nombre y apellidos"
           required
         >
+        <div class="invalid-feedback" *ngIf="nombreInput.invalid && nombreInput.touched">
+          El nombre es obligatorio.
+        </div>
       </div>
 
       <div class="mb-4">
@@ -38,10 +43,19 @@
           id="email"
           [(ngModel)]="email"
           name="email"
+          #emailInput="ngModel"
           class="form-control form-control-custom"
+          [class.is-invalid]="emailInput.invalid && emailInput.touched"
           placeholder="Introduce tu correo electrónico"
           required
+          email
         >
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+          El email es obligatorio.
+        </div>
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && emailInput.touched">
+          El formato del email no es válido.
+        </div>
       </div>
 
       <div class="mb-4">
@@ -51,10 +65,19 @@
           id="password"
           [(ngModel)]="password"
           name="contraseña"
+          #passwordInput="ngModel"
           class="form-control form-control-custom"
-          placeholder="Crea una contraseña"
+          [class.is-invalid]="passwordInput.invalid && passwordInput.touched"
+          placeholder="Crea una contraseña (mín. 6 caracteres)"
           required
+          minlength="6"
         >
+        <div class="invalid-feedback" *ngIf="passwordInput.errors?.['required'] && passwordInput.touched">
+          La contraseña es obligatoria.
+        </div>
+        <div class="invalid-feedback" *ngIf="passwordInput.errors?.['minlength'] && passwordInput.touched">
+          La contraseña debe tener al menos 6 caracteres.
+        </div>
       </div>
 
       <div class="mb-5">
@@ -64,18 +87,32 @@
           id="password2"
           [(ngModel)]="repetirPassword"
           name="repetirContraseña"
+          #repetirInput="ngModel"
           class="form-control form-control-custom"
+          [class.is-invalid]="(repetirInput.invalid && repetirInput.touched) || (repetirInput.touched && password !== repetirPassword)"
           placeholder="Repite tu contraseña"
           required
         >
+        <div class="invalid-feedback" *ngIf="repetirInput.errors?.['required'] && repetirInput.touched">
+          Este campo es obligatorio.
+        </div>
+        <div class="invalid-feedback" *ngIf="!repetirInput.errors?.['required'] && repetirInput.touched && password !== repetirPassword">
+          Las contraseñas no coinciden.
+        </div>
+      </div>
+
+      <div *ngIf="errorServidor" class="alert alert-danger py-2 mb-3" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>{{ errorServidor }}
       </div>
 
       <div class="text-center mt-4">
         <button
           type="submit"
           class="btn btn-register w-100"
+          [disabled]="cargando || registerForm.invalid || password !== repetirPassword"
         >
-          Registrarse
+          <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ cargando ? 'Registrando...' : 'Registrarse' }}
         </button>
       </div>
     </form>

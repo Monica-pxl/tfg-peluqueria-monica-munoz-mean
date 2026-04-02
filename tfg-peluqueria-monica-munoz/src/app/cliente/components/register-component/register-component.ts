@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { UsuariosService } from '../../services/usuarios-service';
 import { UsuariosInterface } from '../../interfaces/usuarios-interface';
 import { AlertService } from '../../../shared/services/alert-service';
 
 @Component({
   selector: 'app-register-component',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './register-component.html',
   styleUrls: ['./register-component.css'],
 })
@@ -20,6 +21,7 @@ export class RegisterComponent {
   repetirPassword = '';
   rol = 'cliente';
   cargando = false;
+  errorServidor = '';
 
   constructor(
     private router: Router, 
@@ -28,26 +30,7 @@ export class RegisterComponent {
   ) {}
 
   registro() {
-    if (this.password !== this.repetirPassword) {
-      this.alertService.warning('Las contraseñas no coinciden');
-      return;
-    }
-
-    if (this.password.length < 6) {
-      this.alertService.warning('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
-    if (!this.nombre || !this.email || !this.password) {
-      this.alertService.warning('Por favor, completa todos los campos');
-      return;
-    }
-
-    // Validar formato de email
-    if (!this.validarEmail(this.email)) {
-      this.alertService.error('El formato del email no es válido');
-      return;
-    }
+    this.errorServidor = '';
 
     this.cargando = true;
     this.usuariosService.registro(this.nombre, this.email, this.password, this.rol).subscribe({
@@ -67,16 +50,10 @@ export class RegisterComponent {
 
       error: (error) => {
         this.cargando = false;
-        const mensaje = error.error?.error || 'Error al registrarse';
-        this.alertService.error(mensaje);
+        this.errorServidor = error.error?.error || 'Error al registrar usuario';
         this.password = '';
         this.repetirPassword = '';
       }
     });
-  }
-
-  private validarEmail(email: string): boolean {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(email);
   }
 }

@@ -20,8 +20,20 @@ exports.createServicio = async (req, res) => {
   try {
     const { nombre, descripcion, duracion, precio, centro, imagen } = req.body;
 
-    if (!nombre || !descripcion || !duracion || !precio || !centro) {
-      return res.status(400).json({ error: 'Nombre, descripción, duración, precio y centro son obligatorios' });
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+    }
+    if (!descripcion) {
+      return res.status(400).json({ error: 'La descripción es obligatoria' });
+    }
+    if (!duracion) {
+      return res.status(400).json({ error: 'La duración es obligatoria' });
+    }
+    if (!precio) {
+      return res.status(400).json({ error: 'El precio es obligatorio' });
+    }
+    if (!centro) {
+      return res.status(400).json({ error: 'El centro es obligatorio' });
     }
 
     if (Number(duracion) < 1) {

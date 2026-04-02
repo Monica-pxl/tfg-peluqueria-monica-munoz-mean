@@ -3,12 +3,13 @@ import { Route, Router, RouterLink } from "@angular/router";
 import { Usuarios, UsuariosInterface } from '../../interfaces/usuarios-interface';
 import { UsuariosService } from '../../services/usuarios-service';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { AlertService } from '../../../shared/services/alert-service';
 
 
 @Component({
   selector: 'app-login-component',
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
   standalone: true
@@ -17,6 +18,7 @@ export class LoginComponent {
   email = '';
   password = '';
   cargando = false;
+  errorServidor = '';
 
   constructor(
     private usuariosService: UsuariosService,
@@ -25,10 +27,7 @@ export class LoginComponent {
   ) {}
 
   iniciarSesion() {
-    if (!this.email || !this.password) {
-      this.alertService.warning('Por favor completa todos los campos');
-      return;
-    }
+    this.errorServidor = '';
 
     this.cargando = true;
 
@@ -57,8 +56,7 @@ export class LoginComponent {
 
       error: (error) => {
         this.cargando = false;
-        const mensaje = error.error?.error || 'Error al iniciar sesión';
-        this.alertService.error(mensaje);
+        this.errorServidor = error.error?.error || 'Error en el servidor';
         this.password = '';
       }
     });

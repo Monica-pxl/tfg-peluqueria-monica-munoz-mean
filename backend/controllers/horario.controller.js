@@ -38,8 +38,17 @@ exports.createHorario = async (req, res) => {
 
     console.log('📝 Creando horario para profesional:', profesional);
 
-    if (!profesional || !dias || !hora_inicio || !hora_fin) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    if (!profesional) {
+      return res.status(400).json({ error: 'El profesional es obligatorio' });
+    }
+    if (!dias || dias.length === 0) {
+      return res.status(400).json({ error: 'Los días son obligatorios' });
+    }
+    if (!hora_inicio) {
+      return res.status(400).json({ error: 'La hora de inicio es obligatoria' });
+    }
+    if (!hora_fin) {
+      return res.status(400).json({ error: 'La hora de fin es obligatoria' });
     }
 
     // No se permite asignar el domingo
@@ -114,6 +123,19 @@ exports.createHorario = async (req, res) => {
     }
 
     console.log('✅ No hay solapamiento con otros horarios');
+
+    // Validar que las fechas festivas caigan en días en que el profesional trabaja
+    if (fechas_festivas && fechas_festivas.length > 0) {
+      const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      for (const fecha of fechas_festivas) {
+        const diaSemana = nombresDias[new Date(fecha).getUTCDay()];
+        if (!dias.includes(diaSemana)) {
+          return res.status(400).json({
+            error: `La fecha ${fecha.split('T')[0]} cae en ${diaSemana}, pero el profesional no trabaja ese día`
+          });
+        }
+      }
+    }
 
     // Bloquear si hay citas confirmadas en alguna de las fechas festivas
     if (fechas_festivas && fechas_festivas.length > 0) {
@@ -340,6 +362,19 @@ exports.updateHorario = async (req, res) => {
 
     const fechasFestivasAntiguas = horarioAnterior.fechas_festivas || [];
     const fechasFestivasNuevas = fechas_festivas || fechasFestivasAntiguas;
+
+    // Validar que TODAS las fechas festivas resultantes caigan en días en que el profesional trabaja
+    if (fechasFestivasNuevas.length > 0) {
+      const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      for (const fecha of fechasFestivasNuevas) {
+        const diaSemana = nombresDias[new Date(fecha).getUTCDay()];
+        if (!diasNuevos.includes(diaSemana)) {
+          return res.status(400).json({
+            error: `La fecha ${fecha.split('T')[0]} cae en ${diaSemana}, pero el profesional no trabaja ese día`
+          });
+        }
+      }
+    }
 
     // Bloquear si hay citas confirmadas en alguna de las NUEVAS fechas festivas
     const nuevasFechasAValidar = fechasFestivasNuevas.filter(f => !fechasFestivasAntiguas.includes(f));

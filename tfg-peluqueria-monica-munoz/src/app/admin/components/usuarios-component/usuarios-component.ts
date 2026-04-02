@@ -158,7 +158,7 @@ export class UsuariosComponent implements OnInit {
 
     const confirmacion = await this.confirmService.confirm(
       'Eliminar Usuario',
-      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\n${usuario.rol === 'profesional' ? 'ATENCIÓN: Si es profesional, también se eliminarán sus horarios, relaciones con servicios y su perfil de profesional.\n\n' : ''}Esta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\n${usuario.rol === 'profesional' ? 'ATENCIÓN: Si es profesional, también se eliminarán sus horarios, relaciones con servicios, su perfil de profesional y las citas asociadas (pendientes y confirmadas) que serán canceladas automáticamente.\n\n' : ''}Esta acción no se puede deshacer.`,
       'Sí, eliminar',
       'Cancelar'
     );
