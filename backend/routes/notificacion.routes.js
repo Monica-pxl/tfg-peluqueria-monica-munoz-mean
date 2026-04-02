@@ -5,7 +5,6 @@ const auth = require('../middlewares/auth');
 const soloActivo = require('../middlewares/soloActivo');
 
 // CRUD de notificaciones
-router.post('/', notificacionController.createNotificacion);
 router.delete('/:id', auth, soloActivo, notificacionController.deleteNotificacion);
 
 // Rutas especiales

@@ -122,11 +122,20 @@ exports.getCitasByProfesional = async (req, res) => {
       }
     }
 
-    const citas = await Cita.find({ profesional: req.params.profesionalId })
-      .populate('usuario', 'nombre email')
-      .populate('servicio', 'nombre duracion precio')
-      .populate('centro', 'nombre direccion')
-      .sort({ fecha: -1, hora: -1 });
+    // Un cliente solo recibe fecha/hora/estado/servicio (sin datos personales de otros usuarios)
+    const citasQuery = Cita.find({ profesional: req.params.profesionalId });
+    if (rol === 'cliente') {
+      citasQuery
+        .populate('servicio', 'nombre duracion precio')
+        .populate('centro', 'nombre direccion');
+    } else {
+      citasQuery
+        .populate('usuario', 'nombre email')
+        .populate('servicio', 'nombre duracion precio')
+        .populate('centro', 'nombre direccion');
+    }
+
+    const citas = await citasQuery.sort({ fecha: -1, hora: -1 });
 
     const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
     res.json(citasConHistorico);
@@ -182,9 +191,10 @@ exports.createCita = async (req, res) => {
       return res.status(403).json({ error: 'Solo los clientes pueden crear citas' });
     }
 
-    const { usuario, profesional, servicio, centro, fecha, hora } = req.body;
+    // El usuario de la cita SIEMPRE es el usuario autenticado, no el del body
+    const usuario = req.usuario.id_usuario.toString();
+    const { profesional, servicio, centro, fecha, hora } = req.body;
 
-    if (!usuario) return res.status(400).json({ error: 'El usuario es obligatorio' });
     if (!profesional) return res.status(400).json({ error: 'El profesional es obligatorio' });
     if (!servicio) return res.status(400).json({ error: 'El servicio es obligatorio' });
     if (!centro) return res.status(400).json({ error: 'El centro es obligatorio' });

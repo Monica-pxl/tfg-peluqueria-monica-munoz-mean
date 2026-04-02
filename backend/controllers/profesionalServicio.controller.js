@@ -68,6 +68,10 @@ exports.createRelacion = async (req, res) => {
 // Eliminar una relación
 exports.deleteRelacion = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'El ID de la relación no es válido' });
+    }
+
     const relacion = await ProfesionalServicio.findByIdAndDelete(req.params.id);
     if (!relacion) {
       return res.status(404).json({ error: 'Relación no encontrada' });
@@ -82,6 +86,10 @@ exports.deleteRelacion = async (req, res) => {
 // Eliminar todas las relaciones de un profesional
 exports.deleteRelacionesByProfesional = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.profesionalId)) {
+      return res.status(400).json({ error: 'El ID del profesional no es válido' });
+    }
+
     const result = await ProfesionalServicio.deleteMany({ profesional: req.params.profesionalId });
     res.json({ mensaje: `${result.deletedCount} relaciones eliminadas` });
   } catch (error) {
@@ -93,6 +101,10 @@ exports.deleteRelacionesByProfesional = async (req, res) => {
 // Eliminar todas las relaciones de un servicio
 exports.deleteRelacionesByServicio = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.servicioId)) {
+      return res.status(400).json({ error: 'El ID del servicio no es válido' });
+    }
+
     const result = await ProfesionalServicio.deleteMany({ servicio: req.params.servicioId });
     res.json({ mensaje: `${result.deletedCount} relaciones eliminadas` });
   } catch (error) {
