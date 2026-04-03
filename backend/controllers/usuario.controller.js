@@ -43,18 +43,93 @@ exports.updateUsuario = async (req, res) => {
     }
 
     const datosActualizados = {};
-
     if (nuevoRol !== undefined) datosActualizados.rol = nuevoRol;
     if (estado !== undefined) datosActualizados.estado = estado;
 
+    // Obtener el usuario actual para comprobar su rol antes de modificarlo
+    const usuarioActual = await Usuario.findById(req.params.id).select('rol nombre');
+    if (!usuarioActual) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
     // Proteger: no dejar el sistema sin ningún administrador activo
     if (estado === 'inactivo') {
-      const usuarioAfectado = await Usuario.findById(req.params.id).select('rol');
-      if (usuarioAfectado && usuarioAfectado.rol === 'administrador') {
+      if (usuarioActual.rol === 'administrador') {
         const adminsActivos = await Usuario.countDocuments({ rol: 'administrador', estado: 'activo' });
         if (adminsActivos <= 1) {
           return res.status(400).json({ error: 'No se puede desactivar al último administrador activo del sistema' });
         }
+      }
+    }
+
+    // Borrado en cascada si se cambia el rol de profesional a otro rol
+    if (nuevoRol && nuevoRol !== 'profesional' && usuarioActual.rol === 'profesional') {
+      const profesional = await Profesional.findOne({ usuario: req.params.id });
+
+      if (profesional) {
+        const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
+
+        // 1. Eliminar relaciones profesional-servicio
+        const relaciones = await ProfesionalServicio.deleteMany({ profesional: profesional._id });
+        console.log(`🔄 Cambio de rol cascada: ${relaciones.deletedCount} relaciones profesional-servicio eliminadas`);
+
+        // 2. Eliminar horarios
+        const horarios = await Horario.deleteMany({ profesional: profesional._id });
+        console.log(`🔄 Cambio de rol cascada: ${horarios.deletedCount} horarios eliminados`);
+
+        // 3. Cancelar citas futuras y notificar
+        const todasLasCitas = await Cita.find({
+          profesional: profesional._id,
+          estado: { $in: ['pendiente', 'confirmada'] }
+        })
+          .populate('usuario', 'nombre email')
+          .populate('servicio', 'nombre');
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        const citasFuturas = todasLasCitas.filter(cita => new Date(cita.fecha + 'T00:00:00') >= hoy);
+
+        if (citasFuturas.length > 0) {
+          await Cita.updateMany(
+            { _id: { $in: citasFuturas.map(c => c._id) } },
+            { $set: { estado: 'cancelada' } }
+          );
+
+          const admins = await obtenerAdministradores();
+
+          for (const cita of citasFuturas) {
+            const nombreProfesional = `${profesional.nombre} ${profesional.apellidos}`;
+            const fechaFormateada = formatearFecha(cita.fecha);
+            const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
+
+            // Notificar al cliente
+            if (cita.usuario && cita.usuario._id) {
+              await crearNotificacion(
+                cita.usuario._id,
+                'cliente',
+                'Cita cancelada por el centro',
+                `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ha cambiado de rol en el sistema.`,
+                'advertencia'
+              );
+            }
+
+            // Notificar a administradores
+            for (const adminId of admins) {
+              await crearNotificacion(
+                adminId,
+                'administrador',
+                'Cita cancelada por cambio de rol',
+                `La cita de <strong>${cita.usuarioNombre || cita.usuario?.nombre || 'Cliente'}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ${nombreProfesional} ha cambiado de rol.`,
+                'info'
+              );
+            }
+          }
+        }
+
+        // 4. Eliminar el registro de profesional
+        await Profesional.findByIdAndDelete(profesional._id);
+        console.log(`🔄 Cambio de rol cascada: profesional ${profesional.nombre} ${profesional.apellidos} eliminado (${citasFuturas.length} citas canceladas)`);
       }
     }
 

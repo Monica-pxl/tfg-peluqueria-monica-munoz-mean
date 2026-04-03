@@ -70,26 +70,32 @@ export class UsuariosComponent implements OnInit {
   async cambiarRol(usuario: UsuariosInterface, event: any): Promise<void> {
     const nuevoRol = event.target.value;
 
-    // Determinar la variante según el rol al que se cambia
-    let variant: 'professional' | 'admin' | 'client' = 'client';
-    if (nuevoRol === 'profesional') {
-      variant = 'professional';
-    } else if (nuevoRol === 'administrador') {
-      variant = 'admin';
+    // Aviso de peligro si se degrada de profesional a otro rol (borrado en cascada)
+    let titulo: string;
+    let mensaje: string;
+    let variante: 'danger' | 'info' | 'professional' | 'admin' | 'client';
+
+    if (usuario.rol === 'profesional' && nuevoRol !== 'profesional') {
+      titulo = 'Cambiar Rol de Profesional';
+      mensaje = `¿Seguro que deseas cambiar el rol de ${usuario.nombre} a ${nuevoRol}? Esta acción eliminará sus horarios y relaciones con servicios, lo desvinculará del centro y cancelará sus citas activas.`;
+      variante = 'danger';
     } else {
-      variant = 'client';
+      titulo = 'Cambiar Rol';
+      mensaje = `¿Cambiar el rol de "${usuario.nombre}" a "${nuevoRol}"?`;
+      if (nuevoRol === 'profesional') variante = 'professional';
+      else if (nuevoRol === 'administrador') variante = 'admin';
+      else variante = 'client';
     }
 
     const confirmacion = await this.confirmService.confirm(
-      'Cambiar Rol',
-      `¿Cambiar el rol de "${usuario.nombre}" a "${nuevoRol}"?`,
+      titulo,
+      mensaje,
       'Sí, cambiar',
       'Cancelar',
-      variant
+      variante
     );
 
     if (!confirmacion) {
-      // Revertir el select
       event.target.value = usuario.rol;
       return;
     }
@@ -100,9 +106,7 @@ export class UsuariosComponent implements OnInit {
       return;
     }
 
-    const datos = { rol: nuevoRol };
-
-    this.usuariosService.actualizarUsuarioPorId(usuario._id, datos).subscribe({
+    this.usuariosService.actualizarUsuarioPorId(usuario._id, { rol: nuevoRol }).subscribe({
       next: () => {
         usuario.rol = nuevoRol;
         this.alertService.success('Rol actualizado correctamente');
