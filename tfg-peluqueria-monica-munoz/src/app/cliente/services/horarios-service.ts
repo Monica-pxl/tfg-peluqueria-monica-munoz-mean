@@ -25,7 +25,8 @@ export class HorariosService {
   }
 
   updateHorario(id: string | number, horario: Partial<HorariosInterface>): Observable<any> {
-    return this.http.put(`${this.url}/${id}`, horario);
+    const { profesional, ...body } = horario as any;
+    return this.http.put(`${this.url}/${id}`, body);
   }
 
   deleteHorario(id: string | number): Observable<any> {
