@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Horario = require('../models/horario');
 const Profesional = require('../models/profesional');
 const Centro = require('../models/centro');
@@ -18,6 +19,9 @@ exports.getAllHorarios = async (req, res) => {
 // Obtener un horario por ID
 exports.getHorarioById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de horario no válido' });
+    }
     const horario = await Horario.findById(req.params.id)
       .populate('profesional', 'nombre apellidos');
     if (!horario) {
@@ -60,10 +64,6 @@ exports.createHorario = async (req, res) => {
     const profesionalDB = await Profesional.findById(profesional).populate('centro');
     if (!profesionalDB) {
       return res.status(404).json({ error: 'Profesional no encontrado' });
-    }
-
-    if (!profesionalDB.centro) {
-      return res.status(400).json({ error: 'El profesional no tiene un centro asignado' });
     }
 
     // Validar que el horario del profesional esté dentro del horario del centro
@@ -132,24 +132,6 @@ exports.createHorario = async (req, res) => {
         if (!dias.includes(diaSemana)) {
           return res.status(400).json({
             error: `La fecha ${fecha.split('T')[0]} cae en ${diaSemana}, pero el profesional no trabaja ese día`
-          });
-        }
-      }
-    }
-
-    // Bloquear si hay citas confirmadas en alguna de las fechas festivas
-    if (fechas_festivas && fechas_festivas.length > 0) {
-      const Cita = require('../models/cita');
-      for (const fecha of fechas_festivas) {
-        const fechaNorm = fecha.split('T')[0];
-        const todasCitas = await Cita.find({ profesional, estado: 'confirmada' });
-        const enFecha = todasCitas.filter(c => {
-          const f = typeof c.fecha === 'string' ? c.fecha.split('T')[0] : c.fecha.toISOString().split('T')[0];
-          return f === fechaNorm;
-        });
-        if (enFecha.length > 0) {
-          return res.status(400).json({
-            error: `No se puede marcar como festiva la fecha ${fechaNorm}: hay ${enFecha.length} cita(s) confirmada(s). Primero cancela o reagenda esas citas.`
           });
         }
       }
@@ -264,6 +246,9 @@ exports.createHorario = async (req, res) => {
 // Actualizar un horario
 exports.updateHorario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de horario no válido' });
+    }
     const horarioAnterior = await Horario.findById(req.params.id).populate('profesional');
     if (!horarioAnterior) {
       return res.status(404).json({ error: 'Horario no encontrado' });
@@ -290,9 +275,6 @@ exports.updateHorario = async (req, res) => {
 
       // Obtener el profesional con su centro
       const profesionalDB = await Profesional.findById(horarioAnterior.profesional._id).populate('centro');
-      if (!profesionalDB || !profesionalDB.centro) {
-        return res.status(400).json({ error: 'El profesional no tiene un centro asignado' });
-      }
 
       const centro = profesionalDB.centro;
       const horarioAperturaCentro = centro.horario_apertura;
@@ -375,25 +357,6 @@ exports.updateHorario = async (req, res) => {
         if (!diasNuevos.includes(diaSemana)) {
           return res.status(400).json({
             error: `La fecha ${fecha.split('T')[0]} cae en ${diaSemana}, pero el profesional no trabaja ese día`
-          });
-        }
-      }
-    }
-
-    // Bloquear si hay citas confirmadas en alguna de las NUEVAS fechas festivas
-    const nuevasFechasAValidar = fechasFestivasNuevas.filter(f => !fechasFestivasAntiguas.includes(f));
-    if (nuevasFechasAValidar.length > 0) {
-      const Cita = require('../models/cita');
-      for (const fecha of nuevasFechasAValidar) {
-        const fechaNorm = fecha.split('T')[0];
-        const todasCitas = await Cita.find({ profesional: horarioAnterior.profesional._id, estado: 'confirmada' });
-        const enFecha = todasCitas.filter(c => {
-          const f = typeof c.fecha === 'string' ? c.fecha.split('T')[0] : c.fecha.toISOString().split('T')[0];
-          return f === fechaNorm;
-        });
-        if (enFecha.length > 0) {
-          return res.status(400).json({
-            error: `No se puede marcar como festiva la fecha ${fechaNorm}: hay ${enFecha.length} cita(s) confirmada(s). Primero cancela o reagenda esas citas.`
           });
         }
       }
@@ -508,6 +471,9 @@ exports.updateHorario = async (req, res) => {
 // Eliminar un horario
 exports.deleteHorario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de horario no válido' });
+    }
     const horario = await Horario.findById(req.params.id);
     if (!horario) {
       return res.status(404).json({ error: 'Horario no encontrado' });

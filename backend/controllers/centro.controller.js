@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Centro = require('../models/centro');
 const Profesional = require('../models/profesional');
 const Servicio = require('../models/servicio');
@@ -18,6 +19,9 @@ exports.getAllCentros = async (req, res) => {
 // Obtener un centro por ID
 exports.getCentroById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de centro no válido' });
+    }
     const centro = await Centro.findById(req.params.id);
     if (!centro) {
       return res.status(404).json({ error: 'Centro no encontrado' });
@@ -96,6 +100,9 @@ exports.createCentro = async (req, res) => {
 // Actualizar un centro
 exports.updateCentro = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de centro no válido' });
+    }
     const { nombre, direccion, telefono, email, horario_apertura, horario_cierre } = req.body;
 
     // Validar que los campos de texto no lleguen vacíos si se envían
@@ -178,6 +185,9 @@ exports.updateCentro = async (req, res) => {
 // Eliminar un centro
 exports.deleteCentro = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de centro no válido' });
+    }
     // Verificar si hay profesionales asignados a este centro
     const profesionales = await Profesional.find({ centro: req.params.id });
     if (profesionales.length > 0) {

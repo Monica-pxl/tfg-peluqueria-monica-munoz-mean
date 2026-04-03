@@ -23,6 +23,9 @@ exports.getAllProfesionales = async (req, res) => {
 // Obtener un profesional por ID
 exports.getProfesionalById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
     const profesional = await Profesional.findById(req.params.id)
       .populate('usuario', 'nombre email')
       .populate('centro', 'nombre direccion');
@@ -90,6 +93,9 @@ exports.createProfesional = async (req, res) => {
 // Actualizar un profesional
 exports.updateProfesional = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
     const { nombre } = req.body;
 
     if (nombre !== undefined && !nombre) {

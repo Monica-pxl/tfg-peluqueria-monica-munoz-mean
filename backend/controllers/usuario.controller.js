@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
 const ProfesionalServicio = require('../models/profesionalServicio');
@@ -20,6 +21,9 @@ exports.getAllUsuarios = async (req, res) => {
 // Actualizar un usuario (solo admin, solo rol y estado)
 exports.updateUsuario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
 
     if (id_usuario.toString() === req.params.id) {
@@ -74,6 +78,9 @@ exports.updateUsuario = async (req, res) => {
 // Eliminar un usuario (solo admin, no puede eliminarse a sí mismo)
 exports.deleteUsuario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
 
     if (id_usuario.toString() === req.params.id) {

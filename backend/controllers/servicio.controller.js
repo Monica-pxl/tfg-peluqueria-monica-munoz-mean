@@ -71,6 +71,9 @@ exports.createServicio = async (req, res) => {
 // Actualizar un servicio
 exports.updateServicio = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de servicio no válido' });
+    }
     const { nombre, descripcion, duracion, precio, centro } = req.body;
 
     // Si se envían campos obligatorios, validarlos

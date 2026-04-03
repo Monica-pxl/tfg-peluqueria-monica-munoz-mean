@@ -1,9 +1,13 @@
+const mongoose = require('mongoose');
 const Notificacion = require('../models/notificacion');
 
 
 // Obtener notificaciones por usuario
 exports.getNotificacionesByUsuario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
 
     if (id_usuario.toString() !== req.params.id) {
@@ -22,6 +26,9 @@ exports.getNotificacionesByUsuario = async (req, res) => {
 // Obtener notificaciones no leídas por usuario
 exports.getNotificacionesNoLeidas = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
     if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
@@ -41,6 +48,9 @@ exports.getNotificacionesNoLeidas = async (req, res) => {
 // Contar notificaciones no leídas
 exports.contarNotificacionesNoLeidas = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
     if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para ver las notificaciones de otro usuario' });
@@ -93,6 +103,9 @@ exports.createNotificacion = async (req, res) => {
 // Marcar notificación como leída
 exports.marcarComoLeida = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de notificación no válido' });
+    }
     const notificacion = await Notificacion.findById(req.params.id);
     if (!notificacion) {
       return res.status(404).json({ error: 'Notificación no encontrada' });
@@ -119,6 +132,9 @@ exports.marcarComoLeida = async (req, res) => {
 // Marcar todas las notificaciones de un usuario como leídas
 exports.marcarTodasComoLeidas = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
     if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para modificar notificaciones de otro usuario' });
@@ -138,6 +154,9 @@ exports.marcarTodasComoLeidas = async (req, res) => {
 // Eliminar una notificación
 exports.deleteNotificacion = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de notificación no válido' });
+    }
     const notificacion = await Notificacion.findById(req.params.id);
     if (!notificacion) {
       return res.status(404).json({ error: 'Notificación no encontrada' });
@@ -159,6 +178,9 @@ exports.deleteNotificacion = async (req, res) => {
 // Eliminar todas las notificaciones de un usuario
 exports.deleteNotificacionesByUsuario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { id_usuario } = req.usuario;
     if (id_usuario.toString() !== req.params.id) {
       return res.status(403).json({ error: 'No tienes permiso para operar sobre este recurso' });

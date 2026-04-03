@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Cita = require('../models/cita');
 const Usuario = require('../models/usuario');
 const Profesional = require('../models/profesional');
@@ -65,30 +66,21 @@ exports.getAllCitas = async (req, res) => {
 // Obtener citas por usuario
 exports.getCitasByUsuario = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.usuarioId)) {
+      return res.status(400).json({ error: 'ID de usuario no válido' });
+    }
     const { rol, id_usuario } = req.usuario;
+
+    // Los profesionales no pueden acceder a las citas por usuario
+    if (rol === 'profesional') {
+      return res.status(403).json({ error: 'No tienes permiso para ver las citas de usuarios' });
+    }
 
     // Cliente: solo puede ver sus propias citas
     if (rol === 'cliente') {
       if (id_usuario.toString() !== req.params.usuarioId) {
         return res.status(403).json({ error: 'No tienes permiso para ver las citas de otro usuario' });
       }
-    }
-
-    // Profesional: ve las citas en las que él/ella aparece como profesional
-    if (rol === 'profesional') {
-      const profesional = await Profesional.findOne({ usuario: id_usuario });
-      if (!profesional) {
-        return res.status(404).json({ error: 'Profesional no encontrado' });
-      }
-      const citas = await Cita.find({ profesional: profesional._id })
-        .populate('usuario', 'nombre email')
-        .populate('profesional', 'nombre apellidos')
-        .populate('servicio', 'nombre duracion precio')
-        .populate('centro', 'nombre direccion')
-        .sort({ fecha: -1, hora: -1 });
-
-      const citasConHistorico = citas.map(cita => agregarNombresHistoricos(cita));
-      return res.json(citasConHistorico);
     }
 
     // Administrador (o cliente ya validado arriba): busca por usuarioId del parámetro
@@ -109,7 +101,15 @@ exports.getCitasByUsuario = async (req, res) => {
 // Obtener citas por profesional
 exports.getCitasByProfesional = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.profesionalId)) {
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
     const { rol, id_usuario } = req.usuario;
+
+    // Los clientes no pueden acceder a las citas de un profesional
+    if (rol === 'cliente') {
+      return res.status(403).json({ error: 'No tienes permiso para ver las citas de profesionales' });
+    }
 
     // Un profesional solo puede ver sus propias citas
     if (rol === 'profesional') {
@@ -122,18 +122,10 @@ exports.getCitasByProfesional = async (req, res) => {
       }
     }
 
-    // Un cliente solo recibe fecha/hora/estado/servicio (sin datos personales de otros usuarios)
-    const citasQuery = Cita.find({ profesional: req.params.profesionalId });
-    if (rol === 'cliente') {
-      citasQuery
-        .populate('servicio', 'nombre duracion precio')
-        .populate('centro', 'nombre direccion');
-    } else {
-      citasQuery
-        .populate('usuario', 'nombre email')
-        .populate('servicio', 'nombre duracion precio')
-        .populate('centro', 'nombre direccion');
-    }
+    const citasQuery = Cita.find({ profesional: req.params.profesionalId })
+      .populate('usuario', 'nombre email')
+      .populate('servicio', 'nombre duracion precio')
+      .populate('centro', 'nombre direccion');
 
     const citas = await citasQuery.sort({ fecha: -1, hora: -1 });
 
@@ -148,6 +140,9 @@ exports.getCitasByProfesional = async (req, res) => {
 // Obtener una cita por ID
 exports.getCitaById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de cita no válido' });
+    }
     const cita = await Cita.findById(req.params.id)
       .populate('usuario', 'nombre email')
       .populate('profesional', 'nombre apellidos')
@@ -368,6 +363,9 @@ exports.createCita = async (req, res) => {
 // Actualizar una cita
 exports.updateCita = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de cita no válido' });
+    }
     const { estado, fecha, hora, actualizadoPor, rolActualizador } = req.body;
 
     // Validar estado si se proporciona
@@ -618,6 +616,9 @@ exports.updateCita = async (req, res) => {
 // Eliminar una cita (solo admin, protegido por soloAdmin en las rutas)
 exports.deleteCita = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de cita no válido' });
+    }
     const cita = await Cita.findById(req.params.id);
     if (!cita) {
       return res.status(404).json({ error: 'Cita no encontrada' });
@@ -634,6 +635,9 @@ exports.deleteCita = async (req, res) => {
 // Marcar cita como realizada
 exports.marcarRealizada = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'ID de cita no válido' });
+    }
     const { marcadoPor, rolMarcador } = req.body;
 
     const cita = await Cita.findById(req.params.id)
@@ -794,6 +798,10 @@ exports.marcarRealizada = async (req, res) => {
 exports.verificarDisponibilidad = async (req, res) => {
   try {
     const { profesionalId, fecha, hora } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(profesionalId)) {
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
 
     if (!profesionalId || !fecha || !hora) {
       return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
