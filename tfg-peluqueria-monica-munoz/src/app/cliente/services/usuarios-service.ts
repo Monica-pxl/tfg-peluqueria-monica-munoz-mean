@@ -110,6 +110,11 @@ export class UsuariosService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
+  // Eliminar usuario por _id de MongoDB
+  eliminarUsuarioPorId(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
   // Actualizar puntos del usuario
   actualizarPuntos(id: number, puntos: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/puntos`, { puntos });

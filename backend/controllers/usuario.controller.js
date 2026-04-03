@@ -87,18 +87,44 @@ exports.deleteUsuario = async (req, res) => {
       return res.status(403).json({ error: 'Un administrador no puede eliminarse a sí mismo' });
     }
 
-    const usuario = await Usuario.findByIdAndDelete(req.params.id);
+    const usuario = await Usuario.findById(req.params.id);
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
+    const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
+
+    // Buscar TODAS las citas pendientes/confirmadas del usuario como cliente ANTES de eliminar
+    // Sin filtro de fecha en DB para evitar problemas de zona horaria con strings YYYY-MM-DD
+    const todasLasCitasCliente = await Cita.find({
+      usuario: req.params.id,
+      estado: { $in: ['pendiente', 'confirmada'] }
+    })
+      .populate('profesional', 'nombre apellidos usuario')
+      .populate('servicio', 'nombre')
+      .populate('centro', 'nombre');
+
+    // Filtrar en JS: solo citas de hoy o futuras
+    // 'T00:00:00' fuerza parseo en hora local (no UTC) para evitar desfase de día
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const citasComoCliente = todasLasCitasCliente.filter(cita => {
+      const fechaCita = new Date(cita.fecha + 'T00:00:00');
+      return fechaCita >= hoy;
+    });
+
+    console.log(`🔍 Citas encontradas: ${todasLasCitasCliente.length} total, ${citasComoCliente.length} futuras/hoy a cancelar`);
+
+    // Ahora sí eliminar el usuario
+    await Usuario.findByIdAndDelete(req.params.id);
     console.log(`🗑️ Usuario eliminado: ${usuario.nombre} (${usuario.rol})`);
 
-    // Si el usuario es profesional, eliminar su registro de profesional Y TODAS sus relaciones
-    if (usuario.rol === 'profesional') {
-      const profesional = await Profesional.findOne({ usuario: req.params.id });
+    // Limpiar registro de profesional si existe, sin importar el rol actual del usuario
+    // (el rol pudo haber cambiado después de que se creó el registro de profesional)
+    const profesional = await Profesional.findOne({ usuario: req.params.id });
 
-      if (profesional) {
+    if (profesional) {
         console.log(`🗑️ Eliminando profesional asociado: ${profesional._id}`);
 
         // 1. Eliminar relaciones profesional-servicio
@@ -109,16 +135,8 @@ exports.deleteUsuario = async (req, res) => {
         const horarios = await Horario.deleteMany({ profesional: profesional._id });
         console.log(`   ├─ ${horarios.deletedCount} horarios eliminados`);
 
-        // 3. Cancelar citas futuras/pendientes/confirmadas y notificar a clientes
-        // IMPORTANTE: NO eliminar las citas, solo cambiar su estado a "cancelada"
-        const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
-        const fechaHoy = new Date();
-        fechaHoy.setHours(0, 0, 0, 0);
-
-        console.log(`   📅 Fecha de hoy (para comparación): ${fechaHoy.toISOString()}`);
-
-        // Buscar citas pendientes o confirmadas que NO hayan pasado
-        const citasAfectadas = await Cita.find({
+        // 3. Cancelar citas futuras/pendientes/confirmadas y notificar
+        const todasLasCitasProfesional = await Cita.find({
           profesional: profesional._id,
           estado: { $in: ['pendiente', 'confirmada'] }
         })
@@ -126,53 +144,31 @@ exports.deleteUsuario = async (req, res) => {
           .populate('servicio', 'nombre')
           .populate('centro', 'nombre');
 
-        console.log(`   📋 Total citas afectadas encontradas: ${citasAfectadas.length}`);
+        const hoyProf = new Date();
+        hoyProf.setHours(0, 0, 0, 0);
 
-        let citasCanceladas = 0;
+        const citasProfesional = todasLasCitasProfesional.filter(cita => {
+          const fechaCita = new Date(cita.fecha + 'T00:00:00');
+          return fechaCita >= hoyProf;
+        });
 
-        for (const cita of citasAfectadas) {
-          // Verificar si la cita ya pasó
-          const fechaCita = new Date(cita.fecha);
-          fechaCita.setHours(0, 0, 0, 0);
+        console.log(`   📋 Citas como profesional: ${todasLasCitasProfesional.length} total, ${citasProfesional.length} a cancelar`);
 
-          console.log(`      📅 Comparando: Cita ${cita._id} del ${fechaCita.toISOString()} vs Hoy ${fechaHoy.toISOString()}`);
+        if (citasProfesional.length > 0) {
+          await Cita.updateMany(
+            { _id: { $in: citasProfesional.map(c => c._id) } },
+            { $set: { estado: 'cancelada' } }
+          );
 
-          if (fechaCita >= fechaHoy) {
-            // La cita es futura o es hoy, cancelarla
-            const estadoAnterior = cita.estado;
+          const adminsProf = await obtenerAdministradores();
 
-            // Guardar información histórica si no existe
-            if (!cita.usuarioNombre && cita.usuario?.nombre) {
-              cita.usuarioNombre = cita.usuario.nombre;
-            }
-            if (!cita.usuarioEmail && cita.usuario?.email) {
-              cita.usuarioEmail = cita.usuario.email;
-            }
-            if (!cita.profesionalNombre) {
-              cita.profesionalNombre = profesional.nombre;
-            }
-            if (!cita.profesionalApellidos) {
-              cita.profesionalApellidos = profesional.apellidos;
-            }
-            if (!cita.servicioNombre && cita.servicio?.nombre) {
-              cita.servicioNombre = cita.servicio.nombre;
-            }
-            if (!cita.centroNombre && cita.centro?.nombre) {
-              cita.centroNombre = cita.centro.nombre;
-            }
+          for (const cita of citasProfesional) {
+            const nombreProfesional = `${profesional.nombre} ${profesional.apellidos}`;
+            const fechaFormateada = formatearFecha(cita.fecha);
+            const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
 
-            cita.estado = 'cancelada';
-            await cita.save();
-            citasCanceladas++;
-
-            console.log(`      ✅ Cita ${cita._id} cancelada (estado anterior: ${estadoAnterior})`);
-
-            // Notificar al cliente
+            // Notificar al cliente de la cita
             if (cita.usuario && cita.usuario._id) {
-              const nombreProfesional = `${profesional.nombre} ${profesional.apellidos}`;
-              const fechaFormateada = formatearFecha(cita.fecha);
-              const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
-
               await crearNotificacion(
                 cita.usuario._id,
                 'cliente',
@@ -180,122 +176,69 @@ exports.deleteUsuario = async (req, res) => {
                 `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ya no está disponible.`,
                 'advertencia'
               );
-
-              console.log(`      ✉️ Notificación enviada a: ${cita.usuario.nombre}`);
             }
-          } else {
-            console.log(`      ⏩ Cita del ${cita.fecha} ya pasó, no se modifica`);
-          }
-        }
 
-        console.log(`   ├─ ${citasCanceladas} citas canceladas (futuras)`);
-        console.log(`   ├─ ${citasAfectadas.length - citasCanceladas} citas ya pasadas (sin cambios)`);
+            // Notificar a administradores
+            for (const adminId of adminsProf) {
+              await crearNotificacion(
+                adminId,
+                'administrador',
+                'Cita cancelada por eliminación de profesional',
+                `La cita de <strong>${cita.usuarioNombre || cita.usuario?.nombre || 'Cliente'}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ${nombreProfesional} ha sido eliminado del sistema.`,
+                'info'
+              );
+            }
+          }
+
+          console.log(`   ├─ ${citasProfesional.length} citas canceladas y notificaciones enviadas`);
+        }
 
         // 4. Eliminar el registro de profesional
         await Profesional.findByIdAndDelete(profesional._id);
         console.log(`   └─ Registro de profesional eliminado`);
-      }
     }
 
-    // Si el usuario es cliente, cancelar sus citas futuras y notificar
-    if (usuario.rol === 'cliente') {
-      console.log(`🗑️ Gestionando citas del cliente: ${usuario.nombre}`);
+    // Cancelar citas como cliente, independientemente del rol actual
+    if (citasComoCliente.length > 0) {
+      // updateMany evita problemas de validación con documentos populados que tienen refs requeridas
+      await Cita.updateMany(
+        { _id: { $in: citasComoCliente.map(c => c._id) } },
+        { $set: { estado: 'cancelada' } }
+      );
 
-      const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
-      const fechaHoy = new Date();
-      fechaHoy.setHours(0, 0, 0, 0);
+      console.log(`   ✅ ${citasComoCliente.length} citas canceladas`);
 
-      console.log(`   📅 Fecha de hoy (para comparación): ${fechaHoy.toISOString()}`);
+      const admins = await obtenerAdministradores();
 
-      // Buscar citas pendientes o confirmadas que NO hayan pasado
-      const citasAfectadas = await Cita.find({
-        usuario: req.params.id,
-        estado: { $in: ['pendiente', 'confirmada'] }
-      })
-        .populate('profesional', 'nombre apellidos usuario')
-        .populate('servicio', 'nombre')
-        .populate('centro', 'nombre');
+      for (const cita of citasComoCliente) {
+        const fechaFormateada = formatearFecha(cita.fecha);
+        const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
+        const nombreCliente = usuario.nombre;
 
-      console.log(`   📋 Total citas afectadas encontradas: ${citasAfectadas.length}`);
+        // Notificar al profesional
+        if (cita.profesional && cita.profesional.usuario) {
+          await crearNotificacion(
+            cita.profesional.usuario,
+            'profesional',
+            'Cita cancelada',
+            `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el usuario ha sido eliminado del sistema.`,
+            'advertencia'
+          );
+        }
 
-      let citasCanceladas = 0;
-
-      for (const cita of citasAfectadas) {
-        // Verificar si la cita ya pasó
-        const fechaCita = new Date(cita.fecha);
-        fechaCita.setHours(0, 0, 0, 0);
-
-        console.log(`      📅 Comparando: Cita ${cita._id} del ${fechaCita.toISOString()} vs Hoy ${fechaHoy.toISOString()}`);
-
-        if (fechaCita >= fechaHoy) {
-          // La cita es futura o es hoy, cancelarla
-          const estadoAnterior = cita.estado;
-
-          // Guardar información histórica del usuario si no existe
-          if (!cita.usuarioNombre) {
-            cita.usuarioNombre = usuario.nombre;
-          }
-          if (!cita.usuarioEmail) {
-            cita.usuarioEmail = usuario.email;
-          }
-          if (!cita.profesionalNombre && cita.profesional?.nombre) {
-            cita.profesionalNombre = cita.profesional.nombre;
-          }
-          if (!cita.profesionalApellidos && cita.profesional?.apellidos) {
-            cita.profesionalApellidos = cita.profesional.apellidos;
-          }
-          if (!cita.servicioNombre && cita.servicio?.nombre) {
-            cita.servicioNombre = cita.servicio.nombre;
-          }
-          if (!cita.centroNombre && cita.centro?.nombre) {
-            cita.centroNombre = cita.centro.nombre;
-          }
-
-          cita.estado = 'cancelada';
-          await cita.save();
-          citasCanceladas++;
-
-          console.log(`      ✅ Cita ${cita._id} cancelada (estado anterior: ${estadoAnterior})`);
-
-          const fechaFormateada = formatearFecha(cita.fecha);
-          const nombreServicio = cita.servicioNombre || cita.servicio?.nombre || 'Servicio';
-          const nombreCliente = usuario.nombre;
-
-          // Notificar al profesional
-          if (cita.profesional && cita.profesional.usuario) {
-            const nombreProfesional = `${cita.profesional.nombre} ${cita.profesional.apellidos}`;
-
-            await crearNotificacion(
-              cita.profesional.usuario,
-              'profesional',
-              'Cita cancelada',
-              `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el cliente eliminó su cuenta.`,
-              'advertencia'
-            );
-
-            console.log(`      ✉️ Notificación enviada al profesional: ${nombreProfesional}`);
-          }
-
-          // Notificar a administradores
-          const admins = await obtenerAdministradores();
-          for (const adminId of admins) {
-            await crearNotificacion(
-              adminId,
-              'administrador',
-              'Cita cancelada por eliminación de cliente',
-              `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el cliente eliminó su cuenta.`,
-              'info'
-            );
-          }
-
-          console.log(`      ✉️ Notificaciones enviadas a ${admins.length} administrador(es)`);
-        } else {
-          console.log(`      ⏩ Cita del ${cita.fecha} ya pasó, no se modifica`);
+        // Notificar a administradores
+        for (const adminId of admins) {
+          await crearNotificacion(
+            adminId,
+            'administrador',
+            'Cita cancelada por eliminación de usuario',
+            `La cita de <strong>${nombreCliente}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el usuario ha sido eliminado del sistema.`,
+            'info'
+          );
         }
       }
 
-      console.log(`   ├─ ${citasCanceladas} citas canceladas (futuras)`);
-      console.log(`   └─ ${citasAfectadas.length - citasCanceladas} citas ya pasadas (sin cambios)`);
+      console.log(`   └─ Notificaciones enviadas`);
     }
 
     res.json({ mensaje: 'Usuario eliminado exitosamente' });
