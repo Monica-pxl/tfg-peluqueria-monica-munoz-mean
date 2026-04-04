@@ -156,7 +156,12 @@
         [class.is-invalid]="formularioEnviado && !horaSeleccionada"
         [(ngModel)]="horaSeleccionada" name="hora" [disabled]="!fechaSeleccionada || !horasDisponibles.length">
         <option selected disabled value="">Selecciona una hora</option>
-        <option *ngFor="let hora of horasDisponibles" [value]="hora">{{hora}}</option>
+        <option *ngFor="let hora of horasDisponibles"
+          [value]="hora"
+          [disabled]="slotsOcupados.includes(hora)"
+          [class.hora-ocupada]="slotsOcupados.includes(hora)">
+          {{hora}}{{ slotsOcupados.includes(hora) ? ' — Ocupada' : '' }}
+        </option>
       </select>
       @if (!fechaSeleccionada) {
         <small class="text-muted">Selecciona primero una fecha.</small>

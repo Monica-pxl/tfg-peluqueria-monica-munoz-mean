@@ -84,6 +84,12 @@
   color: #333;
 }
 
+.form-select.form-control-custom option.hora-ocupada,
+.form-select.form-control-custom option:disabled {
+  color: #aaa;
+  background-color: #f5f5f5;
+}
+
 /* CALENDARIO */
 /* Navegación entre meses */
 .month-navigation {

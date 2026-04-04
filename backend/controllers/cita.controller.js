@@ -794,6 +794,39 @@ exports.marcarRealizada = async (req, res) => {
   }
 };
 
+// Obtener slots ocupados para un profesional en una fecha (endpoint público, sin autenticación)
+exports.getSlotsOcupados = async (req, res) => {
+  try {
+    const { profesionalId, fecha } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(profesionalId)) {
+      return res.status(400).json({ error: 'ID de profesional no válido' });
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+      return res.status(400).json({ error: 'Formato de fecha no válido. Use YYYY-MM-DD' });
+    }
+
+    const citas = await Cita.find({
+      profesional: profesionalId,
+      fecha,
+      estado: { $in: ['pendiente', 'confirmada'] }
+    }).populate('servicio', 'duracion');
+
+    const slots = citas.map(cita => ({
+      hora: cita.hora,
+      duracion: typeof cita.servicio === 'object' && cita.servicio !== null
+        ? cita.servicio.duracion
+        : 30
+    }));
+
+    res.json(slots);
+  } catch (error) {
+    console.error('Error al obtener slots ocupados:', error);
+    res.status(500).json({ error: 'Error al obtener slots ocupados' });
+  }
+};
+
 // Verificar disponibilidad
 exports.verificarDisponibilidad = async (req, res) => {
   try {

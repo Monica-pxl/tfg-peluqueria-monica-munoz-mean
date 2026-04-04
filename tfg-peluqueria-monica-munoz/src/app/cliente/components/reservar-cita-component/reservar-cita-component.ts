@@ -48,6 +48,7 @@ export class ReservarCitaComponent implements OnInit {
 
   horariosFiltrados: HorariosInterface[] = [];
   horasDisponibles: string[] = [];
+  slotsOcupados: string[] = [];
   diasDisponibles: string[] = [];
   diasMes: (Date | null)[] = [];
 
@@ -142,6 +143,7 @@ export class ReservarCitaComponent implements OnInit {
     this.generarDiasDisponibles();
     this.generarDiasMes(); // Regenerar el calendario
     this.horasDisponibles = [];
+    this.slotsOcupados = [];
   }
 
   seleccionarFecha(fecha: string) {
@@ -149,6 +151,7 @@ export class ReservarCitaComponent implements OnInit {
 
     if (!fecha) {
       this.horasDisponibles = [];
+      this.slotsOcupados = [];
       return;
     }
 
@@ -159,6 +162,7 @@ export class ReservarCitaComponent implements OnInit {
       this.alertService.warning('No se puede seleccionar un día pasado.');
       this.fechaSeleccionada = '';
       this.horasDisponibles = [];
+      this.slotsOcupados = [];
       return;
     }
 
@@ -166,6 +170,7 @@ export class ReservarCitaComponent implements OnInit {
       this.alertService.warning('El profesional NO trabaja ese día. Selecciona otra fecha.');
       this.fechaSeleccionada = '';
       this.horasDisponibles = [];
+      this.slotsOcupados = [];
       return;
     }
 
@@ -250,11 +255,13 @@ export class ReservarCitaComponent implements OnInit {
 
   generarHorasDisponibles() {
     this.horasDisponibles = [];
+    this.slotsOcupados = [];
     if (!this.profesionalSeleccionado || !this.fechaSeleccionada || !this.servicioSeleccionado) return;
 
     // BLOQUEAR DÍAS FESTIVOS - no generar horas disponibles
     if (this.esDiaFestivo(this.fechaSeleccionada)) {
       this.horasDisponibles = [];
+      this.slotsOcupados = [];
       return;
     }
 
@@ -298,41 +305,28 @@ export class ReservarCitaComponent implements OnInit {
   filtrarHorasOcupadas(duracionServicio: number) {
     if (!this.profesionalSeleccionado || !this.fechaSeleccionada) return;
 
-    // Obtener citas del profesional desde la API
-    this.citasAPI.getCitasPorProfesional(this.profesionalSeleccionado).subscribe({
-      next: (citas) => {
-        // Filtrar solo citas de la fecha seleccionada y no canceladas
-        const citasDelDia = citas.filter(cita =>
-          cita.fecha === this.fechaSeleccionada &&
-          cita.estado !== 'cancelada'
-        );
-
-        // Filtrar las horas disponibles
-        this.horasDisponibles = this.horasDisponibles.filter(slot => {
+    this.citasAPI.getSlotsOcupados(this.profesionalSeleccionado, this.fechaSeleccionada).subscribe({
+      next: (citasDelDia) => {
+        // Marcar como ocupados los slots que se solapan con citas existentes
+        this.slotsOcupados = this.horasDisponibles.filter(slot => {
           const slotInicio = new Date(`${this.fechaSeleccionada}T${slot}`);
           const slotFin = new Date(slotInicio.getTime() + duracionServicio * 60000);
 
-          // Verificar si esta hora se solapa con alguna cita existente
           for (const cita of citasDelDia) {
-            const citaInicio = new Date(`${cita.fecha}T${cita.hora}`);
-            // Obtener la duración del servicio de la cita
-            const duracionCita = typeof cita.servicio === 'object' && cita.servicio !== null
-              ? cita.servicio.duracion
-              : 30;
-            const citaFin = new Date(citaInicio.getTime() + duracionCita * 60000);
+            const citaInicio = new Date(`${this.fechaSeleccionada}T${cita.hora}`);
+            const citaFin = new Date(citaInicio.getTime() + cita.duracion * 60000);
 
-            // Si hay solapamiento, esta hora no está disponible
             if (slotInicio < citaFin && slotFin > citaInicio) {
-              return false;
+              return true; // solapamiento → slot ocupado
             }
           }
 
-          return true;
+          return false;
         });
       },
       error: (err) => {
-        console.error('Error al obtener citas del profesional:', err);
-        // En caso de error, mantener las horas disponibles sin filtrar
+        console.error('Error al obtener slots ocupados:', err);
+        this.slotsOcupados = [];
       }
     });
   }
@@ -495,6 +489,7 @@ export class ReservarCitaComponent implements OnInit {
         this.fechaSeleccionada = '';
         this.horaSeleccionada = '';
         this.horasDisponibles = [];
+        this.slotsOcupados = [];
         this.diasDisponibles = [];
         selectCentro.value = '';
         selectServicio.value = '';
@@ -535,5 +530,6 @@ export class ReservarCitaComponent implements OnInit {
   private limpiarSeleccionFecha() {
     this.fechaSeleccionada = '';
     this.horasDisponibles = [];
+    this.slotsOcupados = [];
   }
 }

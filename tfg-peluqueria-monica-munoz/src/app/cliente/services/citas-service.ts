@@ -52,4 +52,11 @@ export class CitasService {
   getCitasPorProfesional(profesionalId: string): Observable<CitasInterface[]> {
     return this.http.get<CitasInterface[]>(`${this.urlCitas}/profesional/${profesionalId}`);
   }
+
+  // Obtener slots ocupados para un profesional en una fecha (público, sin autenticación)
+  getSlotsOcupados(profesionalId: string, fecha: string): Observable<{ hora: string; duracion: number }[]> {
+    return this.http.get<{ hora: string; duracion: number }[]>(
+      `${this.urlCitas}/disponibilidad/${profesionalId}/${fecha}`
+    );
+  }
 }
