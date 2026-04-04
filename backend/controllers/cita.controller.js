@@ -836,8 +836,12 @@ exports.verificarDisponibilidad = async (req, res) => {
       return res.status(400).json({ error: 'ID de profesional no válido' });
     }
 
-    if (!profesionalId || !fecha || !hora) {
-      return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+      return res.status(400).json({ error: 'Formato de fecha no válido. Use YYYY-MM-DD' });
+    }
+
+    if (!/^\d{2}:\d{2}$/.test(hora)) {
+      return res.status(400).json({ error: 'Formato de hora no válido. Use HH:MM' });
     }
 
     const citaExistente = await Cita.findOne({
