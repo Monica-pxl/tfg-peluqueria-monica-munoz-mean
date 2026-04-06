@@ -270,15 +270,25 @@ exports.createCita = async (req, res) => {
       });
     }
 
-    // Verificar que no existe cita activa (pendiente/confirmada) en ese horario
-    const citaDuplicada = await Cita.findOne({
+    // Verificar solapamiento considerando la duración de cada servicio
+    const citasDelDia = await Cita.find({
       profesional,
       fecha,
-      hora,
       estado: { $in: ['pendiente', 'confirmada'] }
-    });
-    if (citaDuplicada) {
-      return res.status(400).json({ error: 'Ya existe una cita en ese horario para ese profesional' });
+    }).populate('servicio', 'duracion');
+
+    const nuevaInicioMin = horaH * 60 + horaM;
+    const nuevaFinMin = nuevaInicioMin + servicioDB.duracion;
+
+    for (const citaExistente of citasDelDia) {
+      const [cH, cM] = citaExistente.hora.split(':').map(Number);
+      const existInicioMin = cH * 60 + cM;
+      const duracionExistente = citaExistente.servicio ? citaExistente.servicio.duracion : 30;
+      const existFinMin = existInicioMin + duracionExistente;
+
+      if (nuevaInicioMin < existFinMin && nuevaFinMin > existInicioMin) {
+        return res.status(400).json({ error: 'La cita se solapa con una cita ya existente en ese horario' });
+      }
     }
 
     // Eliminar citas canceladas en ese hueco para que el índice único de MongoDB
@@ -425,21 +435,32 @@ exports.updateCita = async (req, res) => {
       }
     }
 
-    // Si se cambia fecha u hora, verificar disponibilidad
+    // Si se cambia fecha u hora, verificar disponibilidad considerando duración
     if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
       const nuevaFecha = fecha || cita.fecha;
       const nuevaHora = hora || cita.hora;
 
-      const citaExistente = await Cita.findOne({
+      const citasDelDia = await Cita.find({
         profesional: cita.profesional._id,
         fecha: nuevaFecha,
-        hora: nuevaHora,
         _id: { $ne: req.params.id },
         estado: { $in: ['pendiente', 'confirmada'] }
-      });
+      }).populate('servicio', 'duracion');
 
-      if (citaExistente) {
-        return res.status(400).json({ error: 'Ya existe una cita para ese profesional en ese horario' });
+      const duracionNueva = cita.servicio ? cita.servicio.duracion : 30;
+      const [nH, nM] = nuevaHora.split(':').map(Number);
+      const nuevaInicioMin = nH * 60 + nM;
+      const nuevaFinMin = nuevaInicioMin + duracionNueva;
+
+      for (const citaExistente of citasDelDia) {
+        const [cH, cM] = citaExistente.hora.split(':').map(Number);
+        const existInicioMin = cH * 60 + cM;
+        const duracionExistente = citaExistente.servicio ? citaExistente.servicio.duracion : 30;
+        const existFinMin = existInicioMin + duracionExistente;
+
+        if (nuevaInicioMin < existFinMin && nuevaFinMin > existInicioMin) {
+          return res.status(400).json({ error: 'La cita se solapa con una cita ya existente en ese horario' });
+        }
       }
     }
 
