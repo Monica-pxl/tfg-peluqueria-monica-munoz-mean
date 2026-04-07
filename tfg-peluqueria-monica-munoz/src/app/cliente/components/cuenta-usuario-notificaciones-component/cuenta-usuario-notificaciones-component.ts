@@ -19,7 +19,7 @@ export class CuentaUsuarioNotificacionesComponent {
     // Marcar como leídas al entrar a la página
     this.notificacionesService.marcarTodasComoLeidas().subscribe({
       next: () => {
-        console.log('✅ Notificaciones marcadas como leídas');
+        // console.log('✅ Notificaciones marcadas como leídas');
         this.cargarNotificaciones();
       },
       error: (err) => {

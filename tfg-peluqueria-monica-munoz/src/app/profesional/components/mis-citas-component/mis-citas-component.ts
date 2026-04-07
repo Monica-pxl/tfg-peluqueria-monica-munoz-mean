@@ -58,9 +58,8 @@ export class MisCitasComponent implements OnInit {
     this.cargando = true;
     this.profesionalesService.getAllProfesionales().subscribe({
       next: profesionales => {
-        console.log('Buscando profesional para usuario:', usuarioLogueado);
-        console.log('Profesionales disponibles:', profesionales);
-
+        // console.log('Buscando profesional para usuario:', usuarioLogueado);
+        // console.log('Profesionales disponibles:', profesionales);
         // Buscar profesional por el campo 'usuario' que debe coincidir con el _id del usuario logueado
         const profesional = profesionales.find(p => {
           // Si 'usuario' es un objeto poblado, comparar con usuario._id
@@ -73,7 +72,7 @@ export class MisCitasComponent implements OnInit {
 
         if (profesional) {
           this.idProfesional = profesional._id; // Usar _id en lugar de id_profesional
-          console.log('Profesional encontrado:', profesional);
+          // console.log('Profesional encontrado:', profesional);
           this.cargarDatos();
         } else {
           console.error('No se encontró profesional asociado a este usuario');
@@ -194,7 +193,7 @@ export class MisCitasComponent implements OnInit {
       actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
     }).subscribe({
       next: () => {
-        console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
+        // console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
         this.cargarCitas();
       },

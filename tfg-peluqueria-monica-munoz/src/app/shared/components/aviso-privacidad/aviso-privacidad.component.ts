@@ -14,13 +14,13 @@ export class AvisoPrivacidadComponent implements OnInit {
   ngOnInit(): void {
     // Verificar si el usuario ya aceptó el aviso
     const avisoAceptado = localStorage.getItem('avisoPrivacidadAceptado');
-    console.log('Aviso privacidad - localStorage:', avisoAceptado);
+    // console.log('Aviso privacidad - localStorage:', avisoAceptado);
     if (!avisoAceptado) {
-      console.log('Mostrando aviso de privacidad');
+      // console.log('Mostrando aviso de privacidad');
       // Mostrar el aviso inmediatamente
       this.mostrarAviso = true;
     } else {
-      console.log('Aviso ya aceptado, no se muestra');
+      // console.log('Aviso ya aceptado, no se muestra');
       this.mostrarAviso = false;
     }
   }

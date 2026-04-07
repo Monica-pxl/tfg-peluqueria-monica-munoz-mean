@@ -73,7 +73,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.notificacionesService.contarNoLeidas().subscribe({
       next: (result) => {
         this.hayNotificacionesSinLeer = result.count > 0;
-        console.log('🔔 Notificaciones sin leer:', result.count);
+        // console.log('🔔 Notificaciones sin leer:', result.count);
       },
       error: (err) => {
         console.error('Error al verificar notificaciones:', err);

@@ -42,13 +42,13 @@ export class HomeComponent implements OnInit {
         next: (data) => {
           // Los servicios ya vienen ordenados del backend
           this.servicios = data;
-          console.log('Servicios cargados en home:', this.servicios);
+          // console.log('Servicios cargados en home:', this.servicios);
         },
         error: (err) => {
           console.error('Error al cargar los servicios', err)
         },
         complete: () => {
-          console.log('Servicios cargados correctamente');
+          // console.log('Servicios cargados correctamente');
         }
       });
     }
@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit {
           console.error('Error al cargar los centros', err)
         },
         complete: () => {
-          console.log('Centros cargados correctamente');
+          // console.log('Centros cargados correctamente');
         }
       });
     }

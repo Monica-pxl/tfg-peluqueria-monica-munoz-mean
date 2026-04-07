@@ -72,7 +72,7 @@ export class ServiciosCrear implements OnInit{
   crearServicio(): void {
   // Protección contra doble clic
   if (this.guardando) {
-    console.log('⚠️ Ya se está guardando, ignorando clic duplicado');
+    // console.log('⚠️ Ya se está guardando, ignorando clic duplicado');
     return;
   }
 
@@ -99,12 +99,12 @@ export class ServiciosCrear implements OnInit{
   }
 
   this.guardando = true; // Bloquear botón
-  console.log('=== CREAR SERVICIO ===');
-  console.log('Profesionales seleccionados (raw):', this.id_profesionales);
+  // console.log('=== CREAR SERVICIO ===');
+  // console.log('Profesionales seleccionados (raw):', this.id_profesionales);
 
   // Eliminar duplicados del array de profesionales
   const profesionalesUnicos = [...new Set(this.id_profesionales)];
-  console.log('Profesionales únicos después de filtrar:', profesionalesUnicos);
+  // console.log('Profesionales únicos después de filtrar:', profesionalesUnicos);
 
   const nuevo: ServiciosInterface = {
     nombre: this.nombre,
@@ -117,30 +117,30 @@ export class ServiciosCrear implements OnInit{
 
   this.serviciosService.crearServicio(nuevo).subscribe({
     next: (servicioCreado) => {
-      console.log('Servicio creado con _id:', servicioCreado._id);
+      // console.log('Servicio creado con _id:', servicioCreado._id);
 
       if (profesionalesUnicos.length === 0) {
-        console.log('No hay profesionales seleccionados, redirigiendo...');
+        // console.log('No hay profesionales seleccionados, redirigiendo...');
         this.alertService.success('Servicio creado exitosamente');
         this.guardando = false;
         this.router.navigate(['/admin/servicios']);
         return;
       }
 
-      console.log('Creando relaciones para profesionales únicos:', profesionalesUnicos);
+      // console.log('Creando relaciones para profesionales únicos:', profesionalesUnicos);
 
       const observables = profesionalesUnicos.map(id_prof => {
         const relacion: ProfesionalServicioInterface = {
           profesional: id_prof,
           servicio: servicioCreado._id
         };
-        console.log('Creando relación:', relacion);
+        // console.log('Creando relación:', relacion);
         return this.profesionalServicioService.crearRelacion(relacion);
       });
 
       forkJoin(observables).subscribe({
         next: () => {
-          console.log('Todas las relaciones creadas exitosamente');
+          // console.log('Todas las relaciones creadas exitosamente');
           this.alertService.success('Servicio creado exitosamente');
           this.guardando = false;
           this.router.navigate(['/admin/servicios'], { queryParams: { recargar: true } });
@@ -164,8 +164,8 @@ export class ServiciosCrear implements OnInit{
   }
 
   onCentroChange(): void {
-    console.log('=== CAMBIO DE CENTRO ===');
-    console.log('Centro seleccionado:', this.id_centro);
+    // console.log('=== CAMBIO DE CENTRO ===');
+    // console.log('Centro seleccionado:', this.id_centro);
 
     // Limpiar selección de profesionales
     this.id_profesionales = [];
@@ -178,7 +178,7 @@ export class ServiciosCrear implements OnInit{
           : p.centro;
         return pCentroId === this.id_centro;
       });
-      console.log('Profesionales filtrados:', this.profesionalesFiltrados);
+      // console.log('Profesionales filtrados:', this.profesionalesFiltrados);
     } else {
       this.profesionalesFiltrados = [];
     }
@@ -193,7 +193,7 @@ export class ServiciosCrear implements OnInit{
       selectedOptions.map(option => option.value)
     )];
 
-    console.log('✅ Profesionales seleccionados:', this.id_profesionales);
+    // console.log('✅ Profesionales seleccionados:', this.id_profesionales);
   }
 
   private validarImagenURL(url: string): boolean {

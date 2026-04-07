@@ -98,7 +98,7 @@ export class ServiciosEditar implements OnInit{
               })
               .filter((id): id is string => !!id);
 
-            console.log('Profesionales del servicio:', this.id_profesionales);
+            // console.log('Profesionales del servicio:', this.id_profesionales);
 
             // Filtrar profesionales por el centro del servicio
             const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null
@@ -160,16 +160,16 @@ export class ServiciosEditar implements OnInit{
     // Primero actualizar el servicio
     this.serviciosService.actualizarServicio(this.servicio).subscribe({
       next: () => {
-        console.log('✅ Servicio actualizado, ahora eliminando relaciones antiguas...');
+        // console.log('✅ Servicio actualizado, ahora eliminando relaciones antiguas...');
 
         // Eliminar relaciones antiguas usando el _id
         this.profesionalServicioService.eliminarPorServicio(this.servicio._id!).subscribe({
           next: () => {
-            console.log('✅ Relaciones antiguas eliminadas');
+            // console.log('✅ Relaciones antiguas eliminadas');
 
             // Crear nuevas relaciones si hay profesionales seleccionados
             if (this.id_profesionales.length > 0) {
-              console.log('Creando nuevas relaciones para profesionales:', this.id_profesionales);
+              // console.log('Creando nuevas relaciones para profesionales:', this.id_profesionales);
 
               // Crear array de observables para forkJoin
               const observables = this.id_profesionales.map(id_prof => {
@@ -177,14 +177,14 @@ export class ServiciosEditar implements OnInit{
                   profesional: id_prof,
                   servicio: this.servicio._id
                 };
-                console.log('Creando relación:', relacion);
+                // console.log('Creando relación:', relacion);
                 return this.profesionalServicioService.crearRelacion(relacion);
               });
 
               // Ejecutar todas las peticiones en paralelo
               forkJoin(observables).subscribe({
                 next: () => {
-                  console.log('✅ Todas las relaciones creadas exitosamente');
+                  // console.log('✅ Todas las relaciones creadas exitosamente');
                   this.alertService.success('Servicio actualizado exitosamente');
                   this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
                 },
@@ -196,7 +196,7 @@ export class ServiciosEditar implements OnInit{
               });
             } else {
               // Si no hay profesionales, simplemente confirmar la actualización
-              console.log('✅ No hay profesionales seleccionados');
+              // console.log('✅ No hay profesionales seleccionados');
               this.alertService.success('Servicio actualizado exitosamente');
               this.router.navigate(['/admin/servicios'], { queryParams: { recargar: '1' } });
             }

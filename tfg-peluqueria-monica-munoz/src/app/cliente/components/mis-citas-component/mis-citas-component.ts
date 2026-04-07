@@ -81,7 +81,7 @@ export class MisCitasComponent implements OnInit{
 
   borrarCitasUsuario() {
     // Esta función ya no es necesaria con MongoDB, pero la mantenemos vacía por compatibilidad
-    console.log('borrarCitasUsuario no hace nada con MongoDB');
+    // console.log('borrarCitasUsuario no hace nada con MongoDB');
   }
 
   async cancelarCita(cita: any): Promise<void> {

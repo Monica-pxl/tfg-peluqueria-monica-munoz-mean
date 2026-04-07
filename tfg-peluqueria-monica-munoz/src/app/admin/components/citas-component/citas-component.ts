@@ -146,11 +146,11 @@ export class CitasComponent implements OnInit {
       // DEBUG: verificar datos antes de la petición
       const token = this.usuariosService.getToken();
       const urlFinal = `https://hairgest-backend.vercel.app/api/citas/${cita._id}/marcar-realizada`;
-      console.log('🔍 [marcarRealizada] ID de la cita:', cita._id);
-      console.log('🔍 [marcarRealizada] URL final:', urlFinal);
-      console.log('🔍 [marcarRealizada] Token JWT:', token ? `Bearer ${token.substring(0, 20)}...` : 'NO HAY TOKEN');
-      console.log('🔍 [marcarRealizada] Estado actual en DB (estadoAnterior):', estadoAnterior);
-      console.log('🔍 [marcarRealizada] Fecha/hora cita:', cita.fecha, cita.hora);
+      // console.log('🔍 [marcarRealizada] ID de la cita:', cita._id);
+      // console.log('🔍 [marcarRealizada] URL final:', urlFinal);
+      // console.log('🔍 [marcarRealizada] Token JWT:', token ? `Bearer ${token.substring(0, 20)}...` : 'NO HAY TOKEN');
+      // console.log('🔍 [marcarRealizada] Estado actual en DB (estadoAnterior):', estadoAnterior);
+      // console.log('🔍 [marcarRealizada] Fecha/hora cita:', cita.fecha, cita.hora);
 
       // Usar endpoint de marcar como realizada que suma puntos y crea notificaciones
       this.citasService.marcarCitaRealizada(cita._id, {
@@ -158,7 +158,7 @@ export class CitasComponent implements OnInit {
         marcadoPor: this.usuariosService.getUsuarioLogueado()?._id
       }).subscribe({
         next: (respuesta: any) => {
-          console.log('✅ [marcarRealizada] Respuesta del backend:', respuesta);
+          // console.log('✅ [marcarRealizada] Respuesta del backend:', respuesta);
           this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
         },
@@ -189,7 +189,7 @@ export class CitasComponent implements OnInit {
       actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
     }).subscribe({
       next: () => {
-        console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
+        // console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
         this.alertService.success('Estado de cita actualizado correctamente');
         this.cargarCitas();
       },

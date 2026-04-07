@@ -48,7 +48,7 @@ export class ServiciosComponent implements OnInit {
         this.servicios = data;
         this.serviciosFiltrados = this.servicios;
         this.actualizarPagina();
-        console.log('Servicios cargados:', this.servicios);
+        // console.log('Servicios cargados:', this.servicios);
       },
       error: (err) => {
         this.cargando = false;

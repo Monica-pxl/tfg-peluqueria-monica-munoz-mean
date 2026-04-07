@@ -40,9 +40,8 @@ export class DashboardComponent implements OnInit {
       // Primero obtener el id_profesional a partir del _id del usuario
       this.profesionalesService.getAllProfesionales().subscribe({
         next: profesionales => {
-          console.log('Todos los profesionales:', profesionales);
-          console.log('Usuario logueado:', this.usuarioLogueado);
-
+          // console.log('Todos los profesionales:', profesionales);
+          // console.log('Usuario logueado:', this.usuarioLogueado);
           // Buscar profesional por el campo 'usuario' que debe coincidir con el _id del usuario logueado
           const profesional = profesionales.find(p => {
             // Si 'usuario' es un objeto poblado, comparar con usuario._id
@@ -55,7 +54,7 @@ export class DashboardComponent implements OnInit {
 
           if (profesional) {
             this.idProfesional = profesional._id; // Usar _id
-            console.log('ID Profesional encontrado:', this.idProfesional);
+            // console.log('ID Profesional encontrado:', this.idProfesional);
             this.cargarDatos();
           } else {
             console.error('No se encontró profesional asociado a este usuario');
@@ -81,7 +80,7 @@ export class DashboardComponent implements OnInit {
 
     this.citasService.getCitasPorProfesional(this.idProfesional).subscribe({
       next: (misCitas) => {
-        console.log('Mis citas (profesional ' + this.idProfesional + '):', misCitas);
+        // console.log('Mis citas (profesional ' + this.idProfesional + '):', misCitas);
 
         // Fecha de hoy
         const hoy = new Date().toISOString().split('T')[0];
@@ -146,8 +145,8 @@ export class DashboardComponent implements OnInit {
         } else {
           this.proximaCita = null;
         }
-        console.log('Próxima cita:', this.proximaCita);
-        console.log('Estadísticas - Total:', this.citasTotales, 'Hoy:', this.citasHoy, 'Pendientes:', this.citasPendientes);
+        // console.log('Próxima cita:', this.proximaCita);
+        // console.log('Estadísticas - Total:', this.citasTotales, 'Hoy:', this.citasHoy, 'Pendientes:', this.citasPendientes);
       },
       error: (error) => {
         console.error('Error al cargar citas:', error);

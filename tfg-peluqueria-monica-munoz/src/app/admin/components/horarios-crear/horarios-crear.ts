@@ -65,7 +65,7 @@ export class HorariosCrear implements OnInit {
       next: (profesionales) => {
         this.profesionales = profesionales;
         this.profesionalesFiltrados = profesionales; // Inicializar filtrados con todos
-        console.log('Profesionales cargados:', profesionales);
+        // console.log('Profesionales cargados:', profesionales);
         this.cargandoProfesionales = false;
       },
       error: (err) => {
@@ -104,7 +104,7 @@ export class HorariosCrear implements OnInit {
     const profesional = this.profesionales.find(p => p._id === this.id_profesional);
     if (!profesional) {
       console.warn('Profesional no encontrado con ID:', this.id_profesional);
-      console.log('Profesionales disponibles:', this.profesionales);
+      // console.log('Profesionales disponibles:', this.profesionales);
       return '';
     }
 

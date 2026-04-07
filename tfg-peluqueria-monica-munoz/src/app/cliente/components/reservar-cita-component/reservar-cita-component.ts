@@ -476,7 +476,7 @@ export class ReservarCitaComponent implements OnInit {
 
     this.citasAPI.crearCita(nuevaCita).subscribe({
       next: (response) => {
-        console.log('Cita creada exitosamente:', response);
+        // console.log('Cita creada exitosamente:', response);
         this.mensajeConfirmacion = `¡Cita reservada con éxito para el ${this.fechaSeleccionada} a las ${this.horaSeleccionada}!`;
         this.alertService.success(this.mensajeConfirmacion);
 

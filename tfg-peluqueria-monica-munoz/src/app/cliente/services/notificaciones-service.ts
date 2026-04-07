@@ -32,17 +32,10 @@ export class NotificacionesService {
     private usuariosService: UsuariosService
   ) {}
 
-  // Obtener todas las notificaciones del usuario logueado (retorna array para compatibilidad)
-  getNotificaciones(): NotificacionInterface[] {
-    // Este método debe ser actualizado en los componentes para usar la versión Observable
-    console.warn('getNotificaciones() síncrono está deprecated. Usa getNotificacionesObservable()');
-    return [];
-  }
-
   // Obtener todas las notificaciones del usuario logueado (Observable)
   getNotificacionesObservable(): Observable<NotificacionInterface[]> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    console.log('🔍 [Notificaciones] Usuario logueado:', usuario);
+    // console.log('🔍 [Notificaciones] Usuario logueado:', usuario);
 
     // El backend ahora devuelve tanto _id como id_usuario
     const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
@@ -56,11 +49,11 @@ export class NotificacionesService {
     }
 
     const url = `${this.apiUrl}/usuario/${userId}`;
-    console.log('📡 [Notificaciones] Llamando a:', url);
+    // console.log('📡 [Notificaciones] Llamando a:', url);
 
     return this.http.get<NotificacionInterface[]>(url).pipe(
       tap(notificaciones => {
-        console.log('✅ [Notificaciones] Recibidas:', notificaciones.length, 'notificaciones');
+        // console.log('✅ [Notificaciones] Recibidas:', notificaciones.length, 'notificaciones');
       })
     );
   }
@@ -68,7 +61,7 @@ export class NotificacionesService {
   // Obtener notificaciones no leídas del usuario logueado
   getNotificacionesNoLeidas(): Observable<NotificacionInterface[]> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    console.log('🔍 [Notificaciones No Leídas] Usuario logueado:', usuario);
+    // console.log('🔍 [Notificaciones No Leídas] Usuario logueado:', usuario);
 
     // Intentar obtener el ID del usuario (puede ser _id o id_usuario)
     const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
@@ -82,11 +75,11 @@ export class NotificacionesService {
     }
 
     const url = `${this.apiUrl}/usuario/${userId}/no-leidas`;
-    console.log('📡 [Notificaciones No Leídas] Llamando a:', url);
+    // console.log('📡 [Notificaciones No Leídas] Llamando a:', url);
 
     return this.http.get<NotificacionInterface[]>(url).pipe(
       tap(notificaciones => {
-        console.log('✅ [Notificaciones No Leídas] Recibidas:', notificaciones.length, 'notificaciones');
+        // console.log('✅ [Notificaciones No Leídas] Recibidas:', notificaciones.length, 'notificaciones');
       })
     );
   }
@@ -94,7 +87,7 @@ export class NotificacionesService {
   // Contar notificaciones no leídas
   contarNoLeidas(): Observable<{ count: number }> {
     const usuario = this.usuariosService.getUsuarioLogueado();
-    console.log('🔍 [Contar No Leídas] Usuario logueado:', usuario);
+    // console.log('🔍 [Contar No Leídas] Usuario logueado:', usuario);
 
     // Intentar obtener el ID del usuario (puede ser _id o id_usuario)
     const userId = (usuario as any)?._id || (usuario as any)?.id_usuario;
@@ -108,11 +101,11 @@ export class NotificacionesService {
     }
 
     const url = `${this.apiUrl}/usuario/${userId}/contar-no-leidas`;
-    console.log('📡 [Contar No Leídas] Llamando a:', url);
+    // console.log('📡 [Contar No Leídas] Llamando a:', url);
 
     return this.http.get<{ count: number }>(url).pipe(
       tap(response => {
-        console.log('✅ [Contar No Leídas] Count:', response.count);
+        // console.log('✅ [Contar No Leídas] Count:', response.count);
       })
     );
   }
@@ -161,8 +154,8 @@ export class NotificacionesService {
   // Para compatibilidad con código antiguo
   marcarNotificacionesComoLeidas(): void {
     this.marcarTodasComoLeidas().subscribe({
-      next: () => console.log('✅ Notificaciones marcadas como leídas'),
-      error: (err) => console.error('❌ Error al marcar notificaciones como leídas:', err)
+      next: () => { /* console.log('✅ Notificaciones marcadas como leídas') */ },
+      error: (err) => { /* console.error('❌ Error al marcar notificaciones como leídas:', err) */ }
     });
   }
 

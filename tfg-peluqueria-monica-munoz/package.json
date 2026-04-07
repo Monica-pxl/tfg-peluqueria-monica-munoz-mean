@@ -29,7 +29,6 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
-    "bcryptjs": "^3.0.3",
     "bootstrap": "^5.3.8",
     "rxjs": "~7.8.0",
     "ts-md5": "^2.0.1",

@@ -32,8 +32,8 @@ export class HorariosProfesionalComponent implements OnInit {
       // Obtener el id_profesional a partir del _id del usuario
       this.profesionalesService.getAllProfesionales().subscribe({
         next: profesionales => {
-          console.log('Todos los profesionales:', profesionales);
-          console.log('Usuario logueado:', this.usuarioLogueado);
+          // console.log('Todos los profesionales:', profesionales);
+          // console.log('Usuario logueado:', this.usuarioLogueado);
 
           // Buscar profesional por el campo 'usuario' que debe coincidir con el _id del usuario logueado
           const profesional = profesionales.find(p => {
@@ -66,8 +66,8 @@ export class HorariosProfesionalComponent implements OnInit {
   cargarHorarios(): void {
     this.horariosService.getAllHorarios().subscribe({
       next: horarios => {
-        console.log('Todos los horarios:', horarios);
-        console.log('Filtrando por idProfesional:', this.idProfesional);
+        // console.log('Todos los horarios:', horarios);
+        // console.log('Filtrando por idProfesional:', this.idProfesional);
 
         // Filtrar solo los horarios del profesional actual
         this.horariosDelProfesional = horarios.filter(h => {
@@ -79,7 +79,7 @@ export class HorariosProfesionalComponent implements OnInit {
           return h.profesional === this.idProfesional;
         });
 
-        console.log('Horarios filtrados:', this.horariosDelProfesional);
+        // console.log('Horarios filtrados:', this.horariosDelProfesional);
         this.cargando = false;
       },
       error: error => {

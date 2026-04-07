@@ -52,8 +52,8 @@ export class ProfesionalesCrear implements OnInit {
       next: (usuarios) => {
         this.profesionalesService.getAllProfesionales().subscribe({
           next: (profesionales) => {
-            console.log('Profesionales existentes:', profesionales);
-            console.log('Todos los usuarios:', usuarios);
+            // console.log('Profesionales existentes:', profesionales);
+            // console.log('Todos los usuarios:', usuarios);
 
             // Filtrar usuarios con rol profesional que no tengan un profesional asociado
             // Crear array de IDs de usuarios que ya tienen profesional
@@ -68,21 +68,21 @@ export class ProfesionalesCrear implements OnInit {
               })
               .filter((id): id is string => id !== undefined && id !== null);
 
-            console.log('IDs de usuarios con profesional:', idsUsuariosConProfesional);
+            // console.log('IDs de usuarios con profesional:', idsUsuariosConProfesional);
 
             this.usuariosProfesionales = usuarios.filter(u => {
               if (u.rol !== 'profesional') return false;
 
               // Excluir si el _id del usuario ya está en profesionales
               if (u._id && idsUsuariosConProfesional.includes(u._id)) {
-                console.log(`Excluyendo usuario ${u.nombre} (_id: ${u._id}) - ya tiene profesional`);
+                // console.log(`Excluyendo usuario ${u.nombre} (_id: ${u._id}) - ya tiene profesional`);
                 return false;
               }
 
               return true;
             });
 
-            console.log('Usuarios profesionales disponibles:', this.usuariosProfesionales);
+            // console.log('Usuarios profesionales disponibles:', this.usuariosProfesionales);
 
             forkJoin({
               centros: this.centrosService.getAllCentros(),
@@ -126,7 +126,7 @@ export class ProfesionalesCrear implements OnInit {
         // Si 'centro' es un string (ObjectId)
         return s.centro === this.id_centro;
       });
-      console.log('Servicios filtrados para centro', this.id_centro, ':', this.serviciosFiltrados);
+      // console.log('Servicios filtrados para centro', this.id_centro, ':', this.serviciosFiltrados);
     } else {
       this.serviciosFiltrados = [];
     }
@@ -143,7 +143,7 @@ export class ProfesionalesCrear implements OnInit {
     if (!usuario) {
       this.alertService.error('Usuario no encontrado');
       console.error('No se encontró usuario con _id:', this.id_usuario);
-      console.log('Usuarios disponibles:', this.usuariosProfesionales);
+      // console.log('Usuarios disponibles:', this.usuariosProfesionales);
       return;
     }
 
@@ -159,27 +159,27 @@ export class ProfesionalesCrear implements OnInit {
       centro: this.id_centro
     };
 
-    console.log('Datos del profesional a crear:');
-    console.log('- usuario:', nuevoProfesional.usuario);
-    console.log('- nombre:', nuevoProfesional.nombre);
-    console.log('- apellidos:', nuevoProfesional.apellidos);
-    console.log('- centro:', nuevoProfesional.centro);
-    console.log('Objeto completo:', nuevoProfesional);
+    // console.log('Datos del profesional a crear:');
+    // console.log('- usuario:', nuevoProfesional.usuario);
+    // console.log('- nombre:', nuevoProfesional.nombre);
+    // console.log('- apellidos:', nuevoProfesional.apellidos);
+    // console.log('- centro:', nuevoProfesional.centro);
+    // console.log('Objeto completo:', nuevoProfesional);
 
     this.profesionalesService.crearProfesional(nuevoProfesional).subscribe({
       next: (response) => {
-        console.log('Respuesta del servidor:', response);
-        const idProfesional = response.profesional._id; // Usar _id en lugar de id_profesional
+        // console.log('Respuesta del servidor:', response);
+        const idProfesional = response.profesional._id;
 
         // Si hay servicios seleccionados, crear las relaciones
         if (this.id_servicios.length > 0) {
-          console.log('Servicios a asignar:', this.id_servicios);
+          // console.log('Servicios a asignar:', this.id_servicios);
           const observables = this.id_servicios.map(id_serv => {
             const relacion = {
-              profesional: idProfesional,  // Cambiar de id_profesional a profesional
-              servicio: id_serv  // Cambiar de id_servicio a servicio
+              profesional: idProfesional,
+              servicio: id_serv
             };
-            console.log('Creando relación profesional-servicio:', relacion);
+            // console.log('Creando relación profesional-servicio:', relacion);
             return this.profesionalServicioService.crearRelacion(relacion);
           });
 

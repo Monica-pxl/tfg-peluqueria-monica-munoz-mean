@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
     // Generar token
     const token = jwt.sign(
       { id_usuario: nuevoUsuario._id, rol: nuevoUsuario.rol, email: nuevoUsuario.email },
-      process.env.JWT_SECRET || 'tu_clave_secreta',
+      process.env.JWT_SECRET,
       { expiresIn: '2h' }
     );
 
@@ -119,7 +119,7 @@ exports.login = async (req, res) => {
     // Generar token
     const token = jwt.sign(
       { id_usuario: usuario._id, rol: usuario.rol, email: usuario.email },
-      process.env.JWT_SECRET || 'tu_clave_secreta',
+      process.env.JWT_SECRET,
       { expiresIn: '2h' }
     );
 

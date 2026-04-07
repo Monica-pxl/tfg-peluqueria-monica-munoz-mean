@@ -104,7 +104,7 @@ export class ProfesionalesEditar implements OnInit {
           })
           .filter((id): id is string => !!id);
 
-        console.log('Servicios del profesional:', this.id_servicios);
+        // console.log('Servicios del profesional:', this.id_servicios);
 
         this.cargando = false;
       },
@@ -134,27 +134,27 @@ export class ProfesionalesEditar implements OnInit {
       apellidos: this.profesional.apellidos || ''
     };
 
-    console.log('Actualizando profesional con datos:', datosActualizar);
+    // console.log('Actualizando profesional con datos:', datosActualizar);
 
     this.profesionalesService.actualizarProfesional(this.profesional._id, datosActualizar).subscribe({
       next: () => {
-        console.log('Profesional actualizado, borrando relaciones anteriores...');
+        // console.log('Profesional actualizado, borrando relaciones anteriores...');
 
         // Borrar relaciones existentes usando el _id
         this.relService.borrarRelacionesPorProfesional(this.profesional._id).subscribe({
           next: () => {
-            console.log('Relaciones anteriores eliminadas');
+            // console.log('Relaciones anteriores eliminadas');
 
             // Si hay servicios seleccionados, crear las relaciones
             if (this.id_servicios.length > 0) {
-              console.log('Creando nuevas relaciones para servicios:', this.id_servicios);
+              // console.log('Creando nuevas relaciones para servicios:', this.id_servicios);
 
               const observables = this.id_servicios.map(id_serv => {
                 const relacion = {
                   profesional: this.profesional._id,
                   servicio: id_serv
                 };
-                console.log('Creando relación:', relacion);
+                // console.log('Creando relación:', relacion);
                 return this.relService.crearRelacion(relacion);
               });
 
@@ -189,7 +189,7 @@ export class ProfesionalesEditar implements OnInit {
   }
 
   onCentroChange(): void {
-    console.log('Centro cambiado a:', this.centroSeleccionado);
+    // console.log('Centro cambiado a:', this.centroSeleccionado);
 
     // Limpiar servicios seleccionados al cambiar de centro
     this.id_servicios = [];
@@ -207,7 +207,7 @@ export class ProfesionalesEditar implements OnInit {
       return sCentroId === this.centroSeleccionado;
     });
 
-    console.log('Servicios filtrados para centro', this.centroSeleccionado, ':', this.serviciosFiltrados.length);
+    // console.log('Servicios filtrados para centro', this.centroSeleccionado, ':', this.serviciosFiltrados.length);
   }
 
   cancelar(): void {

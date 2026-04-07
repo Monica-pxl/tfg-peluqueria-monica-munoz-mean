@@ -19,7 +19,7 @@ export class AdminNotificacionesComponent {
     // Marcar como leídas al entrar a la página
     this.notificacionesService.marcarTodasComoLeidas().subscribe({
       next: () => {
-        console.log('✅ Notificaciones marcadas como leídas');
+        // console.log('✅ Notificaciones marcadas como leídas');
         this.cargarNotificaciones();
       },
       error: (err) => {
@@ -33,7 +33,7 @@ export class AdminNotificacionesComponent {
     this.notificacionesService.getNotificacionesObservable().subscribe({
       next: (notificaciones) => {
         this.notificaciones = notificaciones;
-        console.log('✅ Notificaciones admin cargadas:', this.notificaciones.length);
+        // console.log('✅ Notificaciones admin cargadas:', this.notificaciones.length);
       },
       error: (err) => {
         console.error('❌ Error al cargar notificaciones:', err);
@@ -45,7 +45,7 @@ export class AdminNotificacionesComponent {
   limpiar() {
     this.notificacionesService.limpiarNotificaciones().subscribe({
       next: () => {
-        console.log('✅ Notificaciones limpiadas');
+        // console.log('✅ Notificaciones limpiadas');
         this.cargarNotificaciones();
       },
       error: (err) => {
@@ -59,7 +59,7 @@ export class AdminNotificacionesComponent {
 
     this.notificacionesService.eliminarNotificacion(notificacion._id).subscribe({
       next: () => {
-        console.log('✅ Notificación eliminada');
+        // console.log('✅ Notificación eliminada');
         this.cargarNotificaciones();
       },
       error: (err) => {
