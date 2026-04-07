@@ -37,6 +37,7 @@ export class HorariosEditar implements OnInit {
   fechaMinima = new Date().toISOString().split('T')[0];
   formSubmitted = false;
   guardando = false;
+  private _cancelado = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -144,6 +145,7 @@ export class HorariosEditar implements OnInit {
     // VALIDAR CITAS ANTES DE MARCAR COMO FESTIVO
     this.citasService.getAllCitas(this.usuarios).subscribe({
       next: (todasCitas: CitasInterface[]) => {
+        if (this._cancelado) return;
         // Obtener el _id del profesional del horario
         const horarioProfesionalId = typeof this.horario.profesional === 'object' && this.horario.profesional !== null
           ? this.horario.profesional._id
@@ -273,6 +275,11 @@ export class HorariosEditar implements OnInit {
   }
 
   cancelar(): void {
+    // Marcar como cancelado para que cualquier llamada async pendiente no modifique el estado
+    this._cancelado = true;
+    // Restaurar el horario original descartando cualquier cambio local (festivos añadidos, días cambiados, etc.)
+    this.horario = JSON.parse(JSON.stringify(this.horarioOriginal));
+    this.nuevaFechaFestiva = '';
     this.router.navigate(['/admin/horarios']);
   }
 }
