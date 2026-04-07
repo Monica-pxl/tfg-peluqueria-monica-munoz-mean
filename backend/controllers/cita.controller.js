@@ -693,11 +693,15 @@ exports.marcarRealizada = async (req, res) => {
       return res.status(400).json({ error: 'No se puede marcar como realizada una cita pendiente. Debe estar confirmada primero' });
     }
 
-    // Verificar que la fecha y hora de la cita ya han pasado
-    const [anio, mes, dia] = cita.fecha.split('-').map(Number);
-    const [hh, mm] = cita.hora.split(':').map(Number);
-    const fechaHoraCita = new Date(anio, mes - 1, dia, hh, mm);
-    if (fechaHoraCita > new Date()) {
+    // Verificar que la fecha y hora de la cita ya han pasado.
+    // Se usa toLocaleString con timeZone 'Europe/Madrid' y locale 'sv-SE' porque
+    // este locale devuelve el formato ISO "YYYY-MM-DD HH:MM:SS", que permite
+    // comparar cadenas lexicográficamente de forma correcta y sin necesidad de
+    // parsear. Así la comparación funciona correctamente tanto en local como en
+    // Vercel (UTC), independientemente del timezone del servidor.
+    const ahoraEnMadrid = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Madrid' });
+    const fechaHoraCita = `${cita.fecha} ${cita.hora}:00`;
+    if (fechaHoraCita > ahoraEnMadrid) {
       return res.status(400).json({ error: 'No se puede marcar como realizada una cita que aún no ha llegado' });
     }
 

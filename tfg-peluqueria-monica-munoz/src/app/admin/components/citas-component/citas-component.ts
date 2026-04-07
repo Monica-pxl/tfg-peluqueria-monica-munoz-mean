@@ -143,16 +143,29 @@ export class CitasComponent implements OnInit {
         return;
       }
 
+      // DEBUG: verificar datos antes de la petición
+      const token = this.usuariosService.getToken();
+      const urlFinal = `https://hairgest-backend.vercel.app/api/citas/${cita._id}/marcar-realizada`;
+      console.log('🔍 [marcarRealizada] ID de la cita:', cita._id);
+      console.log('🔍 [marcarRealizada] URL final:', urlFinal);
+      console.log('🔍 [marcarRealizada] Token JWT:', token ? `Bearer ${token.substring(0, 20)}...` : 'NO HAY TOKEN');
+      console.log('🔍 [marcarRealizada] Estado actual en DB (estadoAnterior):', estadoAnterior);
+      console.log('🔍 [marcarRealizada] Fecha/hora cita:', cita.fecha, cita.hora);
+
       // Usar endpoint de marcar como realizada que suma puntos y crea notificaciones
       this.citasService.marcarCitaRealizada(cita._id, {
         rolMarcador: 'administrador',
         marcadoPor: this.usuariosService.getUsuarioLogueado()?._id
       }).subscribe({
-        next: () => {
+        next: (respuesta: any) => {
+          console.log('✅ [marcarRealizada] Respuesta del backend:', respuesta);
           this.alertService.success('Cita marcada como realizada');
           this.cargarCitas();
         },
-        error: () => {
+        error: (err: any) => {
+          console.error('❌ [marcarRealizada] Error completo:', err);
+          console.error('❌ [marcarRealizada] Status HTTP:', err?.status);
+          console.error('❌ [marcarRealizada] Mensaje del backend:', err?.error?.error || err?.error || err?.message);
           this.alertService.error('Error al marcar la cita como realizada');
           cita.estado = estadoAnterior;
         }
