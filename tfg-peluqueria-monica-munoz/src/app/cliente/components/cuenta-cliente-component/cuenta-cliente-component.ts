@@ -34,29 +34,12 @@ export class CuentaClienteComponent implements OnInit {
       return;
     }
 
-    // Cargar datos actualizados del usuario desde el backend
-    this.usuariosService.getAllUsuarios().subscribe({
-      next: usuarios => {
-        const usuarioActualizado = usuarios.find(u => u._id === this.usuario?._id);
-        if (usuarioActualizado) {
-          this.usuario = usuarioActualizado;
-          this.usuariosService.setUsuarioLogueado(usuarioActualizado);
-          this.puntos = this.usuario.puntos || 0;
-          this.nivel = this.usuariosService.obtenerNivel(this.puntos);
-          this.colorNivel = this.usuariosService.obtenerColorNivel(this.puntos);
-          this.iconoNivel = this.usuariosService.obtenerIconoNivel(this.puntos);
-          this.calcularProgreso();
-        }
-      },
-      error: () => {
-        // Si hay error, usar los datos del localStorage
-        this.puntos = this.usuario!.puntos || 0;
-        this.nivel = this.usuariosService.obtenerNivel(this.puntos);
-        this.colorNivel = this.usuariosService.obtenerColorNivel(this.puntos);
-        this.iconoNivel = this.usuariosService.obtenerIconoNivel(this.puntos);
-        this.calcularProgreso();
-      }
-    });
+    // Usar directamente los datos del localStorage (que ya están actualizados)
+    this.puntos = this.usuario.puntos || 0;
+    this.nivel = this.usuariosService.obtenerNivel(this.puntos);
+    this.colorNivel = this.usuariosService.obtenerColorNivel(this.puntos);
+    this.iconoNivel = this.usuariosService.obtenerIconoNivel(this.puntos);
+    this.calcularProgreso();
   }
 
   calcularProgreso(): void {
