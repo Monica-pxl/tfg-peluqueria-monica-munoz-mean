@@ -39,10 +39,6 @@ export class UsuariosService {
     return this.http.get<UsuariosInterface[]>(this.apiUrl);
   }
 
-  getUsuarioById(id: string): Observable<UsuariosInterface> {
-    return this.http.get<UsuariosInterface>(`${this.apiUrl}/${id}`);
-  }
-
   // LOGIN - Usar el endpoint del backend que valida contraseña
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(this.loginUrl, { email, password });
@@ -113,11 +109,6 @@ export class UsuariosService {
   // Eliminar usuario por _id de MongoDB
   eliminarUsuarioPorId(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
-  }
-
-  // Actualizar puntos del usuario
-  actualizarPuntos(id: number, puntos: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}/puntos`, { puntos });
   }
 
   // Obtener nivel según puntos

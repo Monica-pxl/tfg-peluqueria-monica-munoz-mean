@@ -32,11 +32,6 @@ export class NotificacionesService {
     private usuariosService: UsuariosService
   ) {}
 
-  // Crear nueva notificación
-  crearNotificacion(notificacion: Partial<NotificacionInterface>): Observable<any> {
-    return this.http.post(this.apiUrl, notificacion);
-  }
-
   // Obtener todas las notificaciones del usuario logueado (retorna array para compatibilidad)
   getNotificaciones(): NotificacionInterface[] {
     // Este método debe ser actualizado en los componentes para usar la versión Observable
