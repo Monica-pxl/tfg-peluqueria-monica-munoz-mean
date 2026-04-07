@@ -133,6 +133,7 @@ exports.login = async (req, res) => {
         email: usuario.email,
         rol: usuario.rol,
         estado: usuario.estado,
+        fecha_alta: usuario.fecha_alta,
         puntos: usuario.puntos
       }
     });
