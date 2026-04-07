@@ -376,7 +376,10 @@ exports.updateCita = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'ID de cita no válido' });
     }
-    const { estado, fecha, hora, actualizadoPor, rolActualizador } = req.body;
+    const { estado, fecha, hora } = req.body;
+    // El rol del actor se obtiene del token JWT, no del body,
+    // para garantizar consistencia independientemente del cliente que llame.
+    const rolActualizador = req.usuario.rol;
 
     // Validar estado si se proporciona
     const ESTADOS_VALIDOS_CITA = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
@@ -659,7 +662,9 @@ exports.marcarRealizada = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'ID de cita no válido' });
     }
-    const { marcadoPor, rolMarcador } = req.body;
+    // El rol del actor se obtiene del token JWT, no del body,
+    // para garantizar consistencia independientemente del cliente que llame.
+    const rolMarcador = req.usuario.rol;
 
     const cita = await Cita.findById(req.params.id)
       .populate('usuario', 'nombre email puntos')
