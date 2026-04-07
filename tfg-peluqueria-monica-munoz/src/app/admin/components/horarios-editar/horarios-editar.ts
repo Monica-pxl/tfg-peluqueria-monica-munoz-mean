@@ -157,48 +157,21 @@ export class HorariosEditar implements OnInit {
           return citaProfesionalId === horarioProfesionalId && cita.fecha === this.nuevaFechaFestiva;
         });
 
-        // Verificar si hay citas confirmadas
-        const citasConfirmadas = citasEnFecha.filter(c => c.estado === 'confirmada');
+        // Contar citas pendientes o confirmadas que serán canceladas (solo para informar al usuario)
+        const citasAfectadas = citasEnFecha.filter(c => c.estado === 'pendiente' || c.estado === 'confirmada');
 
-        if (citasConfirmadas.length > 0) {
-          // BLOQUEAR: No permitir marcar como festivo si hay citas confirmadas
-          this.alertService.error(
-            `No se puede marcar como festivo. Hay ${citasConfirmadas.length} cita(s) confirmada(s) ese día. ` +
-            'Primero cancela o reagenda las citas confirmadas.'
-          );
-          return;
-        }
-
-        // Contar citas pendientes (solo para informar al usuario)
-        const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente');
-
-        // Agregar la fecha festiva y actualizar en el backend (para que cancele citas y notifique)
+        // Agregar la fecha festiva solo localmente; el backend actuará al pulsar "Actualizar"
         if (!this.horario.fechas_festivas!.includes(this.nuevaFechaFestiva)) {
           this.horario.fechas_festivas!.push(this.nuevaFechaFestiva);
           this.horario.fechas_festivas!.sort();
 
-          // Actualizar el horario en el backend para que cancele citas y notifique
-          const id = this.horario._id;
-          if (!id) {
-            this.alertService.error('Error: ID de horario no válido');
-            return;
+          if (citasAfectadas.length > 0) {
+            this.alertService.warning(
+              `Fecha festiva añadida. Al guardar, se cancelarán ${citasAfectadas.length} cita(s) (pendiente(s)/confirmada(s)) y se notificará a los clientes.`
+            );
+          } else {
+            this.alertService.success('Fecha festiva añadida. Pulsa "Actualizar" para guardar los cambios.');
           }
-
-          this.horariosService.updateHorario(id, this.horario).subscribe({
-            next: () => {
-              if (citasPendientes.length > 0) {
-                this.alertService.success(
-                  `Fecha festiva agregada. Se han cancelado ${citasPendientes.length} cita(s) pendiente(s) y se notificó a los clientes.`
-                );
-              } else {
-                this.alertService.success('Fecha festiva agregada correctamente');
-              }
-            },
-            error: (err: any) => {
-              const mensaje = err.error?.error || 'Error al agregar la fecha festiva';
-              this.alertService.error(mensaje);
-            }
-          });
         }
 
         this.nuevaFechaFestiva = '';

@@ -164,20 +164,8 @@ export class HorariosCrear implements OnInit {
           return citaProfesionalId === this.id_profesional && cita.fecha === this.nuevaFechaFestiva;
         });
 
-        // Verificar si hay citas confirmadas
-        const citasConfirmadas = citasEnFecha.filter(c => c.estado === 'confirmada');
-
-        if (citasConfirmadas.length > 0) {
-          // BLOQUEAR: No permitir marcar como festivo si hay citas confirmadas
-          this.alertService.error(
-            `No se puede marcar como festivo. Hay ${citasConfirmadas.length} cita(s) confirmada(s) ese día. ` +
-            'Primero cancela o reagenda las citas confirmadas.'
-          );
-          return;
-        }
-
-        // Contar citas pendientes (solo para informar al usuario)
-        const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente');
+        // Contar citas pendientes o confirmadas que serán canceladas (solo para informar al usuario)
+        const citasPendientes = citasEnFecha.filter(c => c.estado === 'pendiente' || c.estado === 'confirmada');
 
         // Agregar la fecha festiva (el backend se encargará de cancelar citas y notificar)
         if (!this.fechasFestivas.includes(this.nuevaFechaFestiva)) {
