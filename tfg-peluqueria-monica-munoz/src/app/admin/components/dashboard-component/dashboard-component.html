@@ -9,7 +9,7 @@
         Bienvenido, Administrador
       </h1>
       <p class="lead mb-0 subtitle-animated">
-        Gestiona citas, servicios, profesionales y usuarios desde aquí.
+        Gestiona citas, servicios, profesionales, centros, horarios y usuarios desde aquí.
       </p>
     </div>
   </section>
@@ -103,10 +103,12 @@
     </div>
   </section>
 
+  <!-- Separador sutil -->
+  <div class="section-separator"></div>
 
-  <section class="dashboard-stats my-5 py-5">
+  <section class="dashboard-stats py-3 pt-4">
     <div class="container">
-      <h2 class="mb-5 text-center stats-title">Estadísticas rápidas</h2>
+      <h2 class="mb-5 text-center stats-title"><i class="bi bi-lightning-charge"></i> Estadísticas Rápidas</h2>
       <div class="row g-4 justify-content-center">
 
         <div class="col-lg-4 col-md-6">
@@ -127,7 +129,7 @@
               <div class="stats-icon-wrapper mb-3">
                 <i class="bi bi-person-badge stats-icon"></i>
               </div>
-              <h5 class="card-title mb-2">Clientes</h5>
+              <h5 class="card-title mb-2">Total Clientes</h5>
               <p class="display-6 fw-bold mb-0 stats-number">{{ totalClientes }}</p>
             </div>
           </div>
@@ -139,7 +141,7 @@
               <div class="stats-icon-wrapper mb-3">
                 <i class="bi bi-person-workspace stats-icon"></i>
               </div>
-              <h5 class="card-title mb-2">Profesionales</h5>
+              <h5 class="card-title mb-2">Total Profesionales</h5>
               <p class="display-6 fw-bold mb-0 stats-number">{{ totalProfesionales }}</p>
             </div>
           </div>
@@ -151,7 +153,7 @@
               <div class="stats-icon-wrapper mb-3">
                 <i class="bi bi-geo-alt-fill stats-icon"></i>
               </div>
-              <h5 class="card-title mb-2">Centros</h5>
+              <h5 class="card-title mb-2">Total Centros</h5>
               <p class="display-6 fw-bold mb-0 stats-number">{{ totalCentros }}</p>
             </div>
           </div>
@@ -163,7 +165,7 @@
               <div class="stats-icon-wrapper mb-3">
                 <i class="bi bi-star-fill stats-icon"></i>
               </div>
-              <h5 class="card-title mb-2">Servicios</h5>
+              <h5 class="card-title mb-2">Total Servicios</h5>
               <p class="display-6 fw-bold mb-0 stats-number">{{ totalServicios }}</p>
             </div>
           </div>
@@ -173,45 +175,45 @@
     </div>
   </section>
 
+  <!-- Separador sutil -->
+  <div class="section-separator"></div>
+
   <!-- Accesos Rápidos Adicionales -->
   <section class="quick-access-section mb-5">
     <div class="container">
-      <h2 class="mb-5 text-center stats-title">Gestión Rápida</h2>
+      <h2 class="mb-5 text-center stats-title"><i class="bi bi-lightning-charge"></i> Gestión Rápida</h2>
       <div class="row g-4">
 
         <div class="col-md-4">
-          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/horarios'">
-            <div class="card-body text-center">
-              <div class="icon-wrapper mb-3">
-                <i class="bi bi-clock-history card-icon"></i>
-              </div>
-              <h5 class="card-title mb-3">Nuevo Horario</h5>
-              <p class="card-text text-gray-light mb-0">Crear y gestionar horarios para profesionales.</p>
+          <div class="quick-access-card-large" [routerLink]="'/admin/horarios/crear'">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-clock-history"></i>
             </div>
+            <h4>Nuevo Horario</h4>
+            <p>Crear y gestionar horarios para profesionales.</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
 
         <div class="col-md-4">
-          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/servicios'">
-            <div class="card-body text-center">
-              <div class="icon-wrapper mb-3">
-                <i class="bi bi-plus-circle card-icon"></i>
-              </div>
-              <h5 class="card-title mb-3">Nuevo Servicio</h5>
-              <p class="card-text text-gray-light mb-0">Añadir un nuevo servicio al catálogo.</p>
+          <div class="quick-access-card-large" [routerLink]="'/admin/servicios/crear'">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-plus-circle"></i>
             </div>
+            <h4>Nuevo Servicio</h4>
+            <p>Añadir un nuevo servicio al catálogo.</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
 
         <div class="col-md-4">
-          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover" [routerLink]="'/admin/usuarios'">
-            <div class="card-body text-center">
-              <div class="icon-wrapper mb-3">
-                <i class="bi bi-person-plus card-icon"></i>
-              </div>
-              <h5 class="card-title mb-3">Gestión Usuarios</h5>
-              <p class="card-text text-gray-light mb-0">Administrar clientes y profesionales.</p>
+          <div class="quick-access-card-large" [routerLink]="'/admin/profesionales/crear'">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-person-plus"></i>
             </div>
+            <h4>Nuevo Profesional</h4>
+            <p>Registrar un nuevo profesional en el sistema.</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
 

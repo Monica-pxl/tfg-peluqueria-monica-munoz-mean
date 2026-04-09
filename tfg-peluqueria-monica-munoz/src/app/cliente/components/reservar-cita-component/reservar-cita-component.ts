@@ -13,10 +13,11 @@ import { CitasService } from '../../services/citas-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProfesionalServicioService } from '../../services/profesional-servicio-service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NotificacionesService } from '../../services/notificaciones-service';
 import { ProfesionalServicioInterface } from '../../interfaces/profesional-servicio-interface';
 import { AlertService } from '../../../shared/services/alert-service';
+import { forkJoin } from 'rxjs';
 
 
 @Component({
@@ -43,6 +44,9 @@ export class ReservarCitaComponent implements OnInit {
   centroSeleccionado: string | null = null;
   servicioSeleccionado: string | null = null;
   profesionalSeleccionado: string | null = null;
+
+  centroIdParam: string | null = null;
+  servicioIdParam: string | null = null;
   fechaSeleccionada: string = '';
   horaSeleccionada: string = '';
 
@@ -70,6 +74,7 @@ export class ReservarCitaComponent implements OnInit {
     private centrosAPI: CentrosService,
     private citasAPI: CitasService,
     private router: Router,
+    private route: ActivatedRoute,
     private usuariosService: UsuariosService,
     private notificacionesService: NotificacionesService,
     private profesionalServicioAPI: ProfesionalServicioService,
@@ -95,6 +100,9 @@ export class ReservarCitaComponent implements OnInit {
             });
             this.loadData();
             this.generarDiasMes();
+            // Leer queryParams para preselección
+            this.centroIdParam = this.route.snapshot.queryParamMap.get('centroId');
+            this.servicioIdParam = this.route.snapshot.queryParamMap.get('servicioId');
           },
           error: (err) => console.error('Error al cargar profesional_servicio', err)
       });
@@ -113,11 +121,26 @@ export class ReservarCitaComponent implements OnInit {
   }
 
   loadData(): void {
-    this.serviciosAPI.getAllServices().subscribe(data => this.servicios = data);
-    this.profesionalesAPI.getAllProfesionales().subscribe(data => this.profesionales = data);
+    forkJoin({
+      servicios: this.serviciosAPI.getAllServices(),
+      profesionales: this.profesionalesAPI.getAllProfesionales(),
+      centros: this.centrosAPI.getAllCentros()
+    }).subscribe({
+      next: (data) => {
+        this.servicios = data.servicios;
+        this.profesionales = data.profesionales;
+        this.centros = data.centros;
+        // Aplicar preselección si llegaron queryParams
+        if (this.centroIdParam) {
+          this.seleccionarCentro(this.centroIdParam);
+          if (this.servicioIdParam) {
+            this.seleccionarServicio(this.servicioIdParam);
+          }
+        }
+      }
+    });
     this.horariosAPI.getAllHorarios().subscribe(data => this.horarios = data);
     this.usuariosAPI.getAllUsuarios().subscribe(data => this.usuarios = data);
-    this.centrosAPI.getAllCentros().subscribe(data => this.centros = data);
   }
 
   seleccionarCentro(id: string) {

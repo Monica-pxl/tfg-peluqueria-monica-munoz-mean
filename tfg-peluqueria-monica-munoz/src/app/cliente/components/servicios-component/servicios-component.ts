@@ -111,5 +111,11 @@ export class ServiciosComponent implements OnInit {
       document.body.scrollTop = 0;
     }, 0);
   }
+
+  getCentroId(servicio: ServiciosInterface): string {
+    if (!servicio.centro) return '';
+    if (typeof servicio.centro === 'object') return (servicio.centro as any)._id;
+    return servicio.centro;
+  }
 }
 

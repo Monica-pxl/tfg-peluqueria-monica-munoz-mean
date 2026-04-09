@@ -11,6 +11,8 @@
       <label class="form-label">Centro</label>
       <select class="form-select form-control-custom"
         [class.is-invalid]="formularioEnviado && !centroSeleccionado"
+        name="centroSelect"
+        [ngModel]="centroSeleccionado || ''"
         #selectCentro (change)="seleccionarCentro(selectCentro.value)">
         <option selected disabled value="">Selecciona un centro</option>
         <option *ngFor="let centro of centros" [value]="centro._id">
@@ -27,6 +29,8 @@
       <select class="form-select form-control-custom"
         [class.is-invalid]="formularioEnviado && !servicioSeleccionado"
         [disabled]="!centroSeleccionado"
+        name="servicioSelect"
+        [ngModel]="servicioSeleccionado || ''"
         #selectServicio (change)="seleccionarServicio(selectServicio.value)">
         <option selected disabled value="">Selecciona un servicio</option>
         <option *ngFor="let servicio of serviciosFiltrados" [value]="servicio._id">

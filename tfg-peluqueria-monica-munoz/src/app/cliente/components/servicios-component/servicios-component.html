@@ -54,7 +54,7 @@
                 <p class="card-text">{{ servicio.descripcion }}</p>
                 <div class="d-flex justify-content-between align-items-center">
                   <p class="card-text mb-0"><strong class="precio-highlight">{{ servicio.precio }} €</strong></p>
-                  <span class="badge bg-pink text-white">Bestseller</span>
+                  <span class="duracion-badge"><i class="bi bi-clock me-1"></i>{{ servicio.duracion }} min</span>
                 </div>
                 <a [routerLink]="'/reservar-cita'" class="btn btn-primary text-white mt-3 w-100">
                   Reservar Ahora

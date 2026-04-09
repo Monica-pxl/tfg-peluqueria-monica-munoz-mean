@@ -51,7 +51,7 @@
         </div>
 
         <div class="text-center mt-4">
-          <a [routerLink]="'/reservar-cita'" class="btn btn-reservar-cita">
+          <a [routerLink]="'/reservar-cita'" [queryParams]="{centroId: centro._id}" class="btn btn-reservar-cita">
             <i class="bi bi-calendar-check"></i> Reservar Cita en este Centro
           </a>
         </div>

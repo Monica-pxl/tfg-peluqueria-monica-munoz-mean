@@ -153,44 +153,27 @@
   position: absolute;
   top: 15px;
   right: 15px;
-  background: linear-gradient(135deg, #ff69b4, #ff89c4);
-  color: white;
+  background: linear-gradient(135deg, #ffb6d9, #ffd6eb);
+  color: #8b3a62;
   padding: 0.5rem 1rem;
   border-radius: 50px;
   font-size: 0.75rem;
   font-weight: 600;
   z-index: 10;
-  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
-  animation: badgePulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulse {
-  0%, 100% {
-    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 6px 25px rgba(255, 105, 180, 0.7);
-    transform: scale(1.05);
-  }
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.25);
 }
 
 .precio-highlight {
-  color: #ff69b4;
+  color: #444444;
   font-size: 1.3rem;
   font-weight: 700;
 }
 
-/* Badge Bestseller */
-.bg-pink {
-  background: linear-gradient(135deg, #ff69b4, #ff89c4) !important;
-  color: white !important;
-  padding: 0.4rem 0.8rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 3px 10px rgba(255, 105, 180, 0.4);
-  animation: badgePulse 2s ease-in-out infinite;
+/* Badge duración */
+.duracion-badge {
+  color: #555555;
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 
 /* Empty State */

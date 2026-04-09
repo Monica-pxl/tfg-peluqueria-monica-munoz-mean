@@ -91,10 +91,16 @@ export class HomeComponent implements OnInit {
 
     canGoNext(): boolean {
       const maxPage = Math.ceil(this.centros.length / this.itemsPerPage) - 1;
-      return this.currentPage < maxPage;
+      return this.currentPage < 3 && this.currentPage < maxPage;
     }
 
     canGoPrev(): boolean {
       return this.currentPage > 0;
+    }
+
+    getCentroId(servicio: ServiciosInterface): string {
+      if (!servicio.centro) return '';
+      if (typeof servicio.centro === 'object') return servicio.centro._id;
+      return servicio.centro;
     }
 }
