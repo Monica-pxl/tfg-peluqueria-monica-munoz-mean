@@ -9,12 +9,13 @@
         Bienvenido/a, {{ usuarioLogueado?.nombre }}
       </h1>
       <p class="lead mb-0 subtitle-animated">
-        Gestiona tus citas y servicios desde tu panel profesional.
+        Gestiona todas tus citas y servicios desde tu panel profesional.
       </p>
     </div>
   </section>
 
-  <section class="dashboard-stats" style="margin-bottom: 50px;">
+  <!-- Sección de estadísticas principales -->
+  <section class="dashboard-stats">
     <div class="container">
       <div class="row g-4">
 
@@ -24,8 +25,8 @@
               <div class="icon-wrapper mb-3">
                 <i class="bi bi-calendar-check card-icon"></i>
               </div>
-              <h2 class="stat-number mb-2">{{ citasTotales }}</h2>
-              <p class="card-text text-gray-light mb-0">Citas</p>
+              <h2 class="stat-number mb-2">{{ citasConfirmadas }}</h2>
+              <p class="card-text text-gray-light mb-0">Citas Confirmadas</p>
             </div>
           </div>
         </div>
@@ -70,7 +71,11 @@
     </div>
   </section>
 
-  <section class="next-appointment-section" style="margin-bottom: 50px;">
+  <!-- Separador sutil -->
+  <div class="section-separator"></div>
+
+  <!-- Próxima cita -->
+  <section class="next-appointment-section">
     <div class="container">
       <h2 class="section-title text-center mb-4">
         <span class="title-badge"><i class="bi bi-alarm"></i> Próxima Cita</span>
@@ -125,38 +130,46 @@
     </div>
   </section>
 
-  <section class="quick-access-section" style="margin-bottom: 50px;">
+  <!-- Separador sutil -->
+  <div class="section-separator"></div>
+
+  <!-- Accesos Rápidos - Tarjetas grandes y atractivas -->
+  <section class="quick-access-section">
     <div class="container">
       <h2 class="section-title text-center mb-4"><i class="bi bi-lightning-charge"></i> Accesos Rápidos</h2>
       <div class="row g-4">
-
-        <div class="col-md-6">
-          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover card-clickable" routerLink="/profesional/mis-citas">
-            <div class="card-body text-center">
-              <div class="icon-wrapper mb-3">
-                <i class="bi bi-calendar-check-fill card-icon"></i>
-              </div>
-              <h5 class="card-title mb-3">Gestionar Citas</h5>
-              <p class="card-text text-gray-light mb-0">Ver y administrar todas tus citas programadas.</p>
+        <div class="col-md-4">
+          <div class="quick-access-card-large" routerLink="/profesional/mis-citas">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-calendar-check-fill"></i>
             </div>
+            <h4>Gestionar Citas</h4>
+            <p>Ver y administrar todas tus citas programadas</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
-
-        <div class="col-md-6">
-          <div class="card h-100 shadow rounded-4 border-0 p-4 card-hover card-clickable" routerLink="/profesional/notificaciones">
-            <div class="card-body text-center">
-              <div class="icon-wrapper mb-3">
-                <i class="bi bi-bell-fill card-icon"></i>
-              </div>
-              <h5 class="card-title mb-3">Notificaciones</h5>
-              <p class="card-text text-gray-light mb-0">Alertas y recordatorios importantes sobre tus citas.</p>
+        <div class="col-md-4">
+          <div class="quick-access-card-large" routerLink="/profesional/notificaciones">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-bell-fill"></i>
             </div>
+            <h4>Notificaciones</h4>
+            <p>Alertas y recordatorios importantes sobre tus citas</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
-
+        <div class="col-md-4">
+          <div class="quick-access-card-large" routerLink="/profesional/mis-horarios">
+            <div class="quick-access-icon-large">
+              <i class="bi bi-clock-fill"></i>
+            </div>
+            <h4>Mis Horarios</h4>
+            <p>Consulta y gestiona tu disponibilidad horaria</p>
+            <span class="quick-access-arrow"><i class="bi bi-arrow-right"></i></span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
 </div>
-

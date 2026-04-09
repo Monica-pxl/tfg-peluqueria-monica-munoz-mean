@@ -24,6 +24,8 @@ export class DashboardComponent implements OnInit {
   citasTotales: number = 0;
   proximaCita: any = null;
   usuarios: UsuariosInterface[] = [];
+  citasConfirmadas: number = 0;
+  
 
   constructor(
     private usuariosService: UsuariosService,
@@ -85,8 +87,8 @@ export class DashboardComponent implements OnInit {
         // Fecha de hoy
         const hoy = new Date().toISOString().split('T')[0];
 
-        // Total de citas
-        this.citasTotales = misCitas.length;
+        // Total de citas (SOLO confirmadas)
+        this.citasConfirmadas = misCitas.filter(c => c.estado === 'confirmada').length;
 
         // Citas de hoy
         this.citasHoy = misCitas.filter(c => c.fecha === hoy).length;

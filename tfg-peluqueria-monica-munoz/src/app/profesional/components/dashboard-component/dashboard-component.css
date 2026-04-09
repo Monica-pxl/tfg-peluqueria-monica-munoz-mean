@@ -403,6 +403,61 @@
   padding: 30px 0;
 }
 
+/* Accesos Rápidos - Tarjetas horizontales SIN espacio innecesario */
+.quick-access-card {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  border-radius: 1rem;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(255, 105, 180, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.quick-access-card:hover {
+  transform: translateX(5px);
+  border-color: rgba(255, 105, 180, 0.5);
+  box-shadow: 0 10px 25px rgba(255, 105, 180, 0.2);
+  background: linear-gradient(135deg, #0f0f0f 0%, #222222 100%);
+}
+
+.quick-access-icon {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff3d94 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.quick-access-icon i {
+  font-size: 1.8rem;
+  color: white;
+}
+
+.quick-access-info {
+  flex: 1;
+}
+
+.quick-access-info h5 {
+  color: #ff69b4;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.quick-access-info p {
+  color: #888;
+  margin-bottom: 0;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .hero-banner-profesional h1 {
@@ -424,4 +479,149 @@
     padding-top: 20px;
     margin-top: 20px;
   }
+
+  .quick-access-card {
+    padding: 1rem;
+  }
+  
+  .quick-access-icon {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .quick-access-icon i {
+    font-size: 1.4rem;
+  }
+  
+  .quick-access-info h5 {
+    font-size: 0.95rem;
+  }
+  
+  .quick-access-info p {
+    font-size: 0.75rem;
+  }
+
+  
+}
+
+
+
+/* Separador sutil entre secciones */
+.section-separator {
+  width: 80%;
+  max-width: 300px;
+  height: 1px;
+  margin: 20px auto 30px;
+  background: linear-gradient(90deg, transparent, rgba(255, 105, 180, 0.3), transparent);
+}
+
+/* Accesos Rápidos - Tarjetas grandes y atractivas */
+.quick-access-card-large {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 105, 180, 0.2);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-access-card-large::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ff69b4, #ff89c4, #ff69b4);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.quick-access-card-large:hover::before {
+  transform: scaleX(1);
+}
+
+.quick-access-card-large:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 105, 180, 0.4);
+  box-shadow: 0 20px 40px rgba(255, 105, 180, 0.2);
+}
+
+.quick-access-icon-large {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #ff69b4 0%, #ff3d94 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.quick-access-card-large:hover .quick-access-icon-large {
+  transform: scale(1.05) rotate(5deg);
+  box-shadow: 0 10px 25px rgba(255, 105, 180, 0.4);
+}
+
+.quick-access-icon-large i {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.quick-access-card-large h4 {
+  color: #ff69b4;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+}
+
+.quick-access-card-large p {
+  color: #999;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.quick-access-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 105, 180, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.quick-access-arrow i {
+  color: #ff69b4;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.quick-access-card-large:hover .quick-access-arrow {
+  background: rgba(255, 105, 180, 0.3);
+}
+
+.quick-access-card-large:hover .quick-access-arrow i {
+  transform: translateX(5px);
+}
+
+/* Ajuste de espaciado de secciones */
+.dashboard-stats {
+  padding: 20px 0 30px;
+}
+
+.next-appointment-section {
+  padding: 20px 0 30px;
+}
+
+.quick-access-section {
+  padding: 20px 0 50px;
 }
