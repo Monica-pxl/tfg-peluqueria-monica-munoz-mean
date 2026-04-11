@@ -83,6 +83,10 @@ export class ServiciosComponent implements OnInit {
     this.serviciosPagina = this.serviciosFiltrados.slice(inicio, fin);
   }
 
+  totalPaginas(): number {
+    return Math.max(1, Math.ceil(this.serviciosFiltrados.length / this.cantidadPorPagina));
+  }
+
 
   CambiarPagina(accion: 'primera' | 'anterior' | 'siguiente' | 'ultima'): void {
     const totalPaginas = Math.ceil(this.serviciosFiltrados.length / this.cantidadPorPagina);

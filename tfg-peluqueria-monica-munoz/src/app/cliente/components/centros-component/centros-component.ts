@@ -77,6 +77,10 @@ export class CentrosComponent implements OnInit {
     this.centrosPagina = this.centrosFiltrados.slice(inicio, fin);
   }
 
+  totalPaginas(): number {
+    return Math.max(1, Math.ceil(this.centrosFiltrados.length / this.cantidadPorPagina));
+  }
+
   CambiarPagina(accion: 'primera' | 'anterior' | 'siguiente' | 'ultima'): void {
     const totalPaginas = Math.ceil(this.centrosFiltrados.length / this.cantidadPorPagina);
 

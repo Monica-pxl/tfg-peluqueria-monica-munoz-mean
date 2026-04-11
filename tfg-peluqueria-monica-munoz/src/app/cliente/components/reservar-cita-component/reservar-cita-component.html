@@ -28,7 +28,7 @@
       <label class="form-label">Servicio</label>
       <select class="form-select form-control-custom"
         [class.is-invalid]="formularioEnviado && !servicioSeleccionado"
-        [disabled]="!centroSeleccionado"
+        [disabled]="!centroSeleccionado || serviciosFiltrados.length === 0"
         name="servicioSelect"
         [ngModel]="servicioSeleccionado || ''"
         #selectServicio (change)="seleccionarServicio(selectServicio.value)">
@@ -40,7 +40,13 @@
       @if (!centroSeleccionado) {
         <small class="text-muted">Selecciona primero un centro.</small>
       }
-      @if (formularioEnviado && !servicioSeleccionado) {
+      @if (centroSeleccionado && serviciosFiltrados.length === 0) {
+        <div class="alert alert-warning mt-2 mb-0 py-2 px-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Este centro no tiene servicios disponibles actualmente.
+        </div>
+      }
+      @if (formularioEnviado && !servicioSeleccionado && serviciosFiltrados.length > 0) {
         <div class="invalid-feedback d-block">Por favor, selecciona un servicio.</div>
       }
     </div>
@@ -49,7 +55,7 @@
       <label class="form-label">Profesional</label>
       <select class="form-select form-control-custom"
         [class.is-invalid]="formularioEnviado && !profesionalSeleccionado"
-        [disabled]="!servicioSeleccionado"
+        [disabled]="!servicioSeleccionado || profesionalesFiltrados.length === 0"
         #selectProf (change)="seleccionarProfesional(selectProf.value)">
         <option selected disabled value="">Selecciona un profesional</option>
         <option *ngFor="let profesional of profesionalesFiltrados" [value]="profesional._id">
@@ -59,13 +65,27 @@
       @if (!servicioSeleccionado) {
         <small class="text-muted">Selecciona primero un servicio.</small>
       }
-      @if (formularioEnviado && !profesionalSeleccionado) {
+      @if (servicioSeleccionado && profesionalesFiltrados.length === 0) {
+        <div class="alert alert-warning mt-2 mb-0 py-2 px-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          No hay profesionales disponibles para este servicio en este centro.
+        </div>
+      }
+      @if (formularioEnviado && !profesionalSeleccionado && profesionalesFiltrados.length > 0) {
         <div class="invalid-feedback d-block">Por favor, selecciona un profesional.</div>
       }
     </div>
 
     <div class="mb-4">
         <label class="form-label">Fecha</label>
+
+        @if (profesionalSeleccionado && horariosFiltrados.length === 0) {
+          <div class="alert alert-warning mb-2 py-2 px-3" role="alert">
+            <i class="bi bi-calendar-x me-2"></i>
+            Este profesional no tiene horarios disponibles actualmente.
+          </div>
+        }
+
         <input
             type="date"
             class="form-control form-control-custom"
@@ -74,7 +94,7 @@
             (change)="seleccionarFecha(fechaSeleccionada)"
             name="fecha"
             [attr.min]="fechaMinima"
-            [disabled]="!profesionalSeleccionado"
+            [disabled]="!profesionalSeleccionado || horariosFiltrados.length === 0"
         />
         @if (!profesionalSeleccionado) {
           <small class="text-muted">Selecciona primero un profesional.</small>
@@ -84,7 +104,7 @@
         }
 
 
-        <div class="mt-2" *ngIf="profesionalSeleccionado">
+        <div class="mt-2" *ngIf="profesionalSeleccionado && horariosFiltrados.length > 0">
           <!-- Navegación entre meses -->
           <div class="month-navigation mb-3">
             <button
@@ -177,7 +197,8 @@
 
     <div class="text-center mt-5">
       <button type="submit" class="btn btn-reservar px-5 py-2 fw-bold"
-        [disabled]="!centroSeleccionado || !servicioSeleccionado || !profesionalSeleccionado || !fechaSeleccionada || !horaSeleccionada">
+        [disabled]="!centroSeleccionado || !servicioSeleccionado || !profesionalSeleccionado || !fechaSeleccionada || !horaSeleccionada
+                    || serviciosFiltrados.length === 0 || profesionalesFiltrados.length === 0 || horariosFiltrados.length === 0">
         Reservar Cita
       </button>
     </div>

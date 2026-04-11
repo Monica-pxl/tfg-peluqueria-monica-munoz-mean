@@ -69,9 +69,10 @@
       }
     </div>
 
-    <div class="pagination-wrapper d-flex justify-content-center mt-4 gap-3">
+    <div class="pagination-wrapper d-flex justify-content-center align-items-center mt-4 gap-3">
       <button class="btn btn-pagination" (click)="CambiarPagina('primera')">Primera</button>
       <button class="btn btn-pagination" (click)="CambiarPagina('anterior')">Anterior</button>
+      <span class="pagination-info">Página {{ paginaActual }} de {{ totalPaginas() }}</span>
       <button class="btn btn-pagination" (click)="CambiarPagina('siguiente')">Siguiente</button>
       <button class="btn btn-pagination" (click)="CambiarPagina('ultima')">Última</button>
     </div>

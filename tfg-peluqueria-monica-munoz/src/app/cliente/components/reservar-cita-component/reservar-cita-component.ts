@@ -202,27 +202,13 @@ export class ReservarCitaComponent implements OnInit {
 
   filtrarServicios() {
     if (this.centroSeleccionado) {
-      // Obtener los profesionales del centro seleccionado
-      const profesionalesDelCentro = this.profesionales.filter(p => {
-        // Si centro está poblado
-        if (typeof p.centro === 'object' && p.centro !== null) {
-          return p.centro._id === this.centroSeleccionado;
+      // Filtrar servicios que pertenecen directamente al centro seleccionado
+      this.serviciosFiltrados = this.servicios.filter(s => {
+        if (typeof s.centro === 'object' && s.centro !== null) {
+          return (s.centro as any)._id === this.centroSeleccionado;
         }
-        // Si centro es string (ObjectId)
-        return p.centro === this.centroSeleccionado;
+        return s.centro === this.centroSeleccionado;
       });
-
-      // Obtener los _id de esos profesionales
-      const idsProfesionalesCentro = profesionalesDelCentro.map(p => p._id).filter(Boolean);
-
-      // Obtener los servicios ofrecidos por esos profesionales
-      const idsServiciosCentro = this.profesionalServicios
-        .filter(ps => idsProfesionalesCentro.includes(ps.profesional))
-        .map(ps => ps.servicio);
-
-      // Filtrar servicios únicos
-      const idsUnicos = [...new Set(idsServiciosCentro)];
-      this.serviciosFiltrados = this.servicios.filter(s => idsUnicos.includes(s._id || ''));
     } else {
       this.serviciosFiltrados = [];
     }

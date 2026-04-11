@@ -238,3 +238,11 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
 }
+
+.pagination-info {
+  font-weight: 600;
+  color: #ff69b4;
+  font-size: 0.95rem;
+  min-width: 120px;
+  text-align: center;
+}
