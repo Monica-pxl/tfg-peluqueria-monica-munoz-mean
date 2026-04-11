@@ -166,7 +166,7 @@ exports.deleteProfesional = async (req, res) => {
     // IMPORTANTE: NO eliminar las citas, solo cambiar su estado a "cancelada"
     console.log('🔍 Iniciando proceso de cancelación de citas...');
 
-    const { crearNotificacion, formatearFecha } = require('../helpers/notificaciones.helper');
+    const { crearNotificacion, formatearFecha, obtenerAdministradores } = require('../helpers/notificaciones.helper');
     const fechaHoy = new Date();
     fechaHoy.setHours(0, 0, 0, 0);
 
@@ -235,6 +235,18 @@ exports.deleteProfesional = async (req, res) => {
             `Tu cita de <strong>${nombreServicio}</strong> con ${nombreProfesional} del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ya no está disponible.`,
             'advertencia'
           );
+
+          // Notificar a administradores
+          const admins = await obtenerAdministradores();
+          for (const adminId of admins) {
+            await crearNotificacion(
+              adminId,
+              'administrador',
+              'Cita cancelada por eliminación de profesional',
+              `La cita de <strong>${cita.usuarioNombre || cita.usuario?.nombre || 'Cliente'}</strong> para <strong>${nombreServicio}</strong> del <strong>${fechaFormateada}</strong> a las <strong>${cita.hora}</strong> ha sido cancelada porque el profesional ${nombreProfesional} ha sido eliminado del sistema.`,
+              'info'
+            );
+          }
 
           console.log(`   ✉️ Notificación enviada a: ${cita.usuario.nombre}`);
         }
