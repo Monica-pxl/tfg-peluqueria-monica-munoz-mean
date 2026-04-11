@@ -157,15 +157,12 @@ export class CitasComponent implements OnInit {
         rolMarcador: 'administrador',
         marcadoPor: this.usuariosService.getUsuarioLogueado()?._id
       }).subscribe({
-        next: (respuesta: any) => {
-          // console.log('✅ [marcarRealizada] Respuesta del backend:', respuesta);
+        next: () => {
           this.alertService.success('Cita marcada como realizada');
-          this.cargarCitas();
+          // Estado ya actualizado en el objeto; refrescar para que filtros sean coherentes
+          this.aplicarFiltros();
         },
-        error: (err: any) => {
-          console.error('❌ [marcarRealizada] Error completo:', err);
-          console.error('❌ [marcarRealizada] Status HTTP:', err?.status);
-          console.error('❌ [marcarRealizada] Mensaje del backend:', err?.error?.error || err?.error || err?.message);
+        error: () => {
           this.alertService.error('Error al marcar la cita como realizada');
           cita.estado = estadoAnterior;
         }
@@ -189,9 +186,9 @@ export class CitasComponent implements OnInit {
       actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
     }).subscribe({
       next: () => {
-        // console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
+        // Estado ya actualizado en el objeto (optimistic update);
+        // no es necesario recargar toda la lista
         this.alertService.success('Estado de cita actualizado correctamente');
-        this.cargarCitas();
       },
       error: () => {
         this.alertService.error('Error al actualizar el estado');

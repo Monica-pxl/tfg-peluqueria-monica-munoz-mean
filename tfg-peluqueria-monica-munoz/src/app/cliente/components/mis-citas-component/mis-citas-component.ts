@@ -105,8 +105,8 @@ export class MisCitasComponent implements OnInit{
       rolActualizador: 'cliente'
     }).subscribe({
       next: () => {
-        // Las notificaciones se crean automáticamente en el backend
-        this.cargarCitas();
+        // Actualizar estado en la UI sin recargar la página
+        cita.estado = 'cancelada';
         this.alertService.success('Cita cancelada exitosamente');
       },
       error: () => {

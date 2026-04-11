@@ -4,6 +4,11 @@ const Usuario = require('../models/usuario');
 
 // Función helper para crear notificación
 async function crearNotificacion(usuario, rolDestino, titulo, mensaje, tipo = 'info') {
+    // Si no hay usuario, no podemos crear la notificación
+    if (!usuario) {
+        console.warn(`⚠️ crearNotificacion: usuario es null/undefined, se omite notificación "${titulo}"`);
+        return null;
+    }
     try {
         const notificacion = new Notificacion({
             usuario,
@@ -17,8 +22,9 @@ async function crearNotificacion(usuario, rolDestino, titulo, mensaje, tipo = 'i
         console.log(`✅ Notificación creada para usuario ${usuario}: ${titulo}`);
         return notificacion;
     } catch (error) {
-        console.error('❌ Error al crear notificación:', error);
-        throw error;
+        // Las notificaciones son secundarias; un fallo no debe interrumpir la operación principal
+        console.error('❌ Error al crear notificación (no crítico):', error.message);
+        return null;
     }
 }
 

@@ -168,7 +168,7 @@ export class MisCitasComponent implements OnInit {
       }).subscribe({
         next: () => {
           this.alertService.success('Cita marcada como realizada');
-          this.cargarCitas();
+          this.aplicarFiltros();
         },
         error: () => {
           this.alertService.error('Error al marcar la cita como realizada');
@@ -193,9 +193,8 @@ export class MisCitasComponent implements OnInit {
       actualizadoPor: this.usuariosService.getUsuarioLogueado()?._id
     }).subscribe({
       next: () => {
-        // console.log('✅ Estado actualizado correctamente a:', nuevoEstado);
+        // Estado ya actualizado en el objeto (optimistic update)
         this.alertService.success('Estado de cita actualizado correctamente');
-        this.cargarCitas();
       },
       error: () => {
         this.alertService.error('Error al actualizar el estado');
