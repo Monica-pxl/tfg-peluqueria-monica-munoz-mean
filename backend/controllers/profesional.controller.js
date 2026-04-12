@@ -64,6 +64,12 @@ exports.createProfesional = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
+    if (usuarioExiste.rol !== 'profesional') {
+      return res.status(400).json({
+        error: 'El usuario no tiene rol profesional'
+      });
+    }
+
     const centroExiste = await Centro.findById(centro);
     if (!centroExiste) {
       return res.status(404).json({ error: 'Centro no encontrado' });
