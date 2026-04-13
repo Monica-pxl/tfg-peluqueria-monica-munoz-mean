@@ -261,6 +261,16 @@ exports.updateHorario = async (req, res) => {
       return res.status(400).json({ error: 'El profesional de un horario no puede modificarse una vez asignado' });
     }
 
+    if (dias !== undefined && (!dias || dias.length === 0)) {
+      return res.status(400).json({ error: 'Los día(s) no pueden estar vacíos' });
+    }
+    if (hora_inicio !== undefined && !hora_inicio) {
+      return res.status(400).json({ error: 'La hora de inicio no puede estar vacía' });
+    }
+    if (hora_fin !== undefined && !hora_fin) {
+      return res.status(400).json({ error: 'La hora de fin no puede estar vacía' });
+    }
+
     // Validar que los días son nombres válidos (lunes–sábado)
     const DIAS_VALIDOS_UPDATE = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     if (dias) {

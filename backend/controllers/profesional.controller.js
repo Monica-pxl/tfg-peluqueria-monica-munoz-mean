@@ -70,6 +70,14 @@ exports.createProfesional = async (req, res) => {
       });
     }
 
+    const profesionalExistente = await Profesional.findOne({ usuario: usuarioId });
+
+    if (profesionalExistente) {
+      return res.status(400).json({
+        error: 'Este usuario ya tiene un perfil profesional'
+      });
+    }
+
     const centroExiste = await Centro.findById(centro);
     if (!centroExiste) {
       return res.status(404).json({ error: 'Centro no encontrado' });
@@ -102,6 +110,13 @@ exports.updateProfesional = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'ID de profesional no válido' });
     }
+
+    if (req.body.usuario || req.body.id_usuario) {
+      return res.status(400).json({
+        error: 'El usuario de un profesional no puede modificarse'
+      });
+    }
+
     const { nombre } = req.body;
 
     if (nombre !== undefined && !nombre) {

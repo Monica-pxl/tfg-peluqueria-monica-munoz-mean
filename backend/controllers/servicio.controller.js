@@ -83,8 +83,14 @@ exports.updateServicio = async (req, res) => {
     if (descripcion !== undefined && !descripcion) {
       return res.status(400).json({ error: 'La descripción no puede estar vacía' });
     }
+    if (duracion !== undefined && !duracion) {
+      return res.status(400).json({ error: 'La duración no puede estar vacía' });
+    }
     if (duracion !== undefined && Number(duracion) < 1) {
       return res.status(400).json({ error: 'La duración debe ser al menos 1 minuto' });
+    }
+    if (precio !== undefined && !precio) {
+      return res.status(400).json({ error: 'El precio no puede estar vacío' });
     }
     if (precio !== undefined && Number(precio) < 0.01) {
       return res.status(400).json({ error: 'El precio debe ser mayor a 0' });

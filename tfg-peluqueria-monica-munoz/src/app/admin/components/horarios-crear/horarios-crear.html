@@ -88,7 +88,7 @@
       @if(diasSeleccionados.length > 0) {
         <div class="mb-4">
           <label class="form-label mb-3">
-            <i class="bi bi-calendar-event me-2 text-warning"></i>Fechas Festivas Específicas
+            <i class="bi bi-calendar-event me-2 text-warning"></i>Fechas Festivas Específicas <small class="text-muted">(opcional)</small>
           </label>
           <div class="row g-2 align-items-end mb-3">
             <div class="col-md-8">
@@ -139,13 +139,13 @@
           <input
             type="time"
             class="form-control form-control-custom"
-            [class.is-invalid]="horaInicioInput.invalid && horaInicioInput.touched"
+            [class.is-invalid]="horaInicioInput.invalid && (horaInicioInput.touched || formSubmitted)"
             [(ngModel)]="hora_inicio"
             name="hora_inicio"
             #horaInicioInput="ngModel"
             required>
-          <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && horaInicioInput.touched">
-            La hora de inicio es obligatoria.
+          <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && (horaInicioInput.touched || formSubmitted)">
+            La hora de inicio no puede estar vacía.
           </div>
         </div>
         <div class="col-md-6">
@@ -155,13 +155,13 @@
           <input
             type="time"
             class="form-control form-control-custom"
-            [class.is-invalid]="(horaFinInput.invalid && horaFinInput.touched) || (hora_inicio && hora_fin && hora_inicio >= hora_fin && horaFinInput.touched)"
+            [class.is-invalid]="(horaFinInput.invalid && (horaFinInput.touched || formSubmitted)) || (hora_inicio && hora_fin && hora_inicio >= hora_fin && horaFinInput.touched)"
             [(ngModel)]="hora_fin"
             name="hora_fin"
             #horaFinInput="ngModel"
             required>
-          <div class="invalid-feedback" *ngIf="horaFinInput.invalid && horaFinInput.touched && !hora_fin">
-            La hora de fin es obligatoria.
+          <div class="invalid-feedback" *ngIf="horaFinInput.invalid && (horaFinInput.touched || formSubmitted) && !hora_fin">
+            La hora de fin no puede estar vacía.
           </div>
           <div class="invalid-feedback" *ngIf="hora_inicio && hora_fin && hora_inicio >= hora_fin && horaFinInput.touched" style="display:block">
             La hora de fin debe ser posterior a la hora de inicio.
@@ -176,7 +176,7 @@
           <i class="bi bi-x-circle me-2"></i>Cancelar
         </button>
         <button type="submit" class="btn btn-create"
-          [disabled]="guardando || horarioForm.invalid || diasSeleccionados.length === 0 || (hora_inicio && hora_fin && hora_inicio >= hora_fin)">
+          [disabled]="guardando || !id_profesional || diasSeleccionados.length === 0 || !hora_inicio || !hora_fin || (hora_inicio && hora_fin && hora_inicio >= hora_fin)">
           <i class="bi bi-check-circle me-2"></i>Crear Horario
         </button>
       </div>

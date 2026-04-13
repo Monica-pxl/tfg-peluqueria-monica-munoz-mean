@@ -85,6 +85,7 @@ exports.getCitasByUsuario = async (req, res) => {
 
     // Administrador (o cliente ya validado arriba): busca por usuarioId del parámetro
     const citas = await Cita.find({ usuario: req.params.usuarioId })
+      .populate('usuario', 'nombre email')
       .populate('profesional', 'nombre apellidos')
       .populate('servicio', 'nombre duracion precio')
       .populate('centro', 'nombre direccion')
@@ -124,6 +125,7 @@ exports.getCitasByProfesional = async (req, res) => {
 
     const citasQuery = Cita.find({ profesional: req.params.profesionalId })
       .populate('usuario', 'nombre email')
+      .populate('profesional', 'nombre apellidos')
       .populate('servicio', 'nombre duracion precio')
       .populate('centro', 'nombre direccion');
 
@@ -380,6 +382,13 @@ exports.updateCita = async (req, res) => {
     // El rol del actor se obtiene del token JWT, no del body,
     // para garantizar consistencia independientemente del cliente que llame.
     const rolActualizador = req.usuario.rol;
+
+    // Solo se permite modificar el estado; cualquier otro campo es rechazado
+    const camposNoPermitidos = ['fecha', 'hora', 'usuario', 'profesional', 'servicio', 'centro'];
+    const camposEnviados = camposNoPermitidos.filter(c => req.body[c] !== undefined);
+    if (camposEnviados.length > 0) {
+      return res.status(400).json({ error: `No se pueden modificar los siguientes campos de una cita: ${camposEnviados.join(', ')}` });
+    }
 
     // Validar estado si se proporciona
     const ESTADOS_VALIDOS_CITA = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
