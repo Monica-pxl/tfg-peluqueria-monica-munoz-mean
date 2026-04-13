@@ -62,7 +62,10 @@
               #telefonoInput="ngModel"
               pattern="[0-9]{9}"
               required>
-            <div class="invalid-feedback" *ngIf="telefonoInput.invalid && telefonoInput.touched">
+            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['required'] && telefonoInput.touched">
+              El teléfono es obligatorio.
+            </div>
+            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['pattern'] && telefonoInput.touched">
               El teléfono debe tener exactamente 9 dígitos numéricos.
             </div>
           </div>
@@ -77,7 +80,10 @@
               [(ngModel)]="centro.email" 
               name="email"
               #emailInput="ngModel"              email              required>
-            <div class="invalid-feedback" *ngIf="emailInput.invalid && emailInput.touched">
+            <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+              El email es obligatorio.
+            </div>
+            <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && emailInput.touched">
               Introduce un email válido.
             </div>
           </div>
