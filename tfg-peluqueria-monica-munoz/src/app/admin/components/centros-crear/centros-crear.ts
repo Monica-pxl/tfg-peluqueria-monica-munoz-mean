@@ -28,6 +28,15 @@ export class CentrosCrear {
   ) {}
 
   crearCentro(): void {
+    if (!this.telefono) {
+      this.alertService.error('El teléfono es obligatorio.');
+      return;
+    }
+    if (!this.email) {
+      this.alertService.error('El email es obligatorio.');
+      return;
+    }
+
     const nuevoCentro = {
       nombre: this.nombre,
       direccion: this.direccion,
