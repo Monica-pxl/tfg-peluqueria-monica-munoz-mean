@@ -61,6 +61,15 @@ export class CentrosEditar implements OnInit {
   }
 
   actualizarCentro(): void {
+    if (!this.centro.telefono) {
+      this.alertService.error('El teléfono es obligatorio.');
+      return;
+    }
+    if (!this.centro.email) {
+      this.alertService.error('El email es obligatorio.');
+      return;
+    }
+
     const horarioCambiado =
       this.centro.horario_apertura !== this.horarioOriginalApertura ||
       this.centro.horario_cierre !== this.horarioOriginalCierre;
