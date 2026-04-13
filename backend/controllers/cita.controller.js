@@ -376,7 +376,7 @@ exports.updateCita = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ error: 'ID de cita no válido' });
     }
-    const { estado, fecha, hora } = req.body;
+    const { estado } = req.body;
     // El rol del actor se obtiene del token JWT, no del body,
     // para garantizar consistencia independientemente del cliente que llame.
     const rolActualizador = req.usuario.rol;
@@ -395,6 +395,14 @@ exports.updateCita = async (req, res) => {
 
     if (!cita) {
       return res.status(404).json({ error: 'Cita no encontrada' });
+    }
+
+    // Bloquear modificación si la fecha de la cita ya ha pasado
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaCita = new Date(cita.fecha + 'T00:00:00');
+    if (fechaCita < hoy) {
+      return res.status(400).json({ error: 'No se puede modificar una cita cuya fecha ya ha pasado' });
     }
 
     const { rol, id_usuario } = req.usuario;
@@ -438,42 +446,8 @@ exports.updateCita = async (req, res) => {
       }
     }
 
-    // Si se cambia fecha u hora, verificar disponibilidad considerando duración
-    if ((fecha && fecha !== cita.fecha) || (hora && hora !== cita.hora)) {
-      // Solo verificar solapamiento si el profesional sigue existiendo
-      if (cita.profesional) {
-        const nuevaFecha = fecha || cita.fecha;
-        const nuevaHora = hora || cita.hora;
-
-        const citasDelDia = await Cita.find({
-          profesional: cita.profesional._id,
-          fecha: nuevaFecha,
-          _id: { $ne: req.params.id },
-          estado: { $in: ['pendiente', 'confirmada'] }
-        }).populate('servicio', 'duracion');
-
-        const duracionNueva = cita.servicio ? cita.servicio.duracion : 30;
-        const [nH, nM] = nuevaHora.split(':').map(Number);
-        const nuevaInicioMin = nH * 60 + nM;
-        const nuevaFinMin = nuevaInicioMin + duracionNueva;
-
-        for (const citaExistente of citasDelDia) {
-          const [cH, cM] = citaExistente.hora.split(':').map(Number);
-          const existInicioMin = cH * 60 + cM;
-          const duracionExistente = citaExistente.servicio ? citaExistente.servicio.duracion : 30;
-          const existFinMin = existInicioMin + duracionExistente;
-
-          if (nuevaInicioMin < existFinMin && nuevaFinMin > existInicioMin) {
-            return res.status(400).json({ error: 'La cita se solapa con una cita ya existente en ese horario' });
-          }
-        }
-      }
-    }
-
-    // Actualizar campos
+    // Actualizar campos (solo se permite cambiar el estado)
     if (estado) cita.estado = estado;
-    if (fecha) cita.fecha = fecha;
-    if (hora) cita.hora = hora;
 
     await cita.save();
 
