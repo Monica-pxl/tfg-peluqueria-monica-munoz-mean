@@ -112,6 +112,12 @@ exports.updateCentro = async (req, res) => {
     if (direccion !== undefined && !direccion) {
       return res.status(400).json({ error: 'La dirección no puede estar vacía' });
     }
+    if (telefono !== undefined && !telefono) {
+      return res.status(400).json({ error: 'El teléfono no puede estar vacío' });
+    }
+    if (email !== undefined && !email) {
+      return res.status(400).json({ error: 'El email no puede estar vacío' });
+    }
     if (horario_apertura !== undefined && !horario_apertura) {
       return res.status(400).json({ error: 'El horario de apertura no puede estar vacío' });
     }
