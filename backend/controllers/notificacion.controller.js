@@ -76,6 +76,10 @@ exports.createNotificacion = async (req, res) => {
     if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
     if (!mensaje) return res.status(400).json({ error: 'El mensaje es obligatorio' });
 
+    if (!mongoose.Types.ObjectId.isValid(usuario)) {
+      return res.status(400).json({ error: 'El ID del usuario no es válido' });
+    }
+
     const TIPOS_VALIDOS = ['info', 'exito', 'advertencia', 'error'];
     if (tipo !== undefined && !TIPOS_VALIDOS.includes(tipo)) {
       return res.status(400).json({ error: `El tipo '${tipo}' no es válido. Los tipos válidos son: info, exito, advertencia, error` });

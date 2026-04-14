@@ -198,6 +198,16 @@ exports.createCita = async (req, res) => {
     if (!fecha) return res.status(400).json({ error: 'La fecha es obligatoria' });
     if (!hora) return res.status(400).json({ error: 'La hora es obligatoria' });
 
+    if (!mongoose.Types.ObjectId.isValid(profesional)) {
+      return res.status(400).json({ error: 'El ID del profesional no es válido' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(servicio)) {
+      return res.status(400).json({ error: 'El ID del servicio no es válido' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(centro)) {
+      return res.status(400).json({ error: 'El ID del centro no es válido' });
+    }
+
     // Obtener los datos completos para guardar información histórica
     const usuarioDB = await Usuario.findById(usuario);
     if (!usuarioDB) {

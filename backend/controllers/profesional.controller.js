@@ -59,6 +59,13 @@ exports.createProfesional = async (req, res) => {
       return res.status(400).json({ error: 'El nombre es obligatorio' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
+      return res.status(400).json({ error: 'El ID del usuario no es válido' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(centro)) {
+      return res.status(400).json({ error: 'El ID del centro no es válido' });
+    }
+
     const usuarioExiste = await Usuario.findById(usuarioId);
     if (!usuarioExiste) {
       return res.status(404).json({ error: 'Usuario no encontrado' });

@@ -45,6 +45,9 @@ exports.createHorario = async (req, res) => {
     if (!profesional) {
       return res.status(400).json({ error: 'El profesional es obligatorio' });
     }
+    if (!mongoose.Types.ObjectId.isValid(profesional)) {
+      return res.status(400).json({ error: 'El ID del profesional no es válido' });
+    }
     if (!dias || dias.length === 0) {
       return res.status(400).json({ error: 'Los días son obligatorios' });
     }

@@ -36,6 +36,10 @@ exports.createServicio = async (req, res) => {
       return res.status(400).json({ error: 'El centro es obligatorio' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(centro)) {
+      return res.status(400).json({ error: 'El ID del centro no es válido' });
+    }
+
     if (Number(duracion) < 1) {
       return res.status(400).json({ error: 'La duración debe ser al menos 1 minuto' });
     }
@@ -97,6 +101,9 @@ exports.updateServicio = async (req, res) => {
     }
     if (centro !== undefined && !centro) {
       return res.status(400).json({ error: 'El centro no puede estar vacío' });
+    }
+    if (centro !== undefined && !mongoose.Types.ObjectId.isValid(centro)) {
+      return res.status(400).json({ error: 'El ID del centro no es válido' });
     }
     if (centro) {
       const centroExiste = await Centro.findById(centro);
