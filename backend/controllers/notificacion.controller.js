@@ -117,14 +117,14 @@ exports.marcarComoLeida = async (req, res) => {
 
     const { id_usuario } = req.usuario;
     if (id_usuario.toString() !== notificacion.usuario.toString()) {
-      return res.status(403).json({ error: 'No tienes permiso para modificar esta notifiacion' });
+      return res.status(403).json({ error: 'No tienes permiso para modificar esta notificación' });
     }
 
     const notificacionActualizada = await Notificacion.findByIdAndUpdate(
       req.params.id,
       { leida: true },
       { new: true }
-    ).populate('usuario', 'nombre email');
+    );
 
     res.json(notificacionActualizada);
   } catch (error) {
