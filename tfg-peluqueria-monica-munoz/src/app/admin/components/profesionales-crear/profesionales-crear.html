@@ -44,14 +44,14 @@
             name="id_usuario"
             #usuarioInput="ngModel"
             class="form-select form-control-custom"
-            [class.is-invalid]="usuarioInput.invalid && usuarioInput.touched"
+            [class.is-invalid]="usuarioInput.invalid && (usuarioInput.dirty || usuarioInput.touched)"
             required>
             <option value="" disabled selected>Selecciona un usuario...</option>
             @for(usuario of usuariosProfesionales; track usuario._id) {
               <option [value]="usuario._id">{{ usuario.nombre }} ({{ usuario.email }})</option>
             }
           </select>
-          @if(usuarioInput.invalid && usuarioInput.touched) {
+          @if(usuarioInput.invalid && (usuarioInput.dirty || usuarioInput.touched)) {
             <div class="invalid-feedback d-block">
               El usuario es obligatorio.
             </div>
@@ -71,7 +71,7 @@
             name="id_centro"
             #centroInput="ngModel"
             class="form-select form-control-custom"
-            [class.is-invalid]="centroInput.invalid && centroInput.touched"
+            [class.is-invalid]="centroInput.invalid && (centroInput.dirty || centroInput.touched)"
             (change)="onCentroChange()"
             required>
             <option value="" disabled selected>Selecciona un centro...</option>
@@ -79,7 +79,7 @@
               <option [value]="centro._id">{{ centro.nombre }} - {{ centro.direccion }}</option>
             }
           </select>
-          @if(centroInput.invalid && centroInput.touched) {
+          @if(centroInput.invalid && (centroInput.dirty || centroInput.touched)) {
             <div class="invalid-feedback d-block">
               El centro es obligatorio.
             </div>

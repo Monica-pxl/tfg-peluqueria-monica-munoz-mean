@@ -4,6 +4,17 @@
 
     <!-- Filtros y búsqueda -->
     <div class="filtros-container mb-4">
+      <div class="filtro-grupo">
+        <label for="filtroEstado"><i class="bi bi-flag-fill"></i> Estado:</label>
+        <select id="filtroEstado" [(ngModel)]="filtroEstado" (change)="aplicarFiltros()" class="form-select">
+          <option value="todos">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="cancelada">Cancelada</option>
+          <option value="realizada">Realizada</option>
+        </select>
+      </div>
+
       <div class="filtro-grupo busqueda">
         <label for="busqueda"><i class="bi bi-search"></i> Buscar:</label>
         <input

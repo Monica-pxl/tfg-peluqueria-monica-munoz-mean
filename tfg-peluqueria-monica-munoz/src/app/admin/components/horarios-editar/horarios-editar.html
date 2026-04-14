@@ -113,12 +113,12 @@
             <input
               type="time"
               class="form-control form-control-custom"
-              [class.is-invalid]="horaInicioInput.invalid && (horaInicioInput.touched || formSubmitted)"
+              [class.is-invalid]="horaInicioInput.invalid && (horaInicioInput.dirty || horaInicioInput.touched || formSubmitted)"
               [(ngModel)]="horario.hora_inicio"
               name="hora_inicio"
               #horaInicioInput="ngModel"
               required>
-            <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && (horaInicioInput.touched || formSubmitted)">
+            <div class="invalid-feedback" *ngIf="horaInicioInput.invalid && (horaInicioInput.dirty || horaInicioInput.touched || formSubmitted)">
               La hora de inicio no puede estar vacía.
             </div>
           </div>
@@ -129,15 +129,15 @@
             <input
               type="time"
               class="form-control form-control-custom"
-              [class.is-invalid]="(horaFinInput.invalid && (horaFinInput.touched || formSubmitted)) || (horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && horaFinInput.touched)"
+              [class.is-invalid]="(horaFinInput.invalid && (horaFinInput.dirty || horaFinInput.touched || formSubmitted)) || (horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && (horaFinInput.dirty || horaFinInput.touched))"
               [(ngModel)]="horario.hora_fin"
               name="hora_fin"
               #horaFinInput="ngModel"
               required>
-            <div class="invalid-feedback" *ngIf="horaFinInput.invalid && (horaFinInput.touched || formSubmitted) && !horario.hora_fin">
+            <div class="invalid-feedback" *ngIf="horaFinInput.invalid && (horaFinInput.dirty || horaFinInput.touched || formSubmitted) && !horario.hora_fin">
               La hora de fin no puede estar vacía.
             </div>
-            <div class="invalid-feedback" *ngIf="horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && horaFinInput.touched" style="display:block">
+            <div class="invalid-feedback" *ngIf="horario.hora_inicio && horario.hora_fin && horario.hora_inicio >= horario.hora_fin && (horaFinInput.dirty || horaFinInput.touched)" style="display:block">
               La hora de fin debe ser posterior a la hora de inicio.
             </div>
           </div>

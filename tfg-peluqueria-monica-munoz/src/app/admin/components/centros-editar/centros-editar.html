@@ -21,12 +21,12 @@
           <input 
             type="text" 
             class="form-control form-control-custom"
-            [class.is-invalid]="nombreInput.invalid && nombreInput.touched"
+            [class.is-invalid]="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)"
             [(ngModel)]="centro.nombre" 
             name="nombre"
             #nombreInput="ngModel"
             required>
-          <div class="invalid-feedback" *ngIf="nombreInput.invalid && nombreInput.touched">
+          <div class="invalid-feedback" *ngIf="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)">
             El nombre es obligatorio.
           </div>
         </div>
@@ -38,12 +38,12 @@
           <input 
             type="text" 
             class="form-control form-control-custom"
-            [class.is-invalid]="direccionInput.invalid && direccionInput.touched"
+            [class.is-invalid]="direccionInput.invalid && (direccionInput.dirty || direccionInput.touched)"
             [(ngModel)]="centro.direccion" 
             name="direccion"
             #direccionInput="ngModel"
             required>
-          <div class="invalid-feedback" *ngIf="direccionInput.invalid && direccionInput.touched">
+          <div class="invalid-feedback" *ngIf="direccionInput.invalid && (direccionInput.dirty || direccionInput.touched)">
             La dirección es obligatoria.
           </div>
         </div>
@@ -56,16 +56,16 @@
             <input 
               type="tel" 
               class="form-control form-control-custom"
-              [class.is-invalid]="telefonoInput.invalid && telefonoInput.touched"
+              [class.is-invalid]="telefonoInput.invalid && (telefonoInput.dirty || telefonoInput.touched)"
               [(ngModel)]="centro.telefono" 
               name="telefono"
               #telefonoInput="ngModel"
               pattern="[0-9]{9}"
               required>
-            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['required'] && telefonoInput.touched">
+            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['required'] && (telefonoInput.dirty || telefonoInput.touched)">
               El teléfono es obligatorio.
             </div>
-            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['pattern'] && telefonoInput.touched">
+            <div class="invalid-feedback" *ngIf="telefonoInput.errors?.['pattern'] && (telefonoInput.dirty || telefonoInput.touched)">
               El teléfono debe tener exactamente 9 dígitos numéricos.
             </div>
           </div>
@@ -76,14 +76,14 @@
             <input 
               type="email" 
               class="form-control form-control-custom"
-              [class.is-invalid]="emailInput.invalid && emailInput.touched"
+              [class.is-invalid]="emailInput.invalid && (emailInput.dirty || emailInput.touched)"
               [(ngModel)]="centro.email" 
               name="email"
               #emailInput="ngModel"              email              required>
-            <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+            <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && (emailInput.dirty || emailInput.touched)">
               El email es obligatorio.
             </div>
-            <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && emailInput.touched">
+            <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && (emailInput.dirty || emailInput.touched)">
               Introduce un email válido.
             </div>
           </div>
@@ -97,12 +97,12 @@
             <input 
               type="time" 
               class="form-control form-control-custom"
-              [class.is-invalid]="aperturaInput.invalid && aperturaInput.touched"
+              [class.is-invalid]="aperturaInput.invalid && (aperturaInput.dirty || aperturaInput.touched)"
               [(ngModel)]="centro.horario_apertura" 
               name="horario_apertura"
               #aperturaInput="ngModel"
               required>
-            <div class="invalid-feedback" *ngIf="aperturaInput.invalid && aperturaInput.touched">
+            <div class="invalid-feedback" *ngIf="aperturaInput.invalid && (aperturaInput.dirty || aperturaInput.touched)">
               El horario de apertura es obligatorio.
             </div>
           </div>
@@ -113,15 +113,15 @@
             <input 
               type="time" 
               class="form-control form-control-custom"
-              [class.is-invalid]="(cierreInput.invalid && cierreInput.touched) || (centro.horario_apertura && centro.horario_cierre && centro.horario_cierre <= centro.horario_apertura && cierreInput.touched)"
+              [class.is-invalid]="(cierreInput.invalid && (cierreInput.dirty || cierreInput.touched)) || (centro.horario_apertura && centro.horario_cierre && centro.horario_cierre <= centro.horario_apertura && (cierreInput.dirty || cierreInput.touched))"
               [(ngModel)]="centro.horario_cierre" 
               name="horario_cierre"
               #cierreInput="ngModel"
               required>
-            <div class="invalid-feedback" *ngIf="cierreInput.invalid && cierreInput.touched && !centro.horario_cierre">
+            <div class="invalid-feedback" *ngIf="cierreInput.invalid && (cierreInput.dirty || cierreInput.touched) && !centro.horario_cierre">
               El horario de cierre es obligatorio.
             </div>
-            <div class="invalid-feedback" *ngIf="centro.horario_apertura && centro.horario_cierre && centro.horario_cierre <= centro.horario_apertura && cierreInput.touched" style="display:block">
+            <div class="invalid-feedback" *ngIf="centro.horario_apertura && centro.horario_cierre && centro.horario_cierre <= centro.horario_apertura && (cierreInput.dirty || cierreInput.touched)" style="display:block">
               El horario de cierre debe ser posterior al de apertura.
             </div>
           </div>

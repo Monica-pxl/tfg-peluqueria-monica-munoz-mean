@@ -27,15 +27,15 @@
           name="email"
           #emailInput="ngModel"
           class="form-control form-control-custom"
-          [class.is-invalid]="emailInput.invalid && emailInput.touched"
+          [class.is-invalid]="emailInput.invalid && (emailInput.dirty || emailInput.touched)"
           placeholder="Introduce tu correo electrónico"
           required
           email
         >
-        <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['required'] && (emailInput.dirty || emailInput.touched)">
           El email es obligatorio.
         </div>
-        <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && emailInput.touched">
+        <div class="invalid-feedback" *ngIf="emailInput.errors?.['email'] && (emailInput.dirty || emailInput.touched)">
           El formato del email no es válido.
         </div>
       </div>
@@ -49,11 +49,11 @@
           name="contraseña"
           #passwordInput="ngModel"
           class="form-control form-control-custom"
-          [class.is-invalid]="passwordInput.invalid && passwordInput.touched"
+          [class.is-invalid]="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
           placeholder="Introduce tu contraseña"
           required
         >
-        <div class="invalid-feedback" *ngIf="passwordInput.invalid && passwordInput.touched">
+        <div class="invalid-feedback" *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)">
           La contraseña es obligatoria.
         </div>
       </div>

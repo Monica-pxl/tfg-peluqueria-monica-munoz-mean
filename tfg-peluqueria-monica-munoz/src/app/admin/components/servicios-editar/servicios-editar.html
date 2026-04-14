@@ -29,13 +29,13 @@
         <input
           type="text"
           class="form-control form-control-custom"
-          [class.is-invalid]="nombreInput.invalid && nombreInput.touched"
+          [class.is-invalid]="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)"
           [(ngModel)]="servicio.nombre"
           name="nombre"
           #nombreInput="ngModel"
           placeholder="Ej: Corte de pelo, Tinte, Manicura..."
           required>
-        <div class="invalid-feedback" *ngIf="nombreInput.invalid && nombreInput.touched">
+        <div class="invalid-feedback" *ngIf="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)">
           El nombre es obligatorio.
         </div>
       </div>
@@ -46,14 +46,14 @@
         </label>
         <textarea
           class="form-control form-control-custom"
-          [class.is-invalid]="descripcionInput.invalid && descripcionInput.touched"
+          [class.is-invalid]="descripcionInput.invalid && (descripcionInput.dirty || descripcionInput.touched)"
           [(ngModel)]="servicio.descripcion"
           name="descripcion"
           #descripcionInput="ngModel"
           rows="3"
           placeholder="Describe brevemente el servicio..."
           required></textarea>
-        <div class="invalid-feedback" *ngIf="descripcionInput.invalid && descripcionInput.touched">
+        <div class="invalid-feedback" *ngIf="descripcionInput.invalid && (descripcionInput.dirty || descripcionInput.touched)">
           La descripción es obligatoria.
         </div>
       </div>
@@ -66,14 +66,14 @@
           <input
             type="number"
             class="form-control form-control-custom"
-            [class.is-invalid]="duracionInput.invalid && duracionInput.touched"
+            [class.is-invalid]="duracionInput.invalid && (duracionInput.dirty || duracionInput.touched)"
             [(ngModel)]="servicio.duracion"
             name="duracion"
             #duracionInput="ngModel"
             placeholder="30"
             min="1"
             required>
-          <div class="invalid-feedback" *ngIf="duracionInput.invalid && duracionInput.touched">
+          <div class="invalid-feedback" *ngIf="duracionInput.invalid && (duracionInput.dirty || duracionInput.touched)">
             La duración es obligatoria y debe ser al menos 1 minuto.
           </div>
         </div>
@@ -84,7 +84,7 @@
           <input
             type="number"
             class="form-control form-control-custom"
-            [class.is-invalid]="precioInput.invalid && precioInput.touched"
+            [class.is-invalid]="precioInput.invalid && (precioInput.dirty || precioInput.touched)"
             [(ngModel)]="servicio.precio"
             name="precio"
             #precioInput="ngModel"
@@ -92,7 +92,7 @@
             min="0.01"
             step="0.01"
             required>
-          <div class="invalid-feedback" *ngIf="precioInput.invalid && precioInput.touched">
+          <div class="invalid-feedback" *ngIf="precioInput.invalid && (precioInput.dirty || precioInput.touched)">
             El precio es obligatorio y debe ser mayor a 0.
           </div>
         </div>
@@ -101,7 +101,7 @@
             <i class="bi bi-geo-alt-fill me-2"></i>Centro
           </label>
           <select class="form-select form-control-custom"
-            [class.is-invalid]="centroInput.invalid && centroInput.touched"
+            [class.is-invalid]="centroInput.invalid && (centroInput.dirty || centroInput.touched)"
             [(ngModel)]="servicio.centro"
             name="centro"
             #centroInput="ngModel"
@@ -110,7 +110,7 @@
             <option value="" disabled>Selecciona centro</option>
             <option [value]="c._id" *ngFor="let c of centros">{{ c.nombre }}</option>
           </select>
-          <div class="invalid-feedback" *ngIf="centroInput.invalid && centroInput.touched">
+          <div class="invalid-feedback" *ngIf="centroInput.invalid && (centroInput.dirty || centroInput.touched)">
             El centro es obligatorio.
           </div>
         </div>

@@ -32,6 +32,7 @@ export class CitasComponent implements OnInit {
   centros: CentrosInterface[] = [];
   estados = ['pendiente', 'confirmada', 'cancelada', 'realizada'];
   busquedaTexto: string = '';
+  filtroEstado: string = 'todos';
   cargando = false;
 
   constructor(
@@ -87,6 +88,7 @@ export class CitasComponent implements OnInit {
 
   aplicarFiltros(): void {
     this.citasFiltradas = this.citas.filter(cita => {
+      const cumpleEstado = this.filtroEstado === 'todos' || cita.estado === this.filtroEstado;
       const cumpleBusqueda = this.busquedaTexto === '' ||
         this.nombreUsuario(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         this.nombreServicio(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
@@ -94,7 +96,7 @@ export class CitasComponent implements OnInit {
         this.nombreCentro(cita).toLowerCase().includes(this.busquedaTexto.toLowerCase()) ||
         cita.fecha.includes(this.busquedaTexto) ||
         cita.hora.includes(this.busquedaTexto);
-      return cumpleBusqueda;
+      return cumpleEstado && cumpleBusqueda;
     });
   }
 
