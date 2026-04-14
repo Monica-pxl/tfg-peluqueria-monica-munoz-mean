@@ -478,7 +478,7 @@ exports.updateCita = async (req, res) => {
 
     // Responder al cliente inmediatamente — el estado ya está guardado en DB.
     // Las notificaciones son secundarias y no deben bloquear la respuesta.
-    res.json({ mensaje: 'Cita actualizada exitosamente', cita: agregarNombresHistoricos(citaActualizada) });
+    res.json(agregarNombresHistoricos(citaActualizada));
 
     // Crear notificaciones (fire-and-forget): si fallan no afectan al cliente.
     try {
