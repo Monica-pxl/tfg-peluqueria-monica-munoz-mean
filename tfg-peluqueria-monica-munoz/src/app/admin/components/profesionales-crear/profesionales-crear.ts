@@ -169,7 +169,7 @@ export class ProfesionalesCrear implements OnInit {
     this.profesionalesService.crearProfesional(nuevoProfesional).subscribe({
       next: (response) => {
         // console.log('Respuesta del servidor:', response);
-        const idProfesional = response.profesional._id;
+        const idProfesional = response._id;
 
         // Si hay servicios seleccionados, crear las relaciones
         if (this.id_servicios.length > 0) {

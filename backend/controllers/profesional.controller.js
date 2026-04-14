@@ -104,7 +104,7 @@ exports.createProfesional = async (req, res) => {
       .populate('usuario', 'nombre email')
       .populate('centro', 'nombre direccion');
 
-    res.status(201).json({ profesional: profesionalCompleto });
+    res.status(201).json(profesionalCompleto);
   } catch (error) {
     console.error('❌ Error al crear profesional:', error);
     res.status(500).json({ error: 'Error al crear profesional' });
