@@ -5,6 +5,7 @@ const Profesional = require('../models/profesional');
 const Servicio = require('../models/servicio');
 const Centro = require('../models/centro');
 const Horario = require('../models/horario');
+const ProfesionalServicio = require('../models/profesionalServicio');
 const { crearNotificacion, obtenerAdministradores, getNivelFidelidad, formatearFecha } = require('../helpers/notificaciones.helper');
 
 // Helper para agregar nombres históricos cuando las referencias son null
@@ -229,6 +230,17 @@ exports.createCita = async (req, res) => {
       return res.status(404).json({ error: 'Centro no encontrado' });
     }
 
+    // Verificar que el profesional trabaja en el centro indicado
+    if (profesionalDB.centro.toString() !== centro) {
+      return res.status(400).json({ error: 'El profesional no trabaja en el centro indicado' });
+    }
+
+    // Verificar que el profesional ofrece el servicio indicado
+    const relacionPS = await ProfesionalServicio.findOne({ profesional, servicio });
+    if (!relacionPS) {
+      return res.status(400).json({ error: 'El profesional no ofrece el servicio indicado' });
+    }
+
     // Validar formato de fecha (YYYY-MM-DD)
     const regexFecha = /^\d{4}-\d{2}-\d{2}$/;
     if (!regexFecha.test(fecha)) {
@@ -247,6 +259,17 @@ exports.createCita = async (req, res) => {
     const fechaReserva = new Date(fecha + 'T00:00:00');
     if (fechaReserva < hoy) {
       return res.status(400).json({ error: 'No se puede reservar una cita en una fecha pasada' });
+    }
+
+    // Si la cita es para hoy, verificar que la hora no haya pasado
+    if (fechaReserva.getTime() === hoy.getTime()) {
+      const ahora = new Date();
+      const [horaInt, minInt] = hora.split(':').map(Number);
+      const minutosReserva = horaInt * 60 + minInt;
+      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+      if (minutosReserva <= minutosActuales) {
+        return res.status(400).json({ error: 'No se puede reservar una cita en una hora que ya ha pasado hoy' });
+      }
     }
 
     // Obtener horarios del profesional para validar disponibilidad

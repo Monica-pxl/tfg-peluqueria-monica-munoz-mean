@@ -42,6 +42,11 @@ exports.createRelacion = async (req, res) => {
       return res.status(404).json({ error: 'Servicio no encontrado' });
     }
 
+    // Verificar que el profesional y el servicio pertenecen al mismo centro
+    if (profesionalExiste.centro.toString() !== servicioExiste.centro.toString()) {
+      return res.status(400).json({ error: 'El profesional y el servicio no pertenecen al mismo centro' });
+    }
+
     // Verificar si ya existe la relación
     const existeRelacion = await ProfesionalServicio.findOne({ profesional, servicio });
     if (existeRelacion) {
