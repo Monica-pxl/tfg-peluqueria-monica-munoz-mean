@@ -100,17 +100,22 @@
             </div>
           }
           @if(id_centro && serviciosFiltrados.length > 0) {
-            <select
-              id="id_servicios"
-              [(ngModel)]="id_servicios"
-              name="id_servicios"
-              class="form-select form-control-custom multi-select"
-              multiple
-              size="6">
+            <div class="servicios-checkbox-list">
               @for(servicio of serviciosFiltrados; track servicio._id) {
-                <option [value]="servicio._id">{{ servicio.nombre }}</option>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'serv-' + servicio._id"
+                    [value]="servicio._id"
+                    [checked]="isServicioSeleccionado(servicio._id!)"
+                    (change)="toggleServicio(servicio._id!)">
+                  <label class="form-check-label" [for]="'serv-' + servicio._id">
+                    {{ servicio.nombre }}
+                  </label>
+                </div>
               }
-            </select>
+            </div>
             <small class="text-muted d-block mt-2">
               <i class="bi bi-info-circle me-1"></i>Opcional: Puedes asignar servicios ahora o editarlos después
             </small>

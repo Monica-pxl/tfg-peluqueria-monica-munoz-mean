@@ -75,18 +75,23 @@
         <label class="form-label">
           <i class="bi bi-scissors me-2"></i>Servicios que Ofrece <small class="text-muted">(opcional)</small>
         </label>
-        <select
-          class="form-select form-control-custom multi-select"
-          [(ngModel)]="id_servicios"
-          name="id_servicios"
-          multiple
-          size="5">
-          <option *ngFor="let s of serviciosFiltrados" [value]="s._id">
-            {{ s.nombre }}
-          </option>
-        </select>
+        <div class="servicios-checkbox-list">
+          <p *ngIf="serviciosFiltrados.length === 0" class="text-muted mb-0">No hay servicios disponibles para este centro</p>
+          <div *ngFor="let s of serviciosFiltrados" class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'serv-' + s._id"
+              [value]="s._id"
+              [checked]="isServicioSeleccionado(s._id!)"
+              (change)="toggleServicio(s._id!)">
+            <label class="form-check-label" [for]="'serv-' + s._id">
+              {{ s.nombre }}
+            </label>
+          </div>
+        </div>
         <small class="text-muted d-block mt-2">
-          <i class="bi bi-info-circle me-1"></i>Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples servicios. Solo se muestran servicios del centro asignado.
+          <i class="bi bi-info-circle me-1"></i>Solo se muestran servicios del centro asignado.
         </small>
       </div>
 

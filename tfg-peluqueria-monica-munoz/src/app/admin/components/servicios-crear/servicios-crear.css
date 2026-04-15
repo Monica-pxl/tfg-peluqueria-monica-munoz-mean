@@ -97,18 +97,22 @@ textarea.form-control-custom {
   min-height: 100px;
 }
 
-.multi-select {
-  padding: 0.5rem;
+.profesionales-checkbox-list {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  max-height: 180px;
+  overflow-y: auto;
+  background: #fff;
 }
 
-.multi-select option {
-  padding: 0.5rem;
-  border-radius: 0.4rem;
-  margin: 0.2rem 0;
+.profesionales-checkbox-list.disabled {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
-.multi-select option:hover {
-  background-color: #fff5f9;
+.profesionales-checkbox-list .form-check {
+  margin-bottom: 0.4rem;
 }
 
 /* ACCIONES */

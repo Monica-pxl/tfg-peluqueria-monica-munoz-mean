@@ -439,12 +439,22 @@ exports.updateCita = async (req, res) => {
       return res.status(404).json({ error: 'Cita no encontrada' });
     }
 
-    // Bloquear modificación si la fecha de la cita ya ha pasado
+    // Bloquear modificación si la fecha+hora de la cita ya ha pasado
+    const ahora = new Date();
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     const fechaCita = new Date(cita.fecha + 'T00:00:00');
     if (fechaCita < hoy) {
       return res.status(400).json({ error: 'No se puede modificar una cita cuya fecha ya ha pasado' });
+    }
+    // Si la cita es hoy, verificar que la hora todavía no ha pasado
+    if (fechaCita.getTime() === hoy.getTime()) {
+      const [horaH, horaM] = cita.hora.split(':').map(Number);
+      const minutosCita = horaH * 60 + horaM;
+      const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      if (minutosCita <= minutosAhora) {
+        return res.status(400).json({ error: 'No se puede modificar una cita cuya hora ya ha pasado' });
+      }
     }
 
     const { rol, id_usuario } = req.usuario;

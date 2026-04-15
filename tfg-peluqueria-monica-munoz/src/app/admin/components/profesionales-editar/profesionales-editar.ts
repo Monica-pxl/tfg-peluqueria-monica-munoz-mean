@@ -214,4 +214,17 @@ export class ProfesionalesEditar implements OnInit {
     this.router.navigate(['/admin/profesionales']);
   }
 
+  isServicioSeleccionado(id: string): boolean {
+    return this.id_servicios.includes(id);
+  }
+
+  toggleServicio(id: string): void {
+    const idx = this.id_servicios.indexOf(id);
+    if (idx === -1) {
+      this.id_servicios.push(id);
+    } else {
+      this.id_servicios.splice(idx, 1);
+    }
+  }
+
 }

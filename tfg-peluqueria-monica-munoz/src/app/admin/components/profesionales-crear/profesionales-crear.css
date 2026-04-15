@@ -93,24 +93,17 @@
 }
 
 /* Multi select */
-.multi-select {
-  min-height: 150px !important;
+.servicios-checkbox-list {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  max-height: 180px;
+  overflow-y: auto;
+  background: #fff;
 }
 
-.multi-select option {
-  padding: 0.6rem;
-  border-radius: 5px;
-  margin-bottom: 3px;
-  cursor: pointer;
-}
-
-.multi-select option:hover {
-  background-color: #ffe5f0 !important;
-}
-
-.multi-select option:checked {
-  background: linear-gradient(135deg, #ff69b4, #ff1493) !important;
-  color: white !important;
+.servicios-checkbox-list .form-check {
+  margin-bottom: 0.4rem;
 }
 
 /* BOTONES */

@@ -215,6 +215,19 @@ export class ServiciosEditar implements OnInit{
     this.router.navigate(['/admin/servicios']);
   }
 
+  isProfesionalSeleccionado(id: string): boolean {
+    return this.id_profesionales.includes(id);
+  }
+
+  toggleProfesional(id: string): void {
+    const idx = this.id_profesionales.indexOf(id);
+    if (idx === -1) {
+      this.id_profesionales.push(id);
+    } else {
+      this.id_profesionales.splice(idx, 1);
+    }
+  }
+
   onCentroChange(): void {
     // Filtrar profesionales por el centro seleccionado
     const centroId = typeof this.servicio.centro === 'object' && this.servicio.centro !== null

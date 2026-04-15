@@ -184,16 +184,17 @@ export class ServiciosCrear implements OnInit{
     }
   }
 
-  onProfesionalesChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const selectedOptions = Array.from(select.selectedOptions);
+  isProfesionalSeleccionado(id: string): boolean {
+    return this.id_profesionales.includes(id);
+  }
 
-    // Extraer valores seleccionados (mantener como strings) y eliminar duplicados
-    this.id_profesionales = [...new Set(
-      selectedOptions.map(option => option.value)
-    )];
-
-    // console.log('✅ Profesionales seleccionados:', this.id_profesionales);
+  toggleProfesional(id: string): void {
+    const idx = this.id_profesionales.indexOf(id);
+    if (idx === -1) {
+      this.id_profesionales.push(id);
+    } else {
+      this.id_profesionales.splice(idx, 1);
+    }
   }
 
   private validarImagenURL(url: string): boolean {

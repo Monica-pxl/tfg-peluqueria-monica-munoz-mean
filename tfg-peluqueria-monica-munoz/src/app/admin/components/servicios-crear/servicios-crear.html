@@ -105,21 +105,23 @@
         <label class="form-label">
           <i class="bi bi-people-fill me-2"></i>Profesionales Asignados <small class="text-muted">(opcional)</small>
         </label>
-        <select
-          #selectProfesionales
-          class="form-select form-control-custom multi-select"
-          (change)="onProfesionalesChange($event)"
-          name="id_profesionales"
-          multiple
-          size="4"
-          [disabled]="!id_centro">
-          <option *ngFor="let p of profesionalesFiltrados" [value]="p._id">
-            {{ p.nombre }} {{ p.apellidos }}
-          </option>
-        </select>
-        <small class="text-muted d-block mt-2">
-          <i class="bi bi-info-circle me-1"></i>{{ id_centro ? 'Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples profesionales' : 'Primero selecciona un centro' }}
-        </small>
+        <div class="profesionales-checkbox-list" [class.disabled]="!id_centro">
+          <p *ngIf="!id_centro" class="text-muted mb-0"><i class="bi bi-info-circle me-1"></i>Primero selecciona un centro</p>
+          <p *ngIf="id_centro && profesionalesFiltrados.length === 0" class="text-muted mb-0">No hay profesionales en este centro</p>
+          <div *ngFor="let p of profesionalesFiltrados" class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [id]="'prof-' + p._id"
+              [value]="p._id"
+              [checked]="isProfesionalSeleccionado(p._id!)"
+              (change)="toggleProfesional(p._id!)"
+              [disabled]="!id_centro">
+            <label class="form-check-label" [for]="'prof-' + p._id">
+              {{ p.nombre }} {{ p.apellidos }}
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="mb-4">
