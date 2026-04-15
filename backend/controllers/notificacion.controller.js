@@ -67,43 +67,6 @@ exports.contarNotificacionesNoLeidas = async (req, res) => {
   }
 };
 
-// Crear una notificación
-exports.createNotificacion = async (req, res) => {
-  try {
-    const { usuario, titulo, mensaje, tipo } = req.body;
-
-    if (!usuario) return res.status(400).json({ error: 'El usuario es obligatorio' });
-    if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
-    if (!mensaje) return res.status(400).json({ error: 'El mensaje es obligatorio' });
-
-    if (!mongoose.Types.ObjectId.isValid(usuario)) {
-      return res.status(400).json({ error: 'El ID del usuario no es válido' });
-    }
-
-    const TIPOS_VALIDOS = ['info', 'exito', 'advertencia', 'error'];
-    if (tipo !== undefined && !TIPOS_VALIDOS.includes(tipo)) {
-      return res.status(400).json({ error: `El tipo '${tipo}' no es válido. Los tipos válidos son: info, exito, advertencia, error` });
-    }
-
-    const nuevaNotificacion = new Notificacion({
-      usuario,
-      titulo,
-      mensaje,
-      tipo: tipo || 'info',
-      leida: false
-    });
-
-    await nuevaNotificacion.save();
-    const notificacionCompleta = await Notificacion.findById(nuevaNotificacion._id)
-      .populate('usuario', 'nombre email');
-
-    res.status(201).json(notificacionCompleta);
-  } catch (error) {
-    console.error('Error al crear notificación:', error);
-    res.status(500).json({ error: 'Error al crear notificación' });
-  }
-};
-
 // Marcar notificación como leída
 exports.marcarComoLeida = async (req, res) => {
   try {
