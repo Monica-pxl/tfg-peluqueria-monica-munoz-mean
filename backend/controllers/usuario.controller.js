@@ -30,6 +30,13 @@ exports.updateUsuario = async (req, res) => {
       return res.status(403).json({ error: 'Un administrador no puede editarse a sí mismo' });
     }
 
+    // Solo se permite modificar rol y estado; cualquier otro campo es rechazado
+    const CAMPOS_NO_PERMITIDOS = ['nombre', 'email', 'password', 'fecha_alta', 'puntos'];
+    const camposNoPermitidosEnviados = CAMPOS_NO_PERMITIDOS.filter(c => req.body[c] !== undefined);
+    if (camposNoPermitidosEnviados.length > 0) {
+      return res.status(400).json({ error: `No se pueden modificar los siguientes campos de un usuario: ${camposNoPermitidosEnviados.join(', ')}. Solo se permite cambiar rol y estado` });
+    }
+
     const { rol: nuevoRol, estado } = req.body;
 
     // Validar valores de rol y estado
