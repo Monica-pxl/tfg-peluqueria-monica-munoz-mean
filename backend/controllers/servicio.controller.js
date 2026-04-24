@@ -48,6 +48,15 @@ exports.createServicio = async (req, res) => {
       return res.status(400).json({ error: 'El precio debe ser mayor a 0' });
     }
 
+    // Validar URL de imagen (opcional, pero si se proporciona debe ser válida)
+    if (imagen && imagen.trim() !== '') {
+      const urlPattern = /^https?:\/\/.+/;
+      const rutaLocalPattern = /^\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg)$/i;
+      if (!urlPattern.test(imagen) && !rutaLocalPattern.test(imagen)) {
+        return res.status(400).json({ error: 'La imagen no es válida. Debe ser una URL (http/https) o una ruta local (/img/...)' });
+      }
+    }
+
     const centroExiste = await Centro.findById(centro);
     if (!centroExiste) {
       return res.status(404).json({ error: 'Centro no encontrado' });
@@ -109,6 +118,16 @@ exports.updateServicio = async (req, res) => {
       const centroExiste = await Centro.findById(centro);
       if (!centroExiste) {
         return res.status(404).json({ error: 'Centro no encontrado' });
+      }
+    }
+
+    // Validar URL de imagen (opcional, pero si se proporciona debe ser válida)
+    const imagen = req.body.imagen;
+    if (imagen && imagen.trim() !== '') {
+      const urlPattern = /^https?:\/\/.+/;
+      const rutaLocalPattern = /^\/[^\s]+\.(jpg|jpeg|png|gif|webp|svg)$/i;
+      if (!urlPattern.test(imagen) && !rutaLocalPattern.test(imagen)) {
+        return res.status(400).json({ error: 'La imagen no es válida. Debe ser una URL (http/https) o una ruta local (/img/...)' });
       }
     }
 
