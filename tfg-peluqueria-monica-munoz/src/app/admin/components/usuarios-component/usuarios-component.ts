@@ -160,9 +160,16 @@ export class UsuariosComponent implements OnInit {
       return;
     }
 
+    let advertenciaRol = '';
+    if (usuario.rol === 'profesional') {
+      advertenciaRol = 'ATENCIÓN: Si es profesional, también se eliminarán sus horarios, relaciones con servicios, su perfil de profesional y las citas asociadas (pendientes y confirmadas) que serán canceladas automáticamente.\n\n';
+    } else if (usuario.rol === 'cliente') {
+      advertenciaRol = 'ATENCIÓN: Sus citas pendientes y confirmadas serán canceladas automáticamente.\n\n';
+    }
+
     const confirmacion = await this.confirmService.confirm(
       'Eliminar Usuario',
-      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\n${usuario.rol === 'profesional' ? 'ATENCIÓN: Si es profesional, también se eliminarán sus horarios, relaciones con servicios, su perfil de profesional y las citas asociadas (pendientes y confirmadas) que serán canceladas automáticamente.\n\n' : ''}Esta acción no se puede deshacer.`,
+      `¿Estás seguro de que deseas eliminar al usuario "${usuario.nombre}"?\n\n${advertenciaRol}Esta acción no se puede deshacer.`,
       'Sí, eliminar',
       'Cancelar'
     );

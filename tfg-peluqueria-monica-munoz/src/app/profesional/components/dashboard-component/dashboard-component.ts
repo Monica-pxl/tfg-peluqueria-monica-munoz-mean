@@ -37,6 +37,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.usuarioLogueado = this.usuariosService.getUsuarioLogueado();
+    this.usuariosService.getAllUsuarios().subscribe(data => this.usuarios = data);
 
     if (this.usuarioLogueado) {
       // Primero obtener el id_profesional a partir del _id del usuario
@@ -90,8 +91,8 @@ export class DashboardComponent implements OnInit {
         // Total de citas (SOLO confirmadas)
         this.citasConfirmadas = misCitas.filter(c => c.estado === 'confirmada').length;
 
-        // Citas de hoy
-        this.citasHoy = misCitas.filter(c => c.fecha === hoy).length;
+        // Citas de hoy (solo pendientes y confirmadas)
+        this.citasHoy = misCitas.filter(c => c.fecha === hoy && c.estado !== 'cancelada' && c.estado !== 'realizada').length;
 
         // Citas pendientes (solo estado "pendiente")
         this.citasPendientes = misCitas.filter(c =>
