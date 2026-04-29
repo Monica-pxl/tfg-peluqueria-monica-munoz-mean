@@ -10,11 +10,11 @@
 ## 2. Tecnologías utilizadas
 
 ### Backend
-*   **Entorno de ejecución:** Node.js (v18.x o superior)
+*   **Entorno de ejecución:** Node.js (v22.x)
 *   **Framework:** Express.js (v5.x)
 *   **Base de datos:** MongoDB Atlas (NoSQL)
 *   **ODM:** Mongoose (v9.x)
-*   **Seguridad:** Autenticación mediante tokens JWT y cifrado de contraseñas con bcryptjs.
+*   **Seguridad:** Autenticación mediante tokens JWT (v9.x) y cifrado de contraseñas con bcryptj (v3.x).
 
 ### Frontend
 *   **Framework:** Angular (v20.x)
@@ -41,24 +41,37 @@
 
 ## 4. Instalación
 
-### 4.1 Clonar el repositorio
+### 4.1 Requisitos previos
+*   Tener instalado **Node.js** y **Angular CLI** en el sistema.
+*   Tener acceso a una instancia de **MongoDB** (preferiblemente MongoDB Atlas).
+
+### 4.2 Clonar el repositorio
 ```bash
 git clone https://github.com/Monica-pxl/tfg-peluqueria-monica-munoz-mean.git
 ```
 
-### 4.2 Backend
+### 4.3 Backend
 ```bash
 cd backend
 npm install
+```
+
+Antes de ejecutar el servidor, crear el archivo `.env` dentro de la carpeta `backend` con las siguientes variables (ver sección 5):
+
+```bash
 node server.js
 ```
 
-### 4.3 Frontend
+### 4.4 Frontend
 ```bash
 cd tfg-peluqueria-monica-munoz
 npm install
 ng serve
 ```
+
+Una vez completados todos los pasos, la aplicación estará disponible en local:
+*   **Backend (API REST):** http://localhost:3001
+*   **Frontend (Angular):** http://localhost:4200
 
 ---
 
