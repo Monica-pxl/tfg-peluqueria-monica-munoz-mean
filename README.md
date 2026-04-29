@@ -99,7 +99,7 @@ Es necesario crear un archivo `.env` en el directorio `/backend` con los siguien
 
 ## 8. Estado del proyecto
 *   **Backend:** Completado. API REST funcional con autenticación JWT.
-*   **Frontend:** Completado. Aplicación SPA adaptativa desarrollada con Angular.
+*   **Frontend:** Completado. Desarrollado con Angular siendo adaptativo.
 *   **Base de datos:** Operativa en la nube mediante MongoDB Atlas.
 *   **Funcionalidades principales:** Gestión multicentro, sistema de puntos y notificaciones automáticas.
 
