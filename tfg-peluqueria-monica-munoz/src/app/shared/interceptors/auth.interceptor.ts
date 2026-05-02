@@ -10,6 +10,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const alertService = inject(AlertService);
   const router = inject(Router);
   const token = usuariosService.getToken();
+  const hadToken = !!token;
 
   const authReq = token
     ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
@@ -17,10 +18,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+      if (error.status === 401 && hadToken) {
         usuariosService.cerrarSesion();
         alertService.warning('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
-        router.navigate(['/iniciar-sesion']);
+        if (router.url !== '/iniciar-sesion') {
+          router.navigate(['/iniciar-sesion']);
+        }
       }
       return throwError(() => error);
     })

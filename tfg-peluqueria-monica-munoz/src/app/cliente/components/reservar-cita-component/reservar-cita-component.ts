@@ -3,11 +3,9 @@ import { ServiciosInterface } from '../../interfaces/servicios-interface';
 import { ProfesionalesInterface } from '../../interfaces/profesionales-interface';
 import { HorariosInterface } from '../../interfaces/horarios-interface';
 import { CentrosInterface } from '../../interfaces/centros-interface';
-import { UsuariosInterface } from '../../interfaces/usuarios-interface';
 import { ServiciosService } from '../../services/servicios-service';
 import { ProfesionalesService } from '../../services/profesionales-service';
 import { HorariosService } from '../../services/horarios-service';
-import { UsuariosService } from '../../services/usuarios-service';
 import { CentrosService } from '../../services/centros-service';
 import { CitasService } from '../../services/citas-service';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +16,7 @@ import { NotificacionesService } from '../../services/notificaciones-service';
 import { ProfesionalServicioInterface } from '../../interfaces/profesional-servicio-interface';
 import { AlertService } from '../../../shared/services/alert-service';
 import { forkJoin } from 'rxjs';
+import { UsuariosService } from '../../services/usuarios-service';
 
 
 @Component({
@@ -37,7 +36,6 @@ export class ReservarCitaComponent implements OnInit {
 
   horarios: HorariosInterface[] = [];
   centros: CentrosInterface[] = [];
-  usuarios: UsuariosInterface[] = [];
 
   profesionalServicios: { profesional: string, servicio: string }[] = [];
 
@@ -70,7 +68,6 @@ export class ReservarCitaComponent implements OnInit {
     private serviciosAPI: ServiciosService,
     private profesionalesAPI: ProfesionalesService,
     private horariosAPI: HorariosService,
-    private usuariosAPI: UsuariosService,
     private centrosAPI: CentrosService,
     private citasAPI: CitasService,
     private router: Router,
@@ -140,7 +137,6 @@ export class ReservarCitaComponent implements OnInit {
       }
     });
     this.horariosAPI.getAllHorarios().subscribe(data => this.horarios = data);
-    this.usuariosAPI.getAllUsuarios().subscribe(data => this.usuarios = data);
   }
 
   seleccionarCentro(id: string) {
