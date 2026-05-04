@@ -14,7 +14,7 @@
 *   **Framework:** Express.js (v5.x)
 *   **Base de datos:** MongoDB Atlas (NoSQL)
 *   **ODM:** Mongoose (v9.x)
-*   **Seguridad:** Autenticación mediante tokens JWT (v9.x) y cifrado de contraseñas con bcryptj (v3.x).
+*   **Seguridad:** Autenticación mediante tokens JWT (v9.x) y cifrado de contraseñas con bcryptjs (v3.x).
 
 ### Frontend
 *   **Framework:** Angular (v20.x)
@@ -105,7 +105,16 @@ Es necesario crear un archivo `.env` en el directorio `/backend` con los siguien
 
 ---
 
-## 9. Autor
+## 9. Despliegue
+
+El sistema está disponible en un entorno de producción:
+
+- Frontend (Angular): https://hairgest-angular.vercel.app
+- Backend (API REST): https://hairgest-backend.vercel.app
+
+---
+
+## 10. Autor
 *   **Autora:** Mónica Muñoz de la Torre
 *   **Tutor:** Jesús Clemente Gallart
 *   **Centro:** DIGITECH — CFGS Desarrollo de Aplicaciones Web
